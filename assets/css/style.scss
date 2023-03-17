@@ -1,0 +1,22 @@
+---
+---
+
+// Extend Primer, the default Jekyll theme for Github Pages
+// https://github.com/pages-themes/primer
+
+@import "{{ site.theme }}";
+
+.container-lg {
+  max-width: 1280px;
+}
+
+@media (prefers-color-scheme: dark) {
+  html
+  body {
+    background-color: #212224;
+    filter: hue-rotate(180deg) invert(0.9);
+  }
+  a:visited {
+    color: #0096FF;
+  }
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include generic/header.html %}
+    <style>
+      body {
+        overflow-y: scroll;
+        padding: 25px;
+      }
+      .markdown-body h1 {
+        display: flex;
+      }
+      .markdown-body form {
+        margin-left: 10px;
+      }
+      .markdown-body input {
+        color: red;
+        font-weight: 400;
+        margin: 0;
+        padding: 0 10px;
+        border: 1px solid #eaecef;
+        border-radius: 3px;
+        width: 100%;
+        flex: 1 1;
+      }
+      a {
+        text-decoration: none;
+      }
+      a:visited {
+        color: #0366d6;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+     @media (prefers-color-scheme: dark) {
+        body {
+          color: #F5F5F5;
+          background-color: #212224;
+        }
+        .markdown-body input {
+          color: #F5F5F5;
+          background-color: #4d4e4f;
+        }
+        a {
+          color: #0096FF;
+          text-decoration: none;
+        }
+        a:hover {
+          text-decoration: underline;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+
+      {% include searchbox.html %}
+
+      {{ content }}
+
+      {% include generic/footer.html %}
+    </div>
+    </body>
+</html>

@@ -1,0 +1,18 @@
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - Gemfile
+  - Gemfile.lock
+
+title: monka.tv
+url: "https://monka.tv"
+
+remote_theme: pages-themes/primer@v0.6.0
+plugins:
+- jekyll-remote-theme
+
+collections_dir: streamers
+collections:
+  fl0m:
+    output: true
+    permalink: /:collection/:slug

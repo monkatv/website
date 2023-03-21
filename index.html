@@ -5,7 +5,7 @@ layout: home
 <h2>fl0m</h2>
 <ul>
   {% for file in site.fl0m %}
-  <li><a href="{{ file.url }}">{{ file.week }}</a></li>  
+  <li><a href="{{page.url}}/{{ file.url }}">{{ file.week }}</a></li>  
   {% endfor %}
   </div>
 </ul>

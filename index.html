@@ -4,7 +4,7 @@ layout: home
 
 <h2>fl0m</h2>
 <ul>
-  {% for file in site.fl0m %}
+  {% for file in site.fl0m reversed %}
   <li><a href="./{{ file.url }}">{{ file.week }}</a></li>  
   {% endfor %}
   </div>

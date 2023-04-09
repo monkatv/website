@@ -5,7 +5,7 @@ layout: list
 <a href="{{ site.url }}/fl0m/"><h2>fl0m</h2></a>
 {% assign filesByMonth = site.fl0m | group_by_exp:"file", "file.date | date: '%B %Y'" | reverse %}
 {% for month in filesByMonth limit:3 %}
-  <div class="month-year" id="fl0m-home-{{ month.name | slugify }}-collapse" data-collapse="persist">    
+  <div class="month-year" id="fl0m-home-{{ month.name | slugify }}-collapse" data-collapse="persist">
     <h3 class="open">{{ month.name }}</h3>
     <ul>
       {% for file in month.items reversed %}

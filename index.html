@@ -9,7 +9,7 @@ layout: list
     <h3 class="open">{{ month.name }}</h3>
     <ul>
       {% for file in month.items reversed %}
-      <li><a href="{{ site.url }}{{ file.url }}">{{ file.date | date_to_string: "ordinal", "US" }}</a></li>
+      <li><a href="{{ site.url }}{{ file.url }}">{{ file.date | date_to_string }}</a></li>
       {% endfor %}
     </ul>
   </div>

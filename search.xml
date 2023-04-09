@@ -1,6 +1,9 @@
+---
+---
+
 <?xml version="1.0"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-   <ShortName>Recipes</ShortName>
+   <ShortName>Statistics</ShortName>
    <Description>Search for chat statistics.</Description>
-   <Url type="text/html" method="get" template="https://monka.tv/?{searchTerms}"/>
+   <Url type="text/html" method="get" template="{{ site.url }}/?{searchTerms}"/>
 </OpenSearchDescription>

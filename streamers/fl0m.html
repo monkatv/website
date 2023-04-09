@@ -1,14 +1,15 @@
 ---
 layout: list
+title: "fl0m Channel Statistics"
+permalink: /fl0m/
 ---
 
-<a href="{{ site.url }}/fl0m/"><h2>fl0m</h2></a>
 {% assign filesByMonth = site.fl0m | group_by_exp:"file", "file.date | date: '%B %Y'" | reverse %}
-{% for month in filesByMonth limit:3 %}
-  <div class="month-year" id="fl0m-home-{{ month.name | slugify }}-collapse" data-collapse="persist">    
+{% for month in filesByMonth %}
+  <div id="fl0m-list-{{ month.name | slugify }}-collapse" data-collapse="persist">    
     <h3 class="open">{{ month.name }}</h3>
     <ul>
-      {% for file in month.items reversed %}
+      {% for file in month.items %}
       <li><a href="{{ site.url }}{{ file.url }}">{{ file.date | date_to_string }}</a></li>
       {% endfor %}
     </ul>

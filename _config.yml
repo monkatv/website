@@ -5,7 +5,7 @@ exclude:
   - Gemfile.lock
 
 title: monka.tv
-url: "https://barnie995.github.io/monka.tv"
+url: "https://monka.tv"
 
 remote_theme: pages-themes/primer@v0.6.0
 plugins:

@@ -1,8 +1,6 @@
-# monka.tv Acknowledgments
-
 ## Contributors
 
-**Primary POC:** [barnumbirr](https://github.com/barnumbirr)
+**Primary maintainer:** [barnumbirr](https://github.com/barnumbirr)
 
 **Other Contributors:**
 

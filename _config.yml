@@ -3,6 +3,7 @@ exclude:
   - .jekyll-cache/
   - Gemfile
   - Gemfile.lock
+  - README.md
 
 title: monka.tv
 url: "https://monka.tv"

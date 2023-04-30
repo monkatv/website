@@ -1,6 +1,7 @@
 exclude:
   - .sass-cache/
   - .jekyll-cache/
+  - docker-compose.yml
   - Gemfile
   - Gemfile.lock
   - README.md

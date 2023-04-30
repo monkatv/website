@@ -1,6 +1,6 @@
 ---
 layout: contributors
-permalink: /contributors.html
+permalink: /contributors
 ---
 
 ## Contributors

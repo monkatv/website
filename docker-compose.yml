@@ -4,7 +4,7 @@ services:
     container_name: monka
     environment:
       - JEKYLL_ENV=production
-      - JEKYLL_GITHUB_TOKEN=example
+      # - JEKYLL_GITHUB_TOKEN=example
     network_mode: "host"
     command: ["bundle", "exec", "jekyll", "serve", "--force_polling", "--incremental", "--config", "_config.yml,_config-local.yml"]
     volumes:

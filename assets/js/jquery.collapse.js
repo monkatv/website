@@ -164,7 +164,7 @@
   // global namespace
   exports.jQueryCollapse = Collapse;
   exports.jQueryCollapseSection = Section;
-  
+
   //jQuery DOM Ready
   $(function() {
     $.fn.collapse(false, true);

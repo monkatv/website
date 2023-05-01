@@ -16,3 +16,15 @@ layout: list
     </ul>
   </div>
 {% endfor %}
+{% for month in filesByMonth offset:3 %}
+  <div class="ps-4" id="fl0m-home-{{ month.name | slugify }}-collapse" data-collapse="persist">
+    <h3>{{ month.name }}</h3>
+    <ul>
+      {% for file in month.items reversed %}
+      <div class="ps-4">
+        <li><a href="{{ site.url }}{{ file.url }}">{{ file.date | date_to_string }}</a></li>
+      </div>
+      {% endfor %}
+    </ul>
+  </div>
+{% endfor %}

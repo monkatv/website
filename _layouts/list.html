@@ -1,35 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include listheader.html %}
-    <style>
-      a {
-        text-decoration: none;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-      a:visited {
-        color: #0366d6;
-      }
-      @media (prefers-color-scheme: dark) {
-        body {
-          color: #F5F5F5;
-          background-color: #212224;
-        }
-        a {
-          color: #0096FF;
-          text-decoration: none;
-        }
-      }
-    </style>
+    {% include head.html %}
+    {% include headcollapse.html %}
   </head>
   <body class="d-flex flex-column min-vh-100">
     <div class="container-fluid">
       <div class="row">
         <div class="col-2 p-0"></div>
         <div class="col-8 p-0">
-          {% include generic/header.html %}
+          {% include generic/heading.html %}
           {{ content }}
         </div>
         <div class="col-2 p-0"></div>

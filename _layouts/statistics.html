@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include statheader.html %}
+    {% include head.html %}
   </head>
-  <body>
-    <div class="container-lg px-3 mt-5 markdown-body">
-      <h1>
-        <img src="{{ site.url }}/assets/img/logo.png" height="36px">
-        <a href="{{ site.url }}/">monka.tv</a>
-      </h1>
-      <div id="{{ page.url | slugify }}-collapse" data-collapse="persist">
-        {{ content }}
+  <body class="d-flex flex-column min-vh-100">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-2 p-0"></div>
+        <div class="col-8 p-0">
+          {% include generic/heading.html %}
+          <div>
+            {{ content }}
+          </div>
+        </div>
+        <div class="col-2 p-0"></div>
       </div>
     </div>
-    {% include generic/footer.html %}
+  {% include generic/footer.html %}
   </body>
 </html>

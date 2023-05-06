@@ -45,7 +45,7 @@ table tr:nth-child(2n) {
 
 @media (prefers-color-scheme: dark) {
   body {
-    color: #F5F5F5;
+    color: #c2c6ca;
     background-color: #212224;
   }
   a {

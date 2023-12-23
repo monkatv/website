@@ -11,7 +11,7 @@ permalink: /contributors
 
 **Other Contributors:**
 
-* [barnie995](https://github.com/barnie995) - migration to custom Jekyll
+* [barnie995](https://github.com/barnie995) - migration to Jekyll
 
 ## Other Acknowledgments
 

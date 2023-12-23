@@ -6,6 +6,6 @@ services:
       - JEKYLL_ENV=production
       - JEKYLL_GITHUB_TOKEN=${JEKYLL_GITHUB_TOKEN}
     network_mode: "host"
-    command: ["bundle", "exec", "jekyll", "serve", "--force_polling", "--incremental", "--config", "_config.yml,_config-local.yml"]
+    command: ["bundle", "exec", "jekyll", "serve", "--force_polling", "--livereload", "--incremental", "--config", "_config.yml,_config-local.yml"]
     volumes:
       - .:/site

@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% include head.html %}
-    {% include headcollapse.html %}
+    {% include generic/head.html %}
+    {% include custom/jquery.html %}
+    {% include custom/collapse.html %}
   </head>
   <body class="d-flex flex-column min-vh-100">
     <div class="container-fluid">
       <div class="row">
         <div class="col-2 p-0"></div>
         <div class="col-8 p-0">
-          {% include generic/heading.html %}
+          {% include generic/header.html %}
           {{ content }}
         </div>
         <div class="col-2 p-0"></div>

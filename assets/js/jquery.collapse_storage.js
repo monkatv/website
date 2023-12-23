@@ -22,15 +22,11 @@
     }
     return DB ? new _Storage(id, DB) : false;
   }
-
   function _Storage(id, DB) {
     this.id = id;
     this.db = DB;
     this.data = [];
   }
-
-  window.jQueryCollapseStorage = Storage;
-
   _Storage.prototype = {
     write: function(position, state) {
       var _this = this;
@@ -41,18 +37,20 @@
           _this.data[i] = 0;
         }
       });
-      var obj = this._getDataObject();
+      var obj = this.getDataObject();
       obj[this.id] = this.data;
       this.db.setItem(STORAGE_KEY, JSON.stringify(obj));
     },
     read: function() {
-      var obj = this._getDataObject();
+      var obj = this.getDataObject();
       return obj[this.id] || [];
     },
-    _getDataObject: function() {
+    getDataObject: function() {
       var string = this.db.getItem(STORAGE_KEY);
       return string ? JSON.parse(string) : {};
     }
   };
+
+  jQueryCollapseStorage = Storage;
 
 })(jQuery);

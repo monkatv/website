@@ -1,6 +1,6 @@
 services:
   jekyll:
-    image: bretfisher/jekyll-serve
+    image: bretfisher/jekyll-serve:latest
     container_name: monka
     environment:
       - JEKYLL_ENV=production

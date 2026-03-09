@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} — {{ config.title }}{% endblock %}
+{% block description %}{{ page.title }}{% endblock %}
+{% block og_title %}{{ page.title }}{% endblock %}
+{% block og_url %}{{ page.permalink }}{% endblock %}
+{% block og_description %}{{ page.title }}{% endblock %}
+{% block canonical %}{{ page.permalink }}{% endblock %}
+
+{% block extra_head %}
+<script src="/js/table.js" defer></script>
+{% endblock %}
+
+{% block content %}
+{% set data = load_data(path="static/" ~ page.extra.json_path) %}
+{% set total = data.messages.total %}
+{% set unique = data.messages.unique %}
+{% set dupes = total - unique %}
+{% set bot = data.messages.bot_total %}
+
+{% set summary = load_data(path="static/api/" ~ data.streamer.login ~ "/summary.json") %}
+
+{% set parts = page.path | trim_start_matches(pat="/") | split(pat="/") %}
+<div class="report-header">
+  <div class="report-headline">
+    <a href="/{{ parts[0] | safe }}/" class="report-back" title="Back to {{ data.streamer.login }}">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </a>
+    {% if summary.avatar_url %}<img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="report-avatar" alt="{{ data.streamer.login }}">{% endif %}
+    <h1 class="report-title">{{ summary.display_name }}</h1>
+    <span class="report-sep">&middot;</span>
+    <span class="report-period">{{ data.period.start_date | date(format="%b %d") }} &ndash; {{ data.period.end_date | date(format="%b %d, %Y") }}</span>
+    {% if data.vods | length > 0 %}
+    <button class="vod-badge" id="vod-toggle" title="Show VOD links">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2L3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29l-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43Z"/></svg>
+      {{ data.vods | length }} VODs
+    </button>
+    {% endif %}
+  </div>
+  {% if data.vods | length > 0 %}
+  <div class="vod-grid" id="vod-list" hidden>
+    {% for vod in data.vods %}
+    <a class="vod-pill" href="https://www.twitch.tv/videos/{{ vod.id }}" target="_blank" rel="noopener noreferrer" title="{{ vod.title }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2L3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29l-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43Z"/></svg>
+      VOD {{ loop.index }}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{# === Stat Cards === #}
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value" data-fmt="{{ total }}">{{ total }}</div>
+    <div class="stat-label">Total messages</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value" data-fmt="{{ unique }}">{{ unique }}</div>
+    <div class="stat-label">Unique messages</div>
+  </div>
+  <div class="stat">
+    {% if total > 0 %}
+      {% set pct = dupes * 1000 / total %}
+      {% set whole = pct / 10 %}
+    {% else %}
+      {% set whole = 0 %}
+    {% endif %}
+    <div class="stat-value">{{ whole | round(precision=1) }}%</div>
+    <div class="stat-label">Duplicates</div>
+  </div>
+  <div class="stat">
+    {% if total > 0 %}
+      {% set bpct = bot * 1000 / total %}
+      {% set bwhole = bpct / 10 %}
+    {% else %}
+      {% set bwhole = 0 %}
+    {% endif %}
+    <div class="stat-value">{{ bwhole | round(precision=1) }}%</div>
+    <div class="stat-label">Bot messages</div>
+  </div>
+</div>
+
+{# === Top Chatters === #}
+<h2>Top Chatters</h2>
+<table>
+  <thead>
+    <tr>
+      <th class="col-rank">#</th>
+      <th data-sort="text">Username</th>
+      <th class="col-count" data-sort="num">Messages</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% set users_limit = data.meta.defaults.users_limit %}
+  {% for user in data.users %}
+    {% if loop.index0 < users_limit %}
+    <tr>
+      <td class="col-rank">{{ loop.index }}</td>
+      <td>{{ user.username }}</td>
+      <td class="col-count" data-fmt="{{ user.count }}">{{ user.count }}</td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+
+{# === Emotes (Tabbed) === #}
+<h2>Emotes</h2>
+
+{% set ep = load_data(path="data/emote_providers.toml") %}
+{% set providers = ep.providers %}
+{% set provider_labels = ep.provider_labels %}
+{% set img_cdns = ep.img_cdns %}
+
+<div class="tab-nav" role="tablist">
+  <div class="tab-buttons">
+    {% for provider in providers %}
+      <button class="tab-btn{% if loop.first %} active{% endif %}"
+              role="tab"
+              data-tab="{{ provider }}"
+              aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+        {{ provider_labels[loop.index0] }}
+        <small>({{ data.emotes[provider] | length }})</small>
+      </button>
+    {% endfor %}
+  </div>
+  <label class="toggle-switch" title="Hide unused emotes">
+    <input type="checkbox" id="hide-unused-toggle">
+    <span class="toggle-track"></span>
+    <span class="toggle-text">Hide unused</span>
+  </label>
+</div>
+
+{% for provider in providers %}
+  {% set emotes = data.emotes[provider] %}
+  {% set cdn = img_cdns[loop.index0] %}
+
+  <div class="tab-panel{% if loop.first %} active{% endif %}" id="tab-{{ provider }}" role="tabpanel">
+    <table id="table-{{ provider }}" data-page-size="25">
+      <thead>
+        <tr>
+          <th data-sort="text">Emote</th>
+          <th class="col-count" data-sort="num">Count</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for emote in emotes %}
+        <tr{% if emote.count == 0 %} data-zero="1"{% endif %}>
+          <td>
+            <span class="emote-cell">
+              {% if cdn and emote.id %}
+              <img class="emote-img" src="{{ cdn | replace(from='{id}', to=emote.id) }}" alt="{{ emote.name }}" loading="lazy">
+              {% endif %}
+              {% if emote.id and data.emotes.urls[provider] %}
+              <a href="{{ data.emotes.urls[provider] | replace(from='{id}', to=emote.id) }}">{{ emote.name }}</a>
+              {% else %}
+              {{ emote.name }}
+              {% endif %}
+            </span>
+          </td>
+          <td class="col-count">{{ emote.count }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="table-pagination" id="pag-{{ provider }}"></div>
+  </div>
+{% endfor %}
+
+{# === Commands === #}
+{% if data.commands | length > 0 %}
+<h2>Commands</h2>
+<table>
+  <thead>
+    <tr>
+      <th class="col-rank">#</th>
+      <th data-sort="text">Command</th>
+      <th class="col-count" data-sort="num">Count</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% set commands_limit = data.meta.defaults.commands_limit %}
+  {% for cmd in data.commands %}
+    {% if loop.index0 < commands_limit %}
+    <tr>
+      <td class="col-rank">{{ loop.index }}</td>
+      <td>{{ cmd.name }}</td>
+      <td class="col-count">{{ cmd.count }}</td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{# === Copypastas === #}
+{% if data.copypastas | length > 0 %}
+<h2>Copypastas</h2>
+<table>
+  <thead>
+    <tr>
+      <th class="col-rank">#</th>
+      <th data-sort="text">Text</th>
+      <th class="col-count" data-sort="num">Count</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% set copypastas_limit = data.meta.defaults.copypastas_limit %}
+  {% for pasta in data.copypastas %}
+    {% if loop.index0 < copypastas_limit %}
+    <tr>
+      <td class="col-rank">{{ loop.index }}</td>
+      <td><span class="copypasta-text" title="{{ pasta.text }}">{{ pasta.text }}</span></td>
+      <td class="col-count">{{ pasta.count }}</td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{# === Expired VIPs === #}
+{% set streamers_cfg = load_data(path="data/streamers.toml") %}
+{% set_global show_vips = false %}
+{% for s in streamers_cfg.streamers %}
+  {% if s.login == data.streamer.login %}
+    {% set_global show_vips = s.show_expired_vips | default(value=false) %}
+  {% endif %}
+{% endfor %}
+{% if show_vips and data.expired_vips | length > 0 %}
+<h2>Expired VIPs</h2>
+<table>
+  <thead>
+    <tr>
+      <th data-sort="text">Username</th>
+      <th data-sort="text">Granted</th>
+      <th data-sort="text">Expired</th>
+      <th>Command</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for vip in data.expired_vips %}
+    <tr>
+      <td>{{ vip.username }}</td>
+      <td>{{ vip.granted_at }}</td>
+      <td>{{ vip.removed_at }}</td>
+      <td><button class="copy-unvip" data-user="{{ vip.username }}" title="Copy /unvip {{ vip.username }}">copy /unvip</button></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{# === Prev / Next Navigation === #}
+{# sort_by="date" (newest first): page.lower = newer, page.higher = older #}
+{% if page.lower or page.higher %}
+<nav class="report-nav">
+  {% if page.higher %}
+    <a href="{{ page.higher.path | safe }}">&larr; older</a>
+  {% else %}
+    <span></span>
+  {% endif %}
+  {% if page.lower %}
+    <a href="{{ page.lower.path | safe }}">newer &rarr;</a>
+  {% else %}
+    <span></span>
+  {% endif %}
+</nav>
+{% endif %}
+
+<script>
+(function() {
+  var emoteMap = {
+    {% for provider in providers -%}
+      {% set cdn = img_cdns[loop.index0] -%}
+      {% for emote in data.emotes[provider] -%}
+        {% if emote.id -%}
+        "{{ emote.name | safe }}": "{{ cdn | replace(from='{id}', to=emote.id) | safe }}",
+        {% endif -%}
+      {% endfor -%}
+    {% endfor -%}
+  };
+  document.querySelectorAll('.copypasta-text').forEach(function(el) {
+    var text = el.textContent;
+    var parts = text.split(' ');
+    var hasEmote = parts.some(function(w) { return emoteMap[w]; });
+    if (!hasEmote) return;
+    var html = parts.map(function(word) {
+      if (emoteMap[word]) {
+        return '<img class="emote-img" src="' + emoteMap[word] + '" alt="' + word + '" title="' + word + '">';
+      }
+      return word.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }).join(' ');
+    el.innerHTML = html;
+  });
+  document.querySelectorAll('[data-fmt]').forEach(function(el) {
+    var v = parseInt(el.getAttribute('data-fmt'), 10);
+    if (!isNaN(v)) el.textContent = v.toLocaleString();
+  });
+  var vodToggle = document.getElementById('vod-toggle');
+  var vodList = document.getElementById('vod-list');
+  if (vodToggle && vodList) {
+    vodToggle.addEventListener('click', function() {
+      vodList.hidden = !vodList.hidden;
+    });
+  }
+  document.querySelectorAll('.copy-unvip').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var cmd = '/unvip ' + btn.getAttribute('data-user');
+      navigator.clipboard.writeText(cmd).then(function() {
+        btn.textContent = 'copied!';
+        setTimeout(function() { btn.textContent = 'copy /unvip'; }, 1500);
+      }).catch(function() {
+        btn.textContent = 'failed';
+        setTimeout(function() { btn.textContent = 'copy /unvip'; }, 1500);
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

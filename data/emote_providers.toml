@@ -1,0 +1,8 @@
+providers = ["seventv", "bttv", "ffz", "ttv"]
+provider_labels = ["7TV", "BTTV", "FFZ", "Channel"]
+img_cdns = [
+    "https://cdn.7tv.app/emote/{id}/1x.webp",
+    "https://cdn.betterttv.net/emote/{id}/1x",
+    "https://cdn.frankerfacez.com/emote/{id}/1",
+    "https://static-cdn.jtvnw.net/emoticons/v2/{id}/default/dark/1.0",
+]

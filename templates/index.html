@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script src="/js/charts.js" defer></script>
+{% endblock %}
+
+{% block content %}
+{% set ep = load_data(path="data/emote_providers.toml") %}
+{% set providers = ep.providers %}
+{% set img_cdns = ep.img_cdns %}
+
+{% set streamers = load_data(path="data/streamers.toml") %}
+{% for s in streamers.streamers %}
+  {% set streamer_section = get_section(path=s.login ~ "/_index.md") %}
+  {% set summary = load_data(path="static/api/" ~ s.login ~ "/summary.json") %}
+  {% set latest = load_data(path="static/api/" ~ s.login ~ "/latest.json") %}
+
+  {# Build emote URL for top emote #}
+  {% set last_week = summary.weeks | last %}
+  {% set_global top_emote_url = "" %}
+  {% if last_week.top_emote %}
+    {% for provider in providers %}
+      {% set cur_cdn = img_cdns[loop.index0] %}
+      {% for emote in latest.emotes[provider] %}
+        {% if emote.name == last_week.top_emote and top_emote_url == "" and emote.id %}
+          {% set_global top_emote_url = cur_cdn | replace(from='{id}', to=emote.id) %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
+
+  <a class="streamer-card-link" href="/{{ s.login | safe }}/">
+    <div class="streamer-card-body">
+      <div class="streamer-card-left">
+        <div class="streamer-card-header">
+          <img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="streamer-avatar" alt="{{ summary.display_name }}">
+          <div class="streamer-info">
+            <h2>{{ summary.display_name }}</h2>
+            {% if summary.total_weeks > 0 %}
+            <small>Tracking since {{ summary.all_time.first_date | date(format="%B %Y") }} &middot; {{ summary.total_weeks }} weeks</small>
+            {% endif %}
+          </div>
+        </div>
+        {% if summary.total_weeks > 0 %}
+        <div class="streamer-card-week-label">Last week</div>
+        <div class="streamer-card-stats">
+          <div class="streamer-card-stat">
+            <span class="streamer-card-stat-value" data-fmt="{{ last_week.messages_total }}">{{ last_week.messages_total }}</span>
+            <span class="streamer-card-stat-label">messages</span>
+          </div>
+          <div class="streamer-card-stat">
+            <span class="streamer-card-stat-value">{{ last_week.vod_count }}</span>
+            <span class="streamer-card-stat-label">VODs</span>
+          </div>
+          {% if last_week.top_emote %}
+          <div class="streamer-card-stat">
+            {% if top_emote_url %}
+            <img src="{{ top_emote_url | safe }}" alt="{{ last_week.top_emote }}" class="streamer-card-emote" width="28" height="28">
+            {% else %}
+            <span class="streamer-card-stat-value">{{ last_week.top_emote }}</span>
+            {% endif %}
+            <span class="streamer-card-stat-label">top emote</span>
+          </div>
+          {% endif %}
+          <div class="streamer-card-stat">
+            <span class="streamer-card-stat-value" data-fmt="{{ last_week.active_chatters }}">{{ last_week.active_chatters }}</span>
+            <span class="streamer-card-stat-label">chatters</span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% if summary.total_weeks >= 2 %}
+      <div id="sparkline-{{ s.login }}" class="sparkline"></div>
+      {% endif %}
+    </div>
+  </a>
+
+  {% if summary.total_weeks >= 2 %}
+  <script>
+  (function() {
+    var weeks = {{ summary.weeks | json_encode() | safe }};
+    var recent = weeks.slice(-8);
+    var vals = [], dates = [];
+    for (var i = 0; i < recent.length; i++) {
+      vals.push(recent[i].messages_total);
+      dates.push(recent[i].end_date);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      renderSparkline("sparkline-{{ s.login }}", vals, { dates: dates });
+    });
+  })();
+  </script>
+  {% endif %}
+{% endfor %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('[data-fmt]').forEach(function(el) {
+    el.textContent = Number(el.dataset.fmt).toLocaleString();
+  });
+});
+</script>
+{% endblock %}

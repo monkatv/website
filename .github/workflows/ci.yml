@@ -1,0 +1,37 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: zola@0.22.1
+
+      - name: Install tcs
+        run: pip install 'tcs @ git+https://${{ secrets.GH_ACCESS_TOKEN }}@github.com/monkatv/tcs.git'
+
+      - name: Generate summary JSONs
+        run: tcs summarize --dir static/api
+
+      - run: zola build
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          user_name: 'github-actions[bot]'
+          user_email: '41898282+github-actions[bot]@users.noreply.github.com'

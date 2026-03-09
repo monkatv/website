@@ -1,0 +1,10 @@
+services:
+  zola:
+    image: ghcr.io/getzola/zola:v0.22.1
+    container_name: monka
+    ports:
+      - "1111:1111"
+    volumes:
+      - .:/site
+    working_dir: /site
+    command: serve --interface 0.0.0.0

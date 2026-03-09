@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} — {{ config.title }}{% endblock %}
+{% block description %}{{ page.title }}{% endblock %}
+{% block og_title %}{{ page.title }}{% endblock %}
+{% block og_url %}{{ page.permalink }}{% endblock %}
+{% block og_description %}{{ page.title }}{% endblock %}
+{% block canonical %}{{ page.permalink }}{% endblock %}
+
+{% block content %}
+{{ page.content | safe }}
+{% endblock %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    (function() {
+      var stored = localStorage.getItem('theme');
+      if (stored) {
+        document.documentElement.setAttribute('data-theme', stored);
+        document.documentElement.style.colorScheme = stored;
+      }
+      window.toggleTheme = function() {
+        var isDark = (document.documentElement.getAttribute('data-theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark';
+        var next = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        document.documentElement.style.colorScheme = next;
+        localStorage.setItem('theme', next);
+      };
+    })();
+  </script>
+  <title>{% block title %}{{ config.title }}{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{% block description %}Weekly Twitch chat statistics and emote usage tracking{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}{{ config.title }}{% endblock %}">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="{% block og_url %}{{ config.base_url }}{% endblock %}">
+  <meta property="og:site_name" content="{{ config.title }}">
+  <meta property="og:description" content="{% block og_description %}Weekly Twitch chat statistics and emote usage tracking{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}{{ config.base_url }}{% endblock %}">
+  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/css/custom.css">
+  <script defer src="/zk/js/script.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init({ endpoint: "/zk/api/event" })
+  </script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% include "header.html" %}
+  {% block content %}{% endblock %}
+  {% include "footer.html" %}
+</body>
+</html>

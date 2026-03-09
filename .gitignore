@@ -1,0 +1,16 @@
+# Zola build output
+public/
+
+# Testing
+.pytest_cache/
+
+# Throwaway scripts
+scripts/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env

@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.title }} — {{ config.title }}{% endblock %}
+{% block description %}{{ section.title }}{% endblock %}
+{% block og_title %}{{ section.title }}{% endblock %}
+{% block og_url %}{{ section.permalink }}{% endblock %}
+{% block og_description %}{{ section.title }}{% endblock %}
+{% block canonical %}{{ section.permalink }}{% endblock %}
+
+{% block extra_head %}
+<script src="/js/charts.js" defer></script>
+<script src="/js/calendar.js" defer></script>
+{% endblock %}
+
+{% block content %}
+{% set summary = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/summary.json") %}
+{% set latest = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/latest.json") %}
+
+{# === Streamer Header === #}
+<div class="section-header">
+  <a href="/" class="section-back" title="Back to home">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </a>
+  <div class="streamer-card">
+    <img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="streamer-avatar" alt="{{ summary.display_name }}">
+    <div class="streamer-info">
+      <h2>{{ summary.display_name }}</h2>
+      {% if summary.total_weeks > 0 %}
+        <small>Tracking since {{ summary.all_time.first_date | date(format="%B %Y") }} &middot; {{ summary.total_weeks }} weeks</small>
+      {% else %}
+        <small>No reports yet</small>
+      {% endif %}
+    </div>
+  </div>
+  <a href="https://www.twitch.tv/{{ section.extra.streamer_login }}" class="twitch-link" target="_blank" rel="noopener noreferrer" title="View on Twitch">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+  </a>
+</div>
+
+{# === Shared emote CDN setup === #}
+{% set ep = load_data(path="data/emote_providers.toml") %}
+{% set providers = ep.providers %}
+{% set img_cdns = ep.img_cdns %}
+
+{% set weeks = summary.weeks %}
+{% set num_weeks = weeks | length %}
+
+{# Capture current and previous week for trend calculation #}
+{% set_global cur_total = 0 %}
+{% set_global cur_unique = 0 %}
+{% set_global cur_vods = 0 %}
+{% set_global cur_chatters = 0 %}
+{% set_global prev_total = 0 %}
+{% set_global prev_unique = 0 %}
+{% set_global prev_vods = 0 %}
+{% set_global prev_chatters = 0 %}
+{% for w in weeks %}
+  {% if loop.last %}
+    {% set_global cur_total = w.messages_total %}
+    {% set_global cur_unique = w.messages_unique %}
+    {% set_global cur_vods = w.vod_count %}
+    {% set_global cur_chatters = w.active_chatters %}
+  {% endif %}
+  {% if num_weeks > 1 and loop.index == num_weeks - 1 %}
+    {% set_global prev_total = w.messages_total %}
+    {% set_global prev_unique = w.messages_unique %}
+    {% set_global prev_vods = w.vod_count %}
+    {% set_global prev_chatters = w.active_chatters %}
+  {% endif %}
+{% endfor %}
+
+{# ============================= #}
+{# === THIS WEEK === #}
+{# ============================= #}
+{% if num_weeks > 0 %}
+<h2>This Week</h2>
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value" data-fmt="{{ cur_total }}">{{ cur_total }}</div>
+    <div class="stat-label">Total messages</div>
+    {% if num_weeks > 1 and prev_total > 0 %}
+      {% set pct = (cur_total - prev_total) * 100 / prev_total %}
+      {% if pct > 1 %}
+        <div class="stat-trend stat-trend-up">&#9650; {{ pct | round(precision=0) }}%</div>
+      {% elif pct < -1 %}
+        <div class="stat-trend stat-trend-down">&#9660; {{ pct * -1 | round(precision=0) }}%</div>
+      {% else %}
+        <div class="stat-trend stat-trend-flat">&mdash; flat</div>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div class="stat">
+    <div class="stat-value" data-fmt="{{ cur_unique }}">{{ cur_unique }}</div>
+    <div class="stat-label">Unique messages</div>
+    {% if num_weeks > 1 and prev_unique > 0 %}
+      {% set pct = (cur_unique - prev_unique) * 100 / prev_unique %}
+      {% if pct > 1 %}
+        <div class="stat-trend stat-trend-up">&#9650; {{ pct | round(precision=0) }}%</div>
+      {% elif pct < -1 %}
+        <div class="stat-trend stat-trend-down">&#9660; {{ pct * -1 | round(precision=0) }}%</div>
+      {% else %}
+        <div class="stat-trend stat-trend-flat">&mdash; flat</div>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div class="stat">
+    <div class="stat-value" data-fmt="{{ cur_chatters }}">{{ cur_chatters }}</div>
+    <div class="stat-label">Active chatters</div>
+    {% if num_weeks > 1 and prev_chatters > 0 %}
+      {% set pct = (cur_chatters - prev_chatters) * 100 / prev_chatters %}
+      {% if pct > 1 %}
+        <div class="stat-trend stat-trend-up">&#9650; {{ pct | round(precision=0) }}%</div>
+      {% elif pct < -1 %}
+        <div class="stat-trend stat-trend-down">&#9660; {{ pct * -1 | round(precision=0) }}%</div>
+      {% else %}
+        <div class="stat-trend stat-trend-flat">&mdash; flat</div>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div class="stat">
+    <div class="stat-value">{{ cur_vods }}</div>
+    <div class="stat-label">VODs</div>
+    {% if num_weeks > 1 %}
+      {% set diff = cur_vods - prev_vods %}
+      {% if diff > 0 %}
+        <div class="stat-trend stat-trend-up">&#9650; {{ diff }}</div>
+      {% elif diff < 0 %}
+        <div class="stat-trend stat-trend-down">&#9660; {{ diff * -1 }}</div>
+      {% else %}
+        <div class="stat-trend stat-trend-flat">&mdash;</div>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+{% if latest.emotes is defined or latest.users is defined %}
+<div class="dashboard-columns">
+  <div>
+    <h3>Top Chatters</h3>
+    <ul class="chatter-preview">
+      {% for user in latest.users %}
+        {% if loop.index0 < 5 %}
+        <li>
+          <span>{{ loop.index }}. {{ user.username }}</span>
+          <span class="chatter-count" data-fmt="{{ user.count }}">{{ user.count }}</span>
+        </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+  <div>
+    <h3>Top Emotes</h3>
+    <div class="emote-preview">
+      {% set_global emote_idx = 0 %}
+      {% for provider in providers %}
+        {% set_global cur_cdn = img_cdns[loop.index0] %}
+        {% for emote in latest.emotes[provider] %}
+          {% if emote_idx < 5 and emote.count > 0 %}
+            <span class="emote-preview-item">
+              {% if emote.id and cur_cdn %}
+              <img src="{{ cur_cdn | replace(from='{id}', to=emote.id) }}" alt="{{ emote.name }}" loading="lazy">
+              {% endif %}
+              {{ emote.name }}
+              <span class="emote-preview-count">{{ emote.count }}</span>
+            </span>
+            {% set_global emote_idx = emote_idx + 1 %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endif %}
+
+{# ============================= #}
+{# === ALL TIME === #}
+{# ============================= #}
+{% if summary.all_time is defined %}
+<details class="alltime-details">
+<summary class="alltime-summary"><h2 style="display:inline; font-size:inherit; margin:0;">All Time</h2></summary>
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value" data-fmt="{{ summary.all_time.total_messages }}">{{ summary.all_time.total_messages }}</div>
+    <div class="stat-label">Total messages</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value" data-fmt="{{ summary.all_time.total_unique }}">{{ summary.all_time.total_unique }}</div>
+    <div class="stat-label">Unique messages</div>
+  </div>
+  {% if summary.total_weeks > 0 %}
+  <div class="stat">
+    <div class="stat-value" data-fmt="{{ summary.all_time.total_messages / summary.total_weeks | round(precision=0) }}">{{ summary.all_time.total_messages / summary.total_weeks | round(precision=0) }}</div>
+    <div class="stat-label">Avg messages/week</div>
+  </div>
+  {% endif %}
+  <div class="stat">
+    <div class="stat-value">{{ summary.all_time.total_vods }}</div>
+    <div class="stat-label">VODs</div>
+  </div>
+</div>
+
+<div class="dashboard-columns" id="alltime-lists">
+  {% if summary.all_time.top_chatters is defined and summary.all_time.top_chatters | length > 0 %}
+  <div>
+    <h3>Top Chatters</h3>
+    <ul class="chatter-preview">
+      {% for user in summary.all_time.top_chatters %}
+        {% if loop.index0 < 20 %}
+        <li{% if loop.index0 >= 5 %} data-tier="{% if loop.index0 < 10 %}10{% else %}20{% endif %}" hidden{% endif %}>
+          <span>{{ loop.index }}. {{ user.username }}</span>
+          <span class="chatter-count" data-fmt="{{ user.count }}">{{ user.count }}</span>
+        </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% if summary.all_time.top_emotes is defined and summary.all_time.top_emotes | length > 0 %}
+  <div>
+    <h3>Top Emotes</h3>
+    <div class="emote-preview">
+      {% for emote in summary.all_time.top_emotes %}
+        {% if loop.index0 < 20 %}
+        <span class="emote-preview-item" data-emote-name="{{ emote.name }}"{% if loop.index0 >= 5 %} data-tier="{% if loop.index0 < 10 %}10{% else %}20{% endif %}" hidden{% endif %}>
+          {{ emote.name }}
+          <span class="emote-preview-count" data-fmt="{{ emote.count }}">{{ emote.count }}</span>
+        </span>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="alltime-controls">
+      <button class="show-more-btn" id="alltime-less" hidden>Show less</button>
+      <button class="show-more-btn" id="alltime-more">Show more</button>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{# === Message Volume Chart === #}
+{% if num_weeks > 0 %}
+<h3>Messages over time</h3>
+<div class="dashboard-chart" id="chart-messages"></div>
+<script>
+(function() {
+  var summaryWeeks = {{ summary.weeks | json_encode() | safe }};
+  var rendered = false;
+  var details = document.querySelector('.alltime-details');
+  function tryRender() {
+    if (rendered) return;
+    var el = document.getElementById('chart-messages');
+    if (el && el.clientWidth > 0) {
+      renderBarChart("chart-messages", summaryWeeks, {
+        streamer: "{{ section.extra.streamer_login | safe }}"
+      });
+      rendered = true;
+    }
+  }
+  if (details) {
+    details.addEventListener('toggle', tryRender);
+  }
+  document.addEventListener('DOMContentLoaded', tryRender);
+})();
+</script>
+{% endif %}
+
+</details>
+{% endif %}
+
+{# === Recent Weeks + Browse Archive === #}
+{% if num_weeks > 0 %}
+<div class="weeks-browser">
+  <div class="weeks-panel">
+    <h2>Recent Weeks</h2>
+    <div class="weeks-list">
+      {% set_global shown = 0 %}
+      {% for w in weeks | reverse %}
+        {% if shown < 10 %}
+        <a class="weeks-list-item" href="/{{ section.extra.streamer_login | safe }}/{{ w.end_date }}/">
+          <div class="weeks-list-date" data-date="{{ w.end_date }}">{{ w.end_date }}</div>
+          <div class="weeks-list-stats">
+            <span data-fmt="{{ w.messages_total }}">{{ w.messages_total }}</span> msgs
+            &middot; {{ w.vod_count }} VODs
+            {% if w.top_emote %}&middot; {{ w.top_emote }}{% endif %}
+          </div>
+        </a>
+        {% set_global shown = shown + 1 %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  <div class="weeks-panel">
+    <h2>Browse Archive</h2>
+    <div class="weeks-calendar" id="weeks-calendar"></div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+(function() {
+  var emoteMap = {
+    {% for provider in providers -%}
+      {% set_global cur_cdn = img_cdns[loop.index0] -%}
+      {% for emote in latest.emotes[provider] -%}
+        {% if emote.id -%}
+        "{{ emote.name | safe }}": "{{ cur_cdn | replace(from='{id}', to=emote.id) | safe }}",
+        {% endif -%}
+      {% endfor -%}
+    {% endfor -%}
+  };
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-fmt]').forEach(function(el) {
+      el.textContent = Number(el.dataset.fmt).toLocaleString();
+    });
+    document.querySelectorAll('[data-date]').forEach(function(el) {
+      if (window.formatDate) el.textContent = formatDate(el.dataset.date);
+    });
+    document.querySelectorAll('[data-emote-name]').forEach(function(el) {
+      var name = el.getAttribute('data-emote-name');
+      if (emoteMap[name]) {
+        var img = document.createElement('img');
+        img.src = emoteMap[name];
+        img.alt = name;
+        img.loading = 'lazy';
+        el.insertBefore(img, el.firstChild);
+      }
+    });
+    var moreBtn = document.getElementById('alltime-more');
+    var lessBtn = document.getElementById('alltime-less');
+    if (moreBtn && lessBtn) {
+      var levels = [5, 10, 20];
+      var cur = 0;
+      var container = document.getElementById('alltime-lists');
+      function updateAlltime() {
+        container.querySelectorAll('[data-tier]').forEach(function(el) {
+          el.hidden = parseInt(el.getAttribute('data-tier')) > levels[cur];
+        });
+        moreBtn.hidden = cur >= levels.length - 1;
+        lessBtn.hidden = cur <= 0;
+      }
+      moreBtn.addEventListener('click', function() { cur++; updateAlltime(); });
+      lessBtn.addEventListener('click', function() { cur--; updateAlltime(); });
+    }
+    // Size weeks-list to exactly 5 items, scroll the rest
+    var weeksList = document.querySelector('.weeks-list');
+    if (weeksList) {
+      var items = weeksList.querySelectorAll('.weeks-list-item');
+      if (items.length > 5) {
+        var gap = parseFloat(getComputedStyle(weeksList).gap) || 0;
+        var h = 0;
+        for (var i = 0; i < 5; i++) h += items[i].getBoundingClientRect().height;
+        h += gap * 4;
+        weeksList.style.maxHeight = Math.ceil(h) + 'px';
+      }
+    }
+    var calEl = document.getElementById('weeks-calendar');
+    if (calEl && window.initWeeksCalendar) {
+      var summaryWeeks = {{ summary.weeks | json_encode() | safe }};
+      initWeeksCalendar(calEl, summaryWeeks, "{{ section.extra.streamer_login | safe }}");
+    }
+  });
+})();
+</script>
+{% endblock %}

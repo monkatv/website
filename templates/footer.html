@@ -1,0 +1,17 @@
+<footer class="site-footer">
+  <p>&copy; 2023<script>new Date().getFullYear()>2023&&document.write("-"+new Date().getFullYear());</script>
+    monka.tv and <a href="/contributors">contributors</a>.</p>
+  <p><a href="https://github.com/monkatv/website" target="_blank" rel="noopener noreferrer">Source</a></p>
+</footer>
+<button class="back-to-top" id="back-to-top" aria-label="Back to top"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10L8 5L4 10"/></svg></button>
+<script>
+(function() {
+  var btn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', function() {
+    btn.classList.toggle('visible', window.scrollY > 300);
+  });
+  btn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>

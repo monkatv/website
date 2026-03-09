@@ -1,0 +1,11 @@
+[[streamers]]
+login = "fl0m"
+show_expired_vips = true
+
+[[streamers]]
+login = "trucklover86"
+show_expired_vips = false
+
+[[streamers]]
+login = "coachmaryy"
+show_expired_vips = false

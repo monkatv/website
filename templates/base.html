@@ -9,6 +9,12 @@
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
       document.documentElement.style.colorScheme = theme;
+      window.formatNumbers = function() {
+        document.querySelectorAll('[data-fmt]').forEach(function(el) {
+          var v = Number(el.getAttribute('data-fmt'));
+          if (!isNaN(v)) el.textContent = v.toLocaleString();
+        });
+      };
       window.toggleTheme = function() {
         var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "macros/trend.html" as macros %}
 
 {% block title %}{{ section.title }} — {{ config.title }}{% endblock %}
 {% block description %}{{ section.title }}{% endblock %}
@@ -78,44 +79,17 @@
   <div class="stat">
     <div class="stat-value" data-fmt="{{ cur_total }}">{{ cur_total }}</div>
     <div class="stat-label">Total messages</div>
-    {% if num_weeks > 1 and prev_total > 0 %}
-      {% set pct = (cur_total - prev_total) * 100 / prev_total %}
-      {% if pct > 1 %}
-        <div class="stat-trend stat-trend-up">&#9650; {{ pct | round(precision=0) }}%</div>
-      {% elif pct < -1 %}
-        <div class="stat-trend stat-trend-down">&#9660; {{ pct * -1 | round(precision=0) }}%</div>
-      {% else %}
-        <div class="stat-trend stat-trend-flat">&mdash; flat</div>
-      {% endif %}
-    {% endif %}
+    {% if num_weeks > 1 %}{{ macros::trend(cur=cur_total, prev=prev_total) }}{% endif %}
   </div>
   <div class="stat">
     <div class="stat-value" data-fmt="{{ cur_unique }}">{{ cur_unique }}</div>
     <div class="stat-label">Unique messages</div>
-    {% if num_weeks > 1 and prev_unique > 0 %}
-      {% set pct = (cur_unique - prev_unique) * 100 / prev_unique %}
-      {% if pct > 1 %}
-        <div class="stat-trend stat-trend-up">&#9650; {{ pct | round(precision=0) }}%</div>
-      {% elif pct < -1 %}
-        <div class="stat-trend stat-trend-down">&#9660; {{ pct * -1 | round(precision=0) }}%</div>
-      {% else %}
-        <div class="stat-trend stat-trend-flat">&mdash; flat</div>
-      {% endif %}
-    {% endif %}
+    {% if num_weeks > 1 %}{{ macros::trend(cur=cur_unique, prev=prev_unique) }}{% endif %}
   </div>
   <div class="stat">
     <div class="stat-value" data-fmt="{{ cur_chatters }}">{{ cur_chatters }}</div>
     <div class="stat-label">Active chatters</div>
-    {% if num_weeks > 1 and prev_chatters > 0 %}
-      {% set pct = (cur_chatters - prev_chatters) * 100 / prev_chatters %}
-      {% if pct > 1 %}
-        <div class="stat-trend stat-trend-up">&#9650; {{ pct | round(precision=0) }}%</div>
-      {% elif pct < -1 %}
-        <div class="stat-trend stat-trend-down">&#9660; {{ pct * -1 | round(precision=0) }}%</div>
-      {% else %}
-        <div class="stat-trend stat-trend-flat">&mdash; flat</div>
-      {% endif %}
-    {% endif %}
+    {% if num_weeks > 1 %}{{ macros::trend(cur=cur_chatters, prev=prev_chatters) }}{% endif %}
   </div>
   <div class="stat">
     <div class="stat-value">{{ cur_vods }}</div>
@@ -172,6 +146,9 @@
 </div>
 {% endif %}
 {% endif %}
+
+{# Emit summary.weeks JSON once, used by bar chart + calendar #}
+<script>var __summaryWeeks = {{ summary.weeks | json_encode() | safe }};</script>
 
 {# ============================= #}
 {# === ALL TIME === #}
@@ -243,14 +220,13 @@
 <div class="dashboard-chart" id="chart-messages"></div>
 <script>
 (function() {
-  var summaryWeeks = {{ summary.weeks | json_encode() | safe }};
   var rendered = false;
   var details = document.querySelector('.alltime-details');
   function tryRender() {
     if (rendered) return;
     var el = document.getElementById('chart-messages');
     if (el && el.clientWidth > 0) {
-      renderBarChart("chart-messages", summaryWeeks, {
+      renderBarChart("chart-messages", __summaryWeeks, {
         streamer: "{{ section.extra.streamer_login | safe }}"
       });
       rendered = true;
@@ -309,9 +285,7 @@
     {% endfor -%}
   };
   document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('[data-fmt]').forEach(function(el) {
-      el.textContent = Number(el.dataset.fmt).toLocaleString();
-    });
+    formatNumbers();
     document.querySelectorAll('[data-date]').forEach(function(el) {
       if (window.formatDate) el.textContent = formatDate(el.dataset.date);
     });
@@ -355,8 +329,7 @@
     }
     var calEl = document.getElementById('weeks-calendar');
     if (calEl && window.initWeeksCalendar) {
-      var summaryWeeks = {{ summary.weeks | json_encode() | safe }};
-      initWeeksCalendar(calEl, summaryWeeks, "{{ section.extra.streamer_login | safe }}");
+      initWeeksCalendar(calEl, __summaryWeeks, "{{ section.extra.streamer_login | safe }}");
     }
   });
 })();

@@ -133,16 +133,15 @@
 
     // X-axis month labels
     var lastMonth = '';
-    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     for (var i = 0; i < values.length; i++) {
       var parts = values[i].date.split('-');
       var monthKey = parts[0] + '-' + parts[1];
       if (monthKey !== lastMonth) {
         lastMonth = monthKey;
         var monthIdx = parseInt(parts[1], 10) - 1;
-        var labelText = monthNames[monthIdx];
+        var labelText = MONTHS[monthIdx];
         if (monthIdx === 0 || i === 0) {
-          labelText = monthNames[monthIdx] + ' ' + parts[0].slice(2);
+          labelText = MONTHS[monthIdx] + ' ' + parts[0].slice(2);
         }
         var x = i * (barWidth + barGap) + barWidth / 2;
         var monthLabel = svgEl('text', {
@@ -331,10 +330,9 @@
 
     // Labels below sparkline
     if (dates.length >= 2) {
-      var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       function shortDate(s) {
         var p = s.split('-');
-        return monthNames[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10);
+        return MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10);
       }
       var dl = document.createElement('div');
       dl.className = 'sparkline-dates';

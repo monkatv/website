@@ -95,9 +95,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('[data-fmt]').forEach(function(el) {
-    el.textContent = Number(el.dataset.fmt).toLocaleString();
-  });
+  formatNumbers();
 });
 </script>
 {% endblock %}

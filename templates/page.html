@@ -271,6 +271,7 @@
 
 <script>
 (function() {
+  {% if data.copypastas | length > 0 %}
   var emoteMap = {
     {% for provider in providers -%}
       {% set cdn = img_cdns[loop.index0] -%}
@@ -288,16 +289,15 @@
     if (!hasEmote) return;
     var html = parts.map(function(word) {
       if (emoteMap[word]) {
-        return '<img class="emote-img" src="' + emoteMap[word] + '" alt="' + word + '" title="' + word + '">';
+        var safe = word.replace(/"/g, '&quot;');
+        return '<img class="emote-img" src="' + emoteMap[word] + '" alt="' + safe + '" title="' + safe + '">';
       }
       return word.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }).join(' ');
     el.innerHTML = html;
   });
-  document.querySelectorAll('[data-fmt]').forEach(function(el) {
-    var v = parseInt(el.getAttribute('data-fmt'), 10);
-    if (!isNaN(v)) el.textContent = v.toLocaleString();
-  });
+  {% endif %}
+  formatNumbers();
   var vodToggle = document.getElementById('vod-toggle');
   var vodList = document.getElementById('vod-list');
   if (vodToggle && vodList) {

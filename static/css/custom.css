@@ -109,22 +109,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 [data-theme="dark"] .icon-moon { display: none; }
 [data-theme="dark"] .icon-sun { display: inline; }
 
-/* === Breadcrumb === */
-.breadcrumb {
-  display: flex;
-  gap: .5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem;
-  font-size: .875rem;
-  color: var(--text-muted);
-}
-.breadcrumb li + li::before {
-  content: "/";
-  margin-right: .5rem;
-  color: var(--text-muted);
-}
-
 /* === Stat Cards === */
 .stats {
   display: grid;

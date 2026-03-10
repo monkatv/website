@@ -2,9 +2,7 @@
   'use strict';
 
   // Format numbers with locale separators
-  document.querySelectorAll('[data-fmt]').forEach(function(el) {
-    el.textContent = Number(el.dataset.fmt).toLocaleString();
-  });
+  if (window.formatNumbers) formatNumbers();
 
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(function(btn) {

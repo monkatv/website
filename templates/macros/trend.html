@@ -1,0 +1,12 @@
+{% macro trend(cur, prev) %}
+  {% if prev > 0 %}
+    {% set pct = (cur - prev) * 100 / prev %}
+    {% if pct > 1 %}
+      <div class="stat-trend stat-trend-up">&#9650; {{ pct | round(precision=0) }}%</div>
+    {% elif pct < -1 %}
+      <div class="stat-trend stat-trend-down">&#9660; {{ pct * -1 | round(precision=0) }}%</div>
+    {% else %}
+      <div class="stat-trend stat-trend-flat">&mdash; flat</div>
+    {% endif %}
+  {% endif %}
+{% endmacro %}

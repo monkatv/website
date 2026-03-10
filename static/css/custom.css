@@ -2,43 +2,10 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 /* === Custom Properties === */
-:root {
-  color-scheme: light dark;
-  --bg: #ffffff;
-  --bg-surface: #f6f8fa;
-  --text: #1f2328;
-  --text-muted: #57606a;
-  --border: #b4bcc6;
-  --link: #0969da;
-  --link-hover: #0550ae;
-  --accent: #216e39;
-  --accent-hover: #2ea043;
-  --trend-up: #1a7f37;
-  --trend-down: #cf222e;
-  --trend-flat: #57606a;
-  --chart-bar: #216e39;
-  --chart-bar-hover: #2ea043;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d1117;
-    --bg-surface: #161b22;
-    --text: #e6edf3;
-    --text-muted: #8b949e;
-    --border: #3d444d;
-    --link: #58a6ff;
-    --link-hover: #79c0ff;
-    --accent: #39d353;
-    --accent-hover: #4ae168;
-    --trend-up: #3fb950;
-    --trend-down: #f85149;
-    --trend-flat: #8b949e;
-    --chart-bar: #39d353;
-    --chart-bar-hover: #4ae168;
-  }
-}
-/* Explicit user override via toggle (takes precedence over media query) */
-[data-theme="light"] {
+/* Light is the default. The inline script in base.html always sets
+   data-theme (from localStorage or OS preference) before CSS loads,
+   so [data-theme] selectors are the effective theme source. */
+:root, [data-theme="light"] {
   --bg: #ffffff;
   --bg-surface: #f6f8fa;
   --text: #1f2328;
@@ -137,12 +104,6 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   line-height: 0;
 }
 .theme-toggle:hover { border-color: var(--text-muted); color: var(--text); }
-.icon-moon { display: inline; }
-.icon-sun { display: none; }
-@media (prefers-color-scheme: dark) {
-  .icon-moon { display: none; }
-  .icon-sun { display: inline; }
-}
 [data-theme="light"] .icon-moon { display: inline; }
 [data-theme="light"] .icon-sun { display: none; }
 [data-theme="dark"] .icon-moon { display: none; }
@@ -894,8 +855,9 @@ a.cal-has-data .cal-today {
   .toggle-text { display: none; }
   .streamer-card { gap: .75rem; }
   .streamer-avatar { width: 40px; height: 40px; }
-  .streamer-card-body { flex-direction: column; }
-  .streamer-card-body .sparkline { width: 100%; }
+  .streamer-card-body { flex-direction: column; align-items: stretch; }
+  .streamer-card-body .sparkline { width: auto; min-width: 0; height: auto; overflow: hidden; }
+  .sparkline-svg { height: 80px !important; }
   .streamer-card-header { flex-wrap: wrap; }
   .streamer-card-stats { gap: .75rem; }
   .weeks-browser { padding-right: 0; }

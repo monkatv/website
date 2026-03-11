@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "macros/trend.html" as macros %}
+{% import "macros/emotes.html" as emote_macros %}
 
 {% block title %}{{ section.title }} — {{ config.title }}{% endblock %}
 {% block description %}{{ section.title }}{% endblock %}
@@ -35,6 +36,9 @@
   </div>
   <a href="https://www.twitch.tv/{{ section.extra.streamer_login }}" class="twitch-link" target="_blank" rel="noopener noreferrer" title="View on Twitch">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+    {% if summary.followers %}
+    <span class="follower-count"><span data-fmt="{{ summary.followers }}">{{ summary.followers }}</span> followers</span>
+    {% endif %}
   </a>
 </div>
 
@@ -55,18 +59,24 @@
 {% set_global prev_unique = 0 %}
 {% set_global prev_vods = 0 %}
 {% set_global prev_chatters = 0 %}
+{% set_global cur_bot = 0 %}
+{% set_global prev_bot = 0 %}
+{% set_global alltime_bot = 0 %}
 {% for w in weeks %}
+  {% set_global alltime_bot = alltime_bot + w.bot_total %}
   {% if loop.last %}
     {% set_global cur_total = w.messages_total %}
     {% set_global cur_unique = w.messages_unique %}
     {% set_global cur_vods = w.vod_count %}
     {% set_global cur_chatters = w.active_chatters %}
+    {% set_global cur_bot = w.bot_total %}
   {% endif %}
   {% if num_weeks > 1 and loop.index == num_weeks - 1 %}
     {% set_global prev_total = w.messages_total %}
     {% set_global prev_unique = w.messages_unique %}
     {% set_global prev_vods = w.vod_count %}
     {% set_global prev_chatters = w.active_chatters %}
+    {% set_global prev_bot = w.bot_total %}
   {% endif %}
 {% endfor %}
 
@@ -91,6 +101,17 @@
     <div class="stat-label">Active chatters</div>
     {% if num_weeks > 1 %}{{ macros::trend(cur=cur_chatters, prev=prev_chatters) }}{% endif %}
   </div>
+  {% if cur_total > 0 %}
+  <div class="stat">
+    {% set bot_pct = cur_bot * 100 / cur_total %}
+    <div class="stat-value">{{ bot_pct | round(precision=1) }}%</div>
+    <div class="stat-label">Bot messages</div>
+    {% if num_weeks > 1 and prev_total > 0 %}
+      {% set prev_bot_pct = prev_bot * 100 / prev_total %}
+      {{ macros::trend(cur=bot_pct, prev=prev_bot_pct) }}
+    {% endif %}
+  </div>
+  {% endif %}
   <div class="stat">
     <div class="stat-value">{{ cur_vods }}</div>
     <div class="stat-label">VODs</div>
@@ -115,7 +136,7 @@
       {% for user in latest.users %}
         {% if loop.index0 < 5 %}
         <li>
-          <span>{{ loop.index }}. {{ user.username }}</span>
+          <span>{{ loop.index }}. <span class="chatter-name" {% if user.color %}style="color: {{ user.color }}"{% endif %}>{{ user.username }}</span></span>
           <span class="chatter-count" data-fmt="{{ user.count }}">{{ user.count }}</span>
         </li>
         {% endif %}
@@ -145,6 +166,21 @@
   </div>
 </div>
 {% endif %}
+
+{% if latest.hourly_activity is defined %}
+{% set_global tz_label = "" %}
+{% if latest.meta.timezone %}
+  {% set tz_parts = latest.meta.timezone | split(pat="/") %}
+  {% set_global tz_label = tz_parts | last | replace(from="_", to=" ") %}
+{% endif %}
+<h3>Chat Activity{% if tz_label %} <small>({{ tz_label }} time)</small>{% endif %}</h3>
+<div class="hourly-chart" id="hourly-chart"></div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  renderHourlyChart('hourly-chart', {{ latest.hourly_activity | json_encode() | safe }});
+});
+</script>
+{% endif %}
 {% endif %}
 
 {# Emit summary.weeks JSON once, used by bar chart + calendar #}
@@ -155,7 +191,7 @@
 {# ============================= #}
 {% if summary.all_time is defined %}
 <details class="alltime-details">
-<summary class="alltime-summary"><h2 style="display:inline; font-size:inherit; margin:0;">All Time</h2></summary>
+<summary class="alltime-summary"><h2>All Time</h2></summary>
 <div class="stats">
   <div class="stat">
     <div class="stat-value" data-fmt="{{ summary.all_time.total_messages }}">{{ summary.all_time.total_messages }}</div>
@@ -169,6 +205,13 @@
   <div class="stat">
     <div class="stat-value" data-fmt="{{ summary.all_time.total_messages / summary.total_weeks | round(precision=0) }}">{{ summary.all_time.total_messages / summary.total_weeks | round(precision=0) }}</div>
     <div class="stat-label">Avg messages/week</div>
+  </div>
+  {% endif %}
+  {% if summary.all_time.total_messages > 0 %}
+  <div class="stat">
+    {% set alltime_bot_pct = alltime_bot * 100 / summary.all_time.total_messages %}
+    <div class="stat-value">{{ alltime_bot_pct | round(precision=1) }}%</div>
+    <div class="stat-label">Bot messages</div>
   </div>
   {% endif %}
   <div class="stat">
@@ -185,7 +228,7 @@
       {% for user in summary.all_time.top_chatters %}
         {% if loop.index0 < 20 %}
         <li{% if loop.index0 >= 5 %} data-tier="{% if loop.index0 < 10 %}10{% else %}20{% endif %}" hidden{% endif %}>
-          <span>{{ loop.index }}. {{ user.username }}</span>
+          <span>{{ loop.index }}. <span class="chatter-name" {% if user.color %}style="color: {{ user.color }}"{% endif %}>{{ user.username }}</span></span>
           <span class="chatter-count" data-fmt="{{ user.count }}">{{ user.count }}</span>
         </li>
         {% endif %}
@@ -253,7 +296,7 @@
       {% for w in weeks | reverse %}
         {% if shown < 10 %}
         <a class="weeks-list-item" href="/{{ section.extra.streamer_login | safe }}/{{ w.end_date }}/">
-          <div class="weeks-list-date" data-date="{{ w.end_date }}">{{ w.end_date }}</div>
+          <div class="weeks-list-date">{% if w.start_date %}{{ w.start_date | date(format="%b %d") }} &ndash; {% endif %}{{ w.end_date | date(format="%b %d, %Y") }}</div>
           <div class="weeks-list-stats">
             <span data-fmt="{{ w.messages_total }}">{{ w.messages_total }}</span> msgs
             &middot; {{ w.vod_count }} VODs
@@ -274,21 +317,9 @@
 
 <script>
 (function() {
-  var emoteMap = {
-    {% for provider in providers -%}
-      {% set_global cur_cdn = img_cdns[loop.index0] -%}
-      {% for emote in latest.emotes[provider] -%}
-        {% if emote.id -%}
-        "{{ emote.name | safe }}": "{{ cur_cdn | replace(from='{id}', to=emote.id) | safe }}",
-        {% endif -%}
-      {% endfor -%}
-    {% endfor -%}
-  };
+  var emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=latest.emotes) }};
   document.addEventListener('DOMContentLoaded', function() {
     formatNumbers();
-    document.querySelectorAll('[data-date]').forEach(function(el) {
-      if (window.formatDate) el.textContent = formatDate(el.dataset.date);
-    });
     document.querySelectorAll('[data-emote-name]').forEach(function(el) {
       var name = el.getAttribute('data-emote-name');
       if (emoteMap[name]) {

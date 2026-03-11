@@ -2,8 +2,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 /* === Custom Properties === */
-/* Light is the default. The inline script in base.html always sets
-   data-theme (from localStorage or OS preference) before CSS loads,
+/* Light is the :root default. The inline script in base.html sets
+   data-theme (from localStorage or OS preference) before first paint,
    so [data-theme] selectors are the effective theme source. */
 :root, [data-theme="light"] {
   --bg: #ffffff;
@@ -112,28 +112,28 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 /* === Stat Cards === */
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: .75rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: .6rem;
   margin-bottom: 1.5rem;
 }
 .stat {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1rem;
+  padding: .7rem .5rem;
   text-align: center;
 }
 .stat-value {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
   line-height: 1.2;
   color: var(--text);
   font-variant-numeric: tabular-nums;
 }
 .stat-label {
-  font-size: .8rem;
+  font-size: .75rem;
   color: var(--text-muted);
-  margin-top: .25rem;
+  margin-top: .2rem;
 }
 
 /* === Tables === */
@@ -223,7 +223,7 @@ tr:hover td { background: var(--bg-surface); }
   left: 2px;
   width: 14px;
   height: 14px;
-  background: #fff;
+  background: var(--bg);
   border-radius: 50%;
   transition: transform .15s;
 }
@@ -239,14 +239,14 @@ tr:hover td { background: var(--bg-surface); }
 }
 /* === Section Header (back arrow + streamer card) === */
 .section-header {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
   gap: .5rem;
 }
 .section-back {
   color: var(--text-muted);
   display: flex;
-  margin-top: 6px;
 }
 .section-back:hover { color: var(--text); }
 
@@ -255,19 +255,32 @@ tr:hover td { background: var(--bg-surface); }
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex: 1;
   color: var(--text);
 }
 .twitch-link {
-  color: var(--text-muted);
   display: flex;
-  align-self: center;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+  color: var(--text-muted);
+  text-decoration: none;
   padding: .25rem;
 }
 .twitch-link:hover { color: #9146ff; }
+.follower-count {
+  font-size: .8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .streamer-avatar { width: 48px; height: 48px; border-radius: 50%; }
 .streamer-info h2 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
 .streamer-info small { color: var(--text-muted); }
+
+/* === Hourly Activity Chart === */
+.hourly-chart {
+  margin: 0 0 1.5rem;
+}
 
 /* === Trend Indicators === */
 .stat-trend {
@@ -355,20 +368,13 @@ tr:hover td { background: var(--bg-surface); }
 
 /* === Weeks Browser (list + calendar) === */
 .weeks-browser {
-  position: relative;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
   margin-bottom: 1.5rem;
-  padding-right: calc(100% - 280px);
 }
 .weeks-browser h2 { margin-top: 0; }
-.weeks-panel:first-child {
-  width: 280px;
-}
 .weeks-panel:last-child {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: calc(280px + 1.5rem);
   border-left: 1px solid var(--border);
   padding-left: 1.5rem;
   display: flex;
@@ -484,7 +490,7 @@ a.cal-has-data .cal-other { color: inherit; }
   border-radius: 4px;
 }
 a.cal-has-data .cal-today {
-  background: #fff;
+  background: var(--bg);
   color: var(--accent);
 }
 
@@ -707,6 +713,7 @@ a.cal-has-data .cal-today {
 }
 .vod-grid[hidden] { display: none; }
 .vod-pill {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -721,6 +728,37 @@ a.cal-has-data .cal-today {
 }
 .vod-pill:hover { border-color: var(--text-muted); color: var(--text); text-decoration: none; }
 .vod-pill svg { flex-shrink: 0; }
+.vod-tip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  padding: .5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
+  z-index: 10;
+  pointer-events: none;
+}
+.vod-pill:hover .vod-tip { display: block; }
+.vod-tip img { width: 100%; border-radius: 4px; display: block; }
+.vod-tip-title {
+  display: block;
+  margin-top: .4rem;
+  font-size: .8rem;
+  line-height: 1.3;
+  color: var(--text);
+  white-space: normal;
+}
+.vod-tip-meta {
+  display: block;
+  margin-top: .15rem;
+  font-size: .7rem;
+  color: var(--text-muted);
+}
 
 /* === Table Pagination === */
 .table-pagination {
@@ -759,6 +797,8 @@ a.cal-has-data .cal-today {
   word-break: break-word;
   white-space: normal;
 }
+
+.chatter-name { white-space: nowrap; }
 
 /* === Copy /unvip button === */
 .copy-unvip {
@@ -844,14 +884,11 @@ a.cal-has-data .cal-today {
   .sparkline-svg { height: 80px !important; }
   .streamer-card-header { flex-wrap: wrap; }
   .streamer-card-stats { gap: .75rem; }
-  .weeks-browser { padding-right: 0; }
-  .weeks-panel:first-child { width: 100%; }
+  .weeks-browser { grid-template-columns: 1fr; }
   .weeks-panel:last-child {
-    position: static;
     border-left: none;
     border-top: 1px solid var(--border);
     padding: 1rem 0 0;
-    margin-top: 1rem;
   }
   .weeks-list { max-height: 240px; }
   .dashboard-columns { grid-template-columns: 1fr; }

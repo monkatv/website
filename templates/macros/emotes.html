@@ -1,0 +1,12 @@
+{% macro emote_map_js(providers, img_cdns, emotes) %}
+{
+  {% for provider in providers -%}
+    {% set cdn = img_cdns[loop.index0] -%}
+    {% for emote in emotes[provider] -%}
+      {% if emote.id -%}
+      "{{ emote.name | replace(from='\', to='\\') | replace(from='"', to='\\"') | safe }}": "{{ cdn | replace(from='{id}', to=emote.id) | safe }}",
+      {% endif -%}
+    {% endfor -%}
+  {% endfor -%}
+}
+{% endmacro %}

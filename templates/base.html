@@ -2,7 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="dark light">
+  <!-- Firefox can paint between external CSS load and script execution,
+       causing a flash. This inline style provides instant background+text
+       using OS preference as a best-guess until the theme script and
+       external CSS take over. Keep colors in sync with custom.css. -->
+  <style>
+    html { background: #0d1117; color: #e6edf3; }
+    @media (prefers-color-scheme: light) { html { background: #ffffff; color: #1f2328; } }
+  </style>
+  <link rel="stylesheet" href="/css/custom.css">
   <script>
     (function() {
       var theme = localStorage.getItem('theme') ||
@@ -32,9 +41,13 @@
   <meta property="og:url" content="{% block og_url %}{{ config.base_url }}{% endblock %}">
   <meta property="og:site_name" content="{{ config.title }}">
   <meta property="og:description" content="{% block og_description %}Weekly Twitch chat statistics and emote usage tracking{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}/img/logo.png{% endblock %}">
   <link rel="canonical" href="{% block canonical %}{{ config.base_url }}{% endblock %}">
   <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="preconnect" href="https://cdn.7tv.app">
+  <link rel="preconnect" href="https://cdn.betterttv.net">
+  <link rel="preconnect" href="https://cdn.frankerfacez.com">
+  <link rel="preconnect" href="https://static-cdn.jtvnw.net">
   <script defer src="/zk/js/script.js"></script>
   <script>
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "macros/emotes.html" as emote_macros %}
 
 {% block title %}{{ page.title }} — {{ config.title }}{% endblock %}
 {% block description %}{{ page.title }}{% endblock %}
@@ -40,7 +41,14 @@
   {% if data.vods | length > 0 %}
   <div class="vod-grid" id="vod-list" hidden>
     {% for vod in data.vods %}
-    <a class="vod-pill" href="https://www.twitch.tv/videos/{{ vod.id }}" target="_blank" rel="noopener noreferrer" title="{{ vod.title }}">
+    <a class="vod-pill" href="https://www.twitch.tv/videos/{{ vod.id }}" target="_blank" rel="noopener noreferrer">
+      {% if vod.thumbnail_url %}
+      <span class="vod-tip">
+        <img src="{{ vod.thumbnail_url | safe }}" width="320" height="180" alt="" loading="lazy">
+        <span class="vod-tip-title">{{ vod.title }}</span>
+        <span class="vod-tip-meta">{% if vod.duration_seconds %}{{ vod.duration_seconds / 3600 | round(precision=1) }}h{% endif %}{% if vod.view_count %}{% if vod.duration_seconds %} &middot; {% endif %}<span data-fmt="{{ vod.view_count }}">{{ vod.view_count }}</span> views{% endif %}</span>
+      </span>
+      {% endif %}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2L3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29l-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43Z"/></svg>
       VOD {{ loop.index }}
     </a>
@@ -61,22 +69,20 @@
   </div>
   <div class="stat">
     {% if total > 0 %}
-      {% set pct = dupes * 1000 / total %}
-      {% set whole = pct / 10 %}
+      {% set dupe_pct = dupes * 100 / total %}
     {% else %}
-      {% set whole = 0 %}
+      {% set dupe_pct = 0 %}
     {% endif %}
-    <div class="stat-value">{{ whole | round(precision=1) }}%</div>
+    <div class="stat-value">{{ dupe_pct | round(precision=1) }}%</div>
     <div class="stat-label">Duplicates</div>
   </div>
   <div class="stat">
     {% if total > 0 %}
-      {% set bpct = bot * 1000 / total %}
-      {% set bwhole = bpct / 10 %}
+      {% set bot_pct = bot * 100 / total %}
     {% else %}
-      {% set bwhole = 0 %}
+      {% set bot_pct = 0 %}
     {% endif %}
-    <div class="stat-value">{{ bwhole | round(precision=1) }}%</div>
+    <div class="stat-value">{{ bot_pct | round(precision=1) }}%</div>
     <div class="stat-label">Bot messages</div>
   </div>
 </div>
@@ -97,7 +103,7 @@
     {% if loop.index0 < users_limit %}
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
-      <td>{{ user.username }}</td>
+      <td><span class="chatter-name" {% if user.color %}style="color: {{ user.color }}"{% endif %}>{{ user.username }}</span></td>
       <td class="col-count" data-fmt="{{ user.count }}">{{ user.count }}</td>
     </tr>
     {% endif %}
@@ -118,15 +124,17 @@
     {% for provider in providers %}
       <button class="tab-btn{% if loop.first %} active{% endif %}"
               role="tab"
+              id="tab-btn-{{ provider }}"
               data-tab="{{ provider }}"
-              aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+              aria-selected="{% if loop.first %}true{% else %}false{% endif %}"
+              aria-controls="tab-{{ provider }}">
         {{ provider_labels[loop.index0] }}
         <small>({{ data.emotes[provider] | length }})</small>
       </button>
     {% endfor %}
   </div>
   <label class="toggle-switch" title="Hide unused emotes">
-    <input type="checkbox" id="hide-unused-toggle">
+    <input type="checkbox" id="hide-unused-toggle" aria-label="Hide unused emotes">
     <span class="toggle-track"></span>
     <span class="toggle-text">Hide unused</span>
   </label>
@@ -136,7 +144,7 @@
   {% set emotes = data.emotes[provider] %}
   {% set cdn = img_cdns[loop.index0] %}
 
-  <div class="tab-panel{% if loop.first %} active{% endif %}" id="tab-{{ provider }}" role="tabpanel">
+  <div class="tab-panel{% if loop.first %} active{% endif %}" id="tab-{{ provider }}" role="tabpanel" aria-labelledby="tab-btn-{{ provider }}">
     <table id="table-{{ provider }}" data-page-size="25">
       <thead>
         <tr>
@@ -159,7 +167,7 @@
               {% endif %}
             </span>
           </td>
-          <td class="col-count">{{ emote.count }}</td>
+          <td class="col-count" data-fmt="{{ emote.count }}">{{ emote.count }}</td>
         </tr>
       {% endfor %}
       </tbody>
@@ -186,7 +194,7 @@
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td>{{ cmd.name }}</td>
-      <td class="col-count">{{ cmd.count }}</td>
+      <td class="col-count" data-fmt="{{ cmd.count }}">{{ cmd.count }}</td>
     </tr>
     {% endif %}
   {% endfor %}
@@ -212,7 +220,7 @@
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="copypasta-text" title="{{ pasta.text }}">{{ pasta.text }}</span></td>
-      <td class="col-count">{{ pasta.count }}</td>
+      <td class="col-count" data-fmt="{{ pasta.count }}">{{ pasta.count }}</td>
     </tr>
     {% endif %}
   {% endfor %}
@@ -242,7 +250,7 @@
   <tbody>
   {% for vip in data.expired_vips %}
     <tr>
-      <td>{{ vip.username }}</td>
+      <td><span class="chatter-name" {% if vip.color %}style="color: {{ vip.color }}"{% endif %}>{{ vip.username }}</span></td>
       <td>{{ vip.granted_at }}</td>
       <td>{{ vip.removed_at }}</td>
       <td><button class="copy-unvip" data-user="{{ vip.username }}" title="Copy /unvip {{ vip.username }}">copy /unvip</button></td>
@@ -272,16 +280,11 @@
 <script>
 (function() {
   {% if data.copypastas | length > 0 %}
-  var emoteMap = {
-    {% for provider in providers -%}
-      {% set cdn = img_cdns[loop.index0] -%}
-      {% for emote in data.emotes[provider] -%}
-        {% if emote.id -%}
-        "{{ emote.name | safe }}": "{{ cdn | replace(from='{id}', to=emote.id) | safe }}",
-        {% endif -%}
-      {% endfor -%}
-    {% endfor -%}
-  };
+  var emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }};
+  {% set ge = load_data(path="data/global_emotes.toml") -%}
+  {% for name, id in ge.emotes -%}
+  if (!emoteMap["{{ name | safe }}"]) emoteMap["{{ name | safe }}"] = "https://static-cdn.jtvnw.net/emoticons/v2/{{ id | safe }}/default/dark/1.0";
+  {% endfor -%}
   document.querySelectorAll('.copypasta-text').forEach(function(el) {
     var text = el.textContent;
     var parts = text.split(' ');

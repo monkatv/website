@@ -10,8 +10,13 @@
     return MONTHS[parseInt(p[1], 10) - 1] + ' ' + p[2] + ', ' + p[0];
   }
 
-  // Expose globally for use in templates
-  window.formatDate = formatDate;
+  // "2026-03-02", "2026-03-08" -> "Mar 02 – Mar 08, 2026"
+  function formatDateRange(startIso, endIso) {
+    if (startIso) {
+      return formatDate(startIso).replace(/,\s*\d{4}$/, '') + ' \u2013 ' + formatDate(endIso);
+    }
+    return formatDate(endIso);
+  }
 
   function formatNum(n) {
     if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -45,6 +50,7 @@
     for (var i = 0; i < weeks.length; i++) {
       values.push({
         date: weeks[i].end_date,
+        startDate: weeks[i].start_date || '',
         val: weeks[i][field] || 0
       });
     }
@@ -166,19 +172,22 @@
       var x = i * (barWidth + barGap);
       var y = marginTop + plotHeight - barH;
 
+      var isMax = values[i].val === maxVal;
       var rect = svgEl('rect', {
         x: x, y: y,
         width: barWidth, height: barH,
-        fill: 'var(--chart-bar)',
+        fill: isMax ? 'var(--chart-bar-hover)' : 'var(--chart-bar)',
         rx: '1',
         'data-date': values[i].date,
-        'data-val': values[i].val
+        'data-start-date': values[i].startDate,
+        'data-val': values[i].val,
+        'data-max': isMax ? '1' : ''
       });
       rect.addEventListener('mouseenter', function() {
         this.setAttribute('fill', 'var(--chart-bar-hover)');
-        var d = formatDate(this.getAttribute('data-date'));
+        var d = formatDateRange(this.getAttribute('data-start-date'), this.getAttribute('data-date'));
         var v = Number(this.getAttribute('data-val')).toLocaleString();
-        tooltip.textContent = d + '  \u2014  ' + v + ' msgs';
+        tooltip.innerHTML = d + '<br>' + v + ' msgs';
         tooltip.style.opacity = '1';
       });
       rect.addEventListener('mousemove', function(e) {
@@ -192,7 +201,7 @@
         tooltip.style.top = ty + 'px';
       });
       rect.addEventListener('mouseleave', function() {
-        this.setAttribute('fill', 'var(--chart-bar)');
+        this.setAttribute('fill', this.getAttribute('data-max') ? 'var(--chart-bar-hover)' : 'var(--chart-bar)');
         tooltip.style.opacity = '0';
       });
 
@@ -218,6 +227,7 @@
   window.renderSparkline = function(containerId, values, opts) {
     opts = opts || {};
     var dates = opts.dates || [];
+    var startDates = opts.startDates || [];
     var container = document.getElementById(containerId);
     if (!container || !values || values.length < 2) return;
 
@@ -304,7 +314,7 @@
             dot.setAttribute('cx', coords[idx].x);
             dot.setAttribute('cy', coords[idx].y);
             dot.setAttribute('opacity', '1');
-            tooltip.textContent = formatDate(dates[idx]) + ' \u2014 ' + values[idx].toLocaleString() + ' msgs';
+            tooltip.innerHTML = formatDateRange(startDates[idx] || '', dates[idx]) + '<br>' + values[idx].toLocaleString() + ' msgs';
             tooltip.style.opacity = '1';
           });
           hit.addEventListener('mousemove', function(e) {
@@ -347,5 +357,123 @@
       dl.appendChild(s3);
       container.appendChild(dl);
     }
+  };
+
+  /**
+   * renderHourlyChart(containerId, hours)
+   *
+   * hours: [int x 24] — message counts per hour (0–23)
+   * Renders a compact 24-bar chart showing chat activity by hour of day.
+   */
+  window.renderHourlyChart = function(containerId, hours) {
+    var container = document.getElementById(containerId);
+    if (!container || !hours || hours.length !== 24) return;
+
+    var maxVal = 0;
+    for (var i = 0; i < 24; i++) {
+      if (hours[i] > maxVal) maxVal = hours[i];
+    }
+    if (maxVal === 0) return;
+
+    var axisW = 44;
+    var plotW = 600;
+    var W = axisW + plotW;
+    var marginTop = 12;
+    var barH = 80;
+    var labelH = 16;
+    var H = marginTop + barH + labelH;
+    var gap = 3;
+    var barW = (plotW - gap * 23) / 24;
+
+    var svg = svgEl('svg', {
+      viewBox: '0 0 ' + W + ' ' + H,
+      preserveAspectRatio: 'xMidYMid meet',
+      role: 'img',
+      'aria-label': 'Hourly chat activity'
+    });
+    svg.style.width = '100%';
+    svg.style.height = 'auto';
+    svg.style.display = 'block';
+    svg.style.overflow = 'visible';
+
+    // Y-axis ticks and grid lines
+    var tickCount = 3;
+    for (var t = 0; t <= tickCount; t++) {
+      var tickVal = Math.round(maxVal * t / tickCount);
+      var ty = marginTop + barH - (barH * t / tickCount);
+      svg.appendChild(svgEl('line', {
+        x1: axisW, y1: ty, x2: W, y2: ty,
+        stroke: 'var(--border)', 'stroke-width': '0.5'
+      }));
+      if (t > 0) {
+        var label = svgEl('text', {
+          x: axisW - 4, y: ty + 3,
+          'text-anchor': 'end',
+          fill: 'var(--text-muted)',
+          'font-size': '9'
+        });
+        label.textContent = formatNum(tickVal);
+        svg.appendChild(label);
+      }
+    }
+
+    var tooltip = document.createElement('div');
+    tooltip.className = 'chart-tooltip';
+
+    var HOUR_LABELS = ['12a','','','3a','','','6a','','','9a','','','12p','','','3p','','','6p','','','9p','',''];
+
+    for (var i = 0; i < 24; i++) {
+      var h = (hours[i] / maxVal) * barH;
+      if (h < 1 && hours[i] > 0) h = 1;
+      var x = axisW + i * (barW + gap);
+      var y = marginTop + barH - h;
+      var isMax = hours[i] === maxVal;
+
+      var rect = svgEl('rect', {
+        x: x, y: y, width: barW, height: h,
+        fill: isMax ? 'var(--chart-bar-hover)' : 'var(--chart-bar)',
+        rx: '2',
+        'data-hour': i, 'data-val': hours[i], 'data-max': isMax ? '1' : ''
+      });
+
+      (function(r, idx) {
+        r.addEventListener('mouseenter', function() {
+          this.setAttribute('fill', 'var(--chart-bar-hover)');
+          var hr = idx;
+          var ampm = hr === 0 ? '12 AM' : hr < 12 ? hr + ' AM' : hr === 12 ? '12 PM' : (hr - 12) + ' PM';
+          tooltip.innerHTML = ampm + '<br>' + Number(this.getAttribute('data-val')).toLocaleString() + ' msgs';
+          tooltip.style.opacity = '1';
+        });
+        r.addEventListener('mousemove', function(e) {
+          var cr = container.getBoundingClientRect();
+          var tx = e.clientX - cr.left + 8;
+          if (tx + 120 > cr.width) tx = e.clientX - cr.left - 120;
+          tooltip.style.left = tx + 'px';
+          tooltip.style.top = (e.clientY - cr.top - 28) + 'px';
+        });
+        r.addEventListener('mouseleave', function() {
+          this.setAttribute('fill', this.getAttribute('data-max') ? 'var(--chart-bar-hover)' : 'var(--chart-bar)');
+          tooltip.style.opacity = '0';
+        });
+      })(rect, i);
+
+      svg.appendChild(rect);
+
+      // Hour labels
+      if (HOUR_LABELS[i]) {
+        var lbl = svgEl('text', {
+          x: x + barW / 2, y: H - 2,
+          'text-anchor': 'middle',
+          fill: 'var(--text-muted)',
+          'font-size': '9'
+        });
+        lbl.textContent = HOUR_LABELS[i];
+        svg.appendChild(lbl);
+      }
+    }
+
+    container.style.position = 'relative';
+    container.appendChild(svg);
+    container.appendChild(tooltip);
   };
 })();

@@ -30,7 +30,7 @@ jobs:
       - name: Check for new data files
         id: check-data
         run: |
-          if git diff --name-only HEAD~1 HEAD -- 'static/api/*/20*.json' 'content/' 2>/dev/null | grep -q .; then
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'static/api/*/20*.json' 'content/' 2>/dev/null | grep -q .; then
             echo "has_new_data=true" >> "$GITHUB_OUTPUT"
           fi
 

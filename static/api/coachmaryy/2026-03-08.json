@@ -1,12 +1,13 @@
 {
   "schema_version": 1,
   "meta": {
-    "generated_at": "2026-03-09T15:05:03Z",
+    "generated_at": "2026-03-11T16:01:29Z",
     "defaults": {
       "users_limit": 20,
       "commands_limit": 10,
       "copypastas_limit": 10
-    }
+    },
+    "timezone": "America/Chicago"
   },
   "streamer": {
     "id": "588199800",
@@ -25,6 +26,8 @@
       "published_at": "2026-03-05T04:25:36Z",
       "duration_seconds": 7974,
       "game": "Counter-Strike",
+      "view_count": 3042,
+      "thumbnail_url": "https://static-cdn.jtvnw.net/cf_vods/d1m7jfoe9zdc1j/191f07e38cf9c9d25e5e_coachmaryy_318158718171_1772684731//thumb/thumb0-320x180.jpg",
       "messages": 727,
       "unique_chatters": 95
     }
@@ -78,383 +81,478 @@
   "users": [
     {
       "username": "wxrthyyy",
-      "count": 56
+      "count": 56,
+      "color": "#FF0000"
     },
     {
       "username": "bennypl_",
-      "count": 37
+      "count": 37,
+      "color": "#9D9C9C"
     },
     {
       "username": "Joeman1224",
-      "count": 35
+      "count": 35,
+      "color": "#950F77"
     },
     {
       "username": "bigelsa666",
-      "count": 34
+      "count": 34,
+      "color": "#FF4500"
     },
     {
       "username": "SamzieNA",
-      "count": 34
+      "count": 34,
+      "color": "#6343A5"
     },
     {
       "username": "ricflairw000",
-      "count": 33
+      "count": 33,
+      "color": "#FF0000"
     },
     {
       "username": "ryannmannn",
-      "count": 31
+      "count": 31,
+      "color": "#FF0000"
     },
     {
       "username": "rafaltra",
-      "count": 25
+      "count": 25,
+      "color": "#008000"
     },
     {
       "username": "MrPnut0",
-      "count": 21
+      "count": 21,
+      "color": "#4F6990"
     },
     {
       "username": "FEEnoh",
-      "count": 19
+      "count": 19,
+      "color": "#9ACD32"
     },
     {
       "username": "TROLLMES",
-      "count": 19
+      "count": 19,
+      "color": "#541336"
     },
     {
       "username": "4tomos",
-      "count": 18
+      "count": 18,
+      "color": "#DAA520"
     },
     {
       "username": "idlewiiild",
-      "count": 18
+      "count": 18,
+      "color": "#00FF7F"
     },
     {
       "username": "yktv_kenny_",
-      "count": 17
+      "count": 17,
+      "color": "#D2691E"
     },
     {
       "username": "LakaiCS",
-      "count": 16
+      "count": 16,
+      "color": "#00CC4E"
     },
     {
       "username": "Carne_Esad",
-      "count": 16
+      "count": 16,
+      "color": "#00FFCF"
     },
     {
       "username": "wagazaki",
-      "count": 14
+      "count": 14,
+      "color": "#FF7F50"
     },
     {
       "username": "spookiBroom",
-      "count": 12
+      "count": 12,
+      "color": "#FF69B4"
     },
     {
       "username": "squiby99",
-      "count": 12
+      "count": 12,
+      "color": "#00FFE2"
     },
     {
       "username": "Cr4igtx",
-      "count": 11
+      "count": 11,
+      "color": "#0123CB"
     },
     {
       "username": "jaIuper",
-      "count": 11
+      "count": 11,
+      "color": "#00FF7F"
     },
     {
       "username": "TrevorXL",
-      "count": 10
+      "count": 10,
+      "color": "#FF69B4"
     },
     {
       "username": "brickedupdon",
-      "count": 9
+      "count": 9,
+      "color": "#FF4500"
     },
     {
       "username": "DGMesport",
-      "count": 9
+      "count": 9,
+      "color": "#FF0000"
     },
     {
       "username": "Dankotron",
-      "count": 9
+      "count": 9,
+      "color": "#FF69B4"
     },
     {
       "username": "pauldieko",
-      "count": 8
+      "count": 8,
+      "color": "#2E8B57"
     },
     {
       "username": "xxjohnnymac",
-      "count": 7
+      "count": 7,
+      "color": "#0000FF"
     },
     {
       "username": "suckmysub",
-      "count": 6
+      "count": 6,
+      "color": "#00FF7F"
     },
     {
       "username": "lagwag0n",
-      "count": 5
+      "count": 5,
+      "color": "#C7A900"
     },
     {
       "username": "testert0m",
-      "count": 5
+      "count": 5,
+      "color": "#FF0000"
     },
     {
       "username": "copenhagen_winter_green",
-      "count": 5
+      "count": 5,
+      "color": "#1E90FF"
     },
     {
       "username": "Toe_Knee7",
-      "count": 5
+      "count": 5,
+      "color": ""
     },
     {
       "username": "jkwaffles",
-      "count": 4
+      "count": 4,
+      "color": "#B9CC0D"
     },
     {
       "username": "Meierz_",
-      "count": 4
+      "count": 4,
+      "color": "#DAA520"
     },
     {
       "username": "DogLikeTevin",
-      "count": 3
+      "count": 3,
+      "color": "#00D433"
     },
     {
       "username": "sleaz_e",
-      "count": 3
+      "count": 3,
+      "color": "#FFFFFF"
     },
     {
       "username": "Thhaer",
-      "count": 3
+      "count": 3,
+      "color": "#FFFFFF"
     },
     {
       "username": "Repo",
-      "count": 3
+      "count": 3,
+      "color": "#9016FF"
     },
     {
       "username": "k3nyonnn",
-      "count": 3
+      "count": 3,
+      "color": "#B22222"
     },
     {
       "username": "UnHoIyRed",
-      "count": 3
+      "count": 3,
+      "color": "#B22222"
     },
     {
       "username": "enr1qve_",
-      "count": 3
+      "count": 3,
+      "color": "#008000"
     },
     {
       "username": "GGmagician",
-      "count": 3
+      "count": 3,
+      "color": "#9ACD32"
     },
     {
       "username": "mightyGomes",
-      "count": 3
+      "count": 3,
+      "color": "#0000FF"
     },
     {
       "username": "fullZaZaMode",
-      "count": 3
+      "count": 3,
+      "color": "#8A2BE2"
     },
     {
       "username": "paidchatter771",
-      "count": 3
+      "count": 3,
+      "color": ""
     },
     {
       "username": "wlendan",
-      "count": 3
+      "count": 3,
+      "color": "#00FF7F"
     },
     {
       "username": "scumbagratt",
-      "count": 3
+      "count": 3,
+      "color": "#8A2BE2"
     },
     {
       "username": "mohsin_iscool",
-      "count": 3
+      "count": 3,
+      "color": ""
     },
     {
       "username": "pristyrl",
-      "count": 3
+      "count": 3,
+      "color": "#FF4500"
     },
     {
       "username": "jjennifur",
-      "count": 3
+      "count": 3,
+      "color": "#89ACDA"
     },
     {
       "username": "SilkySilhoutte",
-      "count": 3
+      "count": 3,
+      "color": "#8400FF"
     },
     {
       "username": "L_u_X_o_R",
-      "count": 2
+      "count": 2,
+      "color": "#8A2BE2"
     },
     {
       "username": "buhMizi",
-      "count": 2
+      "count": 2,
+      "color": "#00FF7F"
     },
     {
       "username": "may0juice",
-      "count": 2
+      "count": 2,
+      "color": "#1E90FF"
     },
     {
       "username": "seitoss",
-      "count": 2
+      "count": 2,
+      "color": ""
     },
     {
       "username": "JustinFoIey",
-      "count": 2
+      "count": 2,
+      "color": "#799EF4"
     },
     {
       "username": "gooseapplejuice",
-      "count": 2
+      "count": 2,
+      "color": "#D2691E"
     },
     {
       "username": "casualjarvis",
-      "count": 2
+      "count": 2,
+      "color": "#B22222"
     },
     {
       "username": "iSayBooyah28",
-      "count": 2
+      "count": 2,
+      "color": "#1E90FF"
     },
     {
       "username": "gigadesmodus",
-      "count": 2
+      "count": 2,
+      "color": "#5F9EA0"
     },
     {
       "username": "IggyXI",
-      "count": 2
+      "count": 2,
+      "color": "#00FFB2"
     },
     {
       "username": "ddawed",
-      "count": 2
+      "count": 2,
+      "color": ""
     },
     {
       "username": "bigbadbrad37",
-      "count": 2
+      "count": 2,
+      "color": ""
     },
     {
       "username": "ayypablit0",
-      "count": 2
+      "count": 2,
+      "color": "#FF0000"
     },
     {
       "username": "Briceps",
-      "count": 2
+      "count": 2,
+      "color": "#1E90FF"
     },
     {
       "username": "BrownFudgy",
-      "count": 2
+      "count": 2,
+      "color": "#3F1F13"
     },
     {
       "username": "Iastbeer",
-      "count": 2
+      "count": 2,
+      "color": "#00FF7F"
     },
     {
       "username": "StreamElements",
-      "count": 1
+      "count": 1,
+      "color": "#5B99FF"
     },
     {
       "username": "wotta_bot",
-      "count": 1
+      "count": 1,
+      "color": ""
     },
     {
       "username": "Shimazu90",
-      "count": 1
+      "count": 1,
+      "color": "#DAA520"
     },
     {
       "username": "ikostadinov",
-      "count": 1
+      "count": 1,
+      "color": ""
     },
     {
       "username": "col_sanders101",
-      "count": 1
+      "count": 1,
+      "color": "#00FF7F"
     },
     {
       "username": "xCturn",
-      "count": 1
+      "count": 1,
+      "color": "#008000"
     },
     {
       "username": "xkrolloh",
-      "count": 1
+      "count": 1,
+      "color": ""
     },
     {
       "username": "1337Gray",
-      "count": 1
+      "count": 1,
+      "color": "#8A2BE2"
     },
     {
       "username": "dhr00vaSZN",
-      "count": 1
+      "count": 1,
+      "color": "#00FF7F"
     },
     {
       "username": "loverboy44444",
-      "count": 1
+      "count": 1,
+      "color": "#000000"
     },
     {
       "username": "TheSal_Man",
-      "count": 1
+      "count": 1,
+      "color": ""
     },
     {
       "username": "Icecoldbrew92",
-      "count": 1
+      "count": 1,
+      "color": "#008000"
     },
     {
       "username": "nrsdbnotanymore",
-      "count": 1
+      "count": 1,
+      "color": "#1E90FF"
     },
     {
       "username": "cmac7777",
-      "count": 1
+      "count": 1,
+      "color": "#1E90FF"
     },
     {
       "username": "FlasH_Sr",
-      "count": 1
+      "count": 1,
+      "color": "#1E90FF"
     },
     {
       "username": "sn4ke0NE",
-      "count": 1
+      "count": 1,
+      "color": ""
     },
     {
       "username": "cecillyons781",
-      "count": 1
+      "count": 1,
+      "color": ""
     },
     {
       "username": "floke_1897",
-      "count": 1
+      "count": 1,
+      "color": "#FF0000"
     },
     {
       "username": "Sutt0wnz",
-      "count": 1
+      "count": 1,
+      "color": ""
     },
     {
       "username": "mkyyyyyyyyyyyyyyy",
-      "count": 1
+      "count": 1,
+      "color": "#9ACD32"
     },
     {
       "username": "CoachMaryy",
-      "count": 1
+      "count": 1,
+      "color": "#1E90FF"
     },
     {
       "username": "stvn_sf",
-      "count": 1
+      "count": 1,
+      "color": "#5F9EA0"
     },
     {
       "username": "chipdihh",
-      "count": 1
+      "count": 1,
+      "color": "#96FAA3"
     },
     {
       "username": "EliNo_",
-      "count": 1
+      "count": 1,
+      "color": "#1E90FF"
     },
     {
       "username": "rin000s",
-      "count": 1
+      "count": 1,
+      "color": "#FF0000"
     },
     {
       "username": "Zurrender9",
-      "count": 1
+      "count": 1,
+      "color": "#0000FF"
     },
     {
       "username": "ruatachauh13",
-      "count": 1
+      "count": 1,
+      "color": ""
     },
     {
       "username": "kmanglass",
-      "count": 1
+      "count": 1,
+      "color": "#5F9EA0"
     }
   ],
   "emotes": {
@@ -5257,232 +5355,278 @@
     {
       "username": "shKorn",
       "granted_at": "2022-09-10",
-      "removed_at": "2023-03-10"
+      "removed_at": "2023-03-10",
+      "color": ""
     },
     {
       "username": "Milsey",
       "granted_at": "2022-09-17",
-      "removed_at": "2023-03-17"
+      "removed_at": "2023-03-17",
+      "color": ""
     },
     {
       "username": "mffn",
       "granted_at": "2023-05-27",
-      "removed_at": "2023-11-27"
+      "removed_at": "2023-11-27",
+      "color": ""
     },
     {
       "username": "MagnnuM",
       "granted_at": "2023-06-06",
-      "removed_at": "2023-12-06"
+      "removed_at": "2023-12-06",
+      "color": ""
     },
     {
       "username": "SkeetShooterTTV",
       "granted_at": "2023-06-11",
-      "removed_at": "2023-12-11"
+      "removed_at": "2023-12-11",
+      "color": ""
     },
     {
       "username": "Murk3n__",
       "granted_at": "2023-07-07",
-      "removed_at": "2024-01-07"
+      "removed_at": "2024-01-07",
+      "color": ""
     },
     {
       "username": "testert0m",
       "granted_at": "2023-07-12",
-      "removed_at": "2024-01-12"
+      "removed_at": "2024-01-12",
+      "color": "#FF0000"
     },
     {
       "username": "austincs",
       "granted_at": "2023-08-07",
-      "removed_at": "2024-02-07"
+      "removed_at": "2024-02-07",
+      "color": ""
     },
     {
       "username": "allyyhub",
       "granted_at": "2023-08-11",
-      "removed_at": "2024-02-11"
+      "removed_at": "2024-02-11",
+      "color": ""
     },
     {
       "username": "Admiral_ASIA",
       "granted_at": "2023-08-22",
-      "removed_at": "2024-02-22"
+      "removed_at": "2024-02-22",
+      "color": ""
     },
     {
       "username": "haleysaurus123",
       "granted_at": "2023-09-13",
-      "removed_at": "2024-03-13"
+      "removed_at": "2024-03-13",
+      "color": ""
     },
     {
       "username": "UserTMCS",
       "granted_at": "2023-10-04",
-      "removed_at": "2024-04-04"
+      "removed_at": "2024-04-04",
+      "color": ""
     },
     {
       "username": "CMitch",
       "granted_at": "2023-10-10",
-      "removed_at": "2024-04-10"
+      "removed_at": "2024-04-10",
+      "color": ""
     },
     {
       "username": "T3KKX",
       "granted_at": "2023-10-17",
-      "removed_at": "2024-04-17"
+      "removed_at": "2024-04-17",
+      "color": ""
     },
     {
       "username": "merabella",
       "granted_at": "2023-10-20",
-      "removed_at": "2024-04-20"
+      "removed_at": "2024-04-20",
+      "color": ""
     },
     {
       "username": "Saski",
       "granted_at": "2023-11-15",
-      "removed_at": "2024-05-15"
+      "removed_at": "2024-05-15",
+      "color": ""
     },
     {
       "username": "Sham_FPS",
       "granted_at": "2023-11-17",
-      "removed_at": "2024-05-17"
+      "removed_at": "2024-05-17",
+      "color": ""
     },
     {
       "username": "1limbocs",
       "granted_at": "2023-12-05",
-      "removed_at": "2024-06-05"
+      "removed_at": "2024-06-05",
+      "color": ""
     },
     {
       "username": "celeryy0",
       "granted_at": "2024-01-06",
-      "removed_at": "2024-07-06"
+      "removed_at": "2024-07-06",
+      "color": ""
     },
     {
       "username": "duwap",
       "granted_at": "2024-02-20",
-      "removed_at": "2024-08-20"
+      "removed_at": "2024-08-20",
+      "color": ""
     },
     {
       "username": "kyaatsuwu",
       "granted_at": "2024-03-03",
-      "removed_at": "2024-09-03"
+      "removed_at": "2024-09-03",
+      "color": ""
     },
     {
       "username": "IvyVibey",
       "granted_at": "2024-03-20",
-      "removed_at": "2024-09-20"
+      "removed_at": "2024-09-20",
+      "color": ""
     },
     {
       "username": "Loagurt",
       "granted_at": "2024-03-24",
-      "removed_at": "2024-09-24"
+      "removed_at": "2024-09-24",
+      "color": ""
     },
     {
       "username": "Exerpas",
       "granted_at": "2024-03-26",
-      "removed_at": "2024-09-26"
+      "removed_at": "2024-09-26",
+      "color": ""
     },
     {
       "username": "iSayBooyah28",
       "granted_at": "2024-03-27",
-      "removed_at": "2024-09-27"
+      "removed_at": "2024-09-27",
+      "color": "#1E90FF"
     },
     {
       "username": "mump",
       "granted_at": "2024-04-09",
-      "removed_at": "2024-10-09"
+      "removed_at": "2024-10-09",
+      "color": ""
     },
     {
       "username": "louiecs2",
       "granted_at": "2024-04-21",
-      "removed_at": "2024-10-21"
+      "removed_at": "2024-10-21",
+      "color": ""
     },
     {
       "username": "skaoud",
       "granted_at": "2024-05-11",
-      "removed_at": "2024-11-11"
+      "removed_at": "2024-11-11",
+      "color": ""
     },
     {
       "username": "GeT_RiGhT",
       "granted_at": "2024-06-12",
-      "removed_at": "2024-12-12"
+      "removed_at": "2024-12-12",
+      "color": ""
     },
     {
       "username": "renyan",
       "granted_at": "2024-06-14",
-      "removed_at": "2024-12-14"
+      "removed_at": "2024-12-14",
+      "color": ""
     },
     {
       "username": "gglasgow",
       "granted_at": "2024-06-21",
-      "removed_at": "2024-12-21"
+      "removed_at": "2024-12-21",
+      "color": ""
     },
     {
       "username": "arozzi_official",
       "granted_at": "2024-07-01",
-      "removed_at": "2025-01-01"
+      "removed_at": "2025-01-01",
+      "color": ""
     },
     {
       "username": "dkradd",
       "granted_at": "2024-08-14",
-      "removed_at": "2025-02-14"
+      "removed_at": "2025-02-14",
+      "color": ""
     },
     {
       "username": "Hainer808",
       "granted_at": "2024-11-29",
-      "removed_at": "2025-05-29"
+      "removed_at": "2025-05-29",
+      "color": ""
     },
     {
       "username": "TROLLMES",
       "granted_at": "2025-01-19",
-      "removed_at": "2025-07-19"
+      "removed_at": "2025-07-19",
+      "color": "#541336"
     },
     {
       "username": "Tuntalunta_",
       "granted_at": "2025-03-14",
-      "removed_at": "2025-09-14"
+      "removed_at": "2025-09-14",
+      "color": ""
     },
     {
       "username": "Swisher",
       "granted_at": "2025-04-09",
-      "removed_at": "2025-10-09"
+      "removed_at": "2025-10-09",
+      "color": ""
     },
     {
       "username": "dssire",
       "granted_at": "2025-05-08",
-      "removed_at": "2025-11-08"
+      "removed_at": "2025-11-08",
+      "color": ""
     },
     {
       "username": "hyza",
       "granted_at": "2025-05-10",
-      "removed_at": "2025-11-10"
+      "removed_at": "2025-11-10",
+      "color": ""
     },
     {
       "username": "coachmamabear",
       "granted_at": "2025-05-16",
-      "removed_at": "2025-11-16"
+      "removed_at": "2025-11-16",
+      "color": ""
     },
     {
       "username": "OG_Zaddy",
       "granted_at": "2025-05-16",
-      "removed_at": "2025-11-16"
+      "removed_at": "2025-11-16",
+      "color": ""
     },
     {
       "username": "hvnlypeach",
       "granted_at": "2025-05-28",
-      "removed_at": "2025-11-28"
+      "removed_at": "2025-11-28",
+      "color": ""
     },
     {
       "username": "Minaleyy09",
       "granted_at": "2025-07-07",
-      "removed_at": "2026-01-07"
+      "removed_at": "2026-01-07",
+      "color": ""
     },
     {
       "username": "ArrowCS",
       "granted_at": "2025-07-10",
-      "removed_at": "2026-01-10"
+      "removed_at": "2026-01-10",
+      "color": ""
     },
     {
       "username": "NuTorious_gg",
       "granted_at": "2025-07-15",
-      "removed_at": "2026-01-15"
+      "removed_at": "2026-01-15",
+      "color": ""
     },
     {
       "username": "TokioAWP",
       "granted_at": "2025-08-01",
-      "removed_at": "2026-02-01"
+      "removed_at": "2026-02-01",
+      "color": ""
     }
   ]
 }

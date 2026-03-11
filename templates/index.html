@@ -80,13 +80,14 @@
   (function() {
     var weeks = {{ summary.weeks | json_encode() | safe }};
     var recent = weeks.slice(-8);
-    var vals = [], dates = [];
+    var vals = [], dates = [], startDates = [];
     for (var i = 0; i < recent.length; i++) {
       vals.push(recent[i].messages_total);
       dates.push(recent[i].end_date);
+      startDates.push(recent[i].start_date || '');
     }
     document.addEventListener('DOMContentLoaded', function() {
-      renderSparkline("sparkline-{{ s.login }}", vals, { dates: dates });
+      renderSparkline("sparkline-{{ s.login }}", vals, { dates: dates, startDates: startDates });
     });
   })();
   </script>

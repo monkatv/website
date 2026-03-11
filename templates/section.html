@@ -26,7 +26,7 @@
   <div class="streamer-card">
     <img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="streamer-avatar" alt="{{ summary.display_name }}">
     <div class="streamer-info">
-      <h2>{{ summary.display_name }}</h2>
+      <h1>{{ summary.display_name }}</h1>
       {% if summary.total_weeks > 0 %}
         <small>Tracking since {{ summary.all_time.first_date | date(format="%B %Y") }} &middot; {{ summary.total_weeks }} weeks</small>
       {% else %}
@@ -115,16 +115,7 @@
   <div class="stat">
     <div class="stat-value">{{ cur_vods }}</div>
     <div class="stat-label">VODs</div>
-    {% if num_weeks > 1 %}
-      {% set diff = cur_vods - prev_vods %}
-      {% if diff > 0 %}
-        <div class="stat-trend stat-trend-up">&#9650; {{ diff }}</div>
-      {% elif diff < 0 %}
-        <div class="stat-trend stat-trend-down">&#9660; {{ diff * -1 }}</div>
-      {% else %}
-        <div class="stat-trend stat-trend-flat">&mdash;</div>
-      {% endif %}
-    {% endif %}
+    {% if num_weeks > 1 %}{{ macros::trend(cur=cur_vods, prev=prev_vods, mode="absolute") }}{% endif %}
   </div>
 </div>
 

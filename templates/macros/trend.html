@@ -1,5 +1,14 @@
-{% macro trend(cur, prev) %}
-  {% if prev > 0 %}
+{% macro trend(cur, prev, mode="percent") %}
+  {% if mode == "absolute" %}
+    {% set diff = cur - prev %}
+    {% if diff > 0 %}
+      <div class="stat-trend stat-trend-up">&#9650; {{ diff }}</div>
+    {% elif diff < 0 %}
+      <div class="stat-trend stat-trend-down">&#9660; {{ diff * -1 }}</div>
+    {% else %}
+      <div class="stat-trend stat-trend-flat">&mdash;</div>
+    {% endif %}
+  {% elif prev > 0 %}
     {% set pct = (cur - prev) * 100 / prev %}
     {% if pct > 1 %}
       <div class="stat-trend stat-trend-up">&#9650; {{ pct | round(precision=0) }}%</div>

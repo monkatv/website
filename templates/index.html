@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+<h1 class="sr-only">{{ config.title }}</h1>
 {% set ep = load_data(path="data/emote_providers.toml") %}
 {% set providers = ep.providers %}
 {% set img_cdns = ep.img_cdns %}
@@ -35,7 +36,7 @@
         <div class="streamer-card-header">
           <img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="streamer-avatar" alt="{{ summary.display_name }}">
           <div class="streamer-info">
-            <h2>{{ summary.display_name }}</h2>
+            <h3>{{ summary.display_name }}</h3>
             {% if summary.total_weeks > 0 %}
             <small>Tracking since {{ summary.all_time.first_date | date(format="%B %Y") }} &middot; {{ summary.total_weeks }} weeks</small>
             {% endif %}
@@ -76,10 +77,15 @@
   </a>
 
   {% if summary.total_weeks >= 2 %}
+  {% set weeks_len = summary.weeks | length %}
+  {% if weeks_len > 8 %}
+    {% set recent_weeks = summary.weeks | slice(start=weeks_len - 8) %}
+  {% else %}
+    {% set recent_weeks = summary.weeks %}
+  {% endif %}
   <script>
   (function() {
-    var weeks = {{ summary.weeks | json_encode() | safe }};
-    var recent = weeks.slice(-8);
+    var recent = {{ recent_weeks | json_encode() | safe }};
     var vals = [], dates = [], startDates = [];
     for (var i = 0; i < recent.length; i++) {
       vals.push(recent[i].messages_total);

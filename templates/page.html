@@ -10,6 +10,7 @@
 
 {% block extra_head %}
 <script src="/js/table.js" defer></script>
+<script src="/js/global-emotes.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -262,15 +263,20 @@
 
 {# === Prev / Next Navigation === #}
 {# sort_by="date" (newest first): page.lower = newer, page.higher = older #}
-{% if page.lower or page.higher %}
+{# Skip the "latest" redirect page (date=9999-12-31) in navigation #}
+{% set newer = page.lower %}
+{% if newer and newer.extra.redirect_to is defined %}
+  {% set newer = false %}
+{% endif %}
+{% if newer or page.higher %}
 <nav class="report-nav">
   {% if page.higher %}
     <a href="{{ page.higher.path | safe }}">&larr; older</a>
   {% else %}
     <span></span>
   {% endif %}
-  {% if page.lower %}
-    <a href="{{ page.lower.path | safe }}">newer &rarr;</a>
+  {% if newer %}
+    <a href="{{ newer.path | safe }}">newer &rarr;</a>
   {% else %}
     <span></span>
   {% endif %}
@@ -280,29 +286,35 @@
 <script>
 (function() {
   {% if data.copypastas | length > 0 %}
-  var emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }};
-  {% set ge = load_data(path="data/global_emotes.toml") -%}
-  {% for name, id in ge.emotes -%}
-  if (!emoteMap["{{ name | safe }}"]) emoteMap["{{ name | safe }}"] = "https://static-cdn.jtvnw.net/emoticons/v2/{{ id | safe }}/default/dark/1.0";
-  {% endfor -%}
+  const emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }};
+  const ge = window.__globalEmotes || {};
+  for (const k in ge) { if (ge.hasOwnProperty(k) && !emoteMap[k]) emoteMap[k] = ge[k]; }
   document.querySelectorAll('.copypasta-text').forEach(function(el) {
-    var text = el.textContent;
-    var parts = text.split(' ');
-    var hasEmote = parts.some(function(w) { return emoteMap[w]; });
+    const text = el.textContent;
+    const parts = text.split(' ');
+    const hasEmote = parts.some(function(w) { return emoteMap[w]; });
     if (!hasEmote) return;
-    var html = parts.map(function(word) {
+    const frag = document.createDocumentFragment();
+    parts.forEach(function(word, i) {
+      if (i > 0) frag.appendChild(document.createTextNode(' '));
       if (emoteMap[word]) {
-        var safe = word.replace(/"/g, '&quot;');
-        return '<img class="emote-img" src="' + emoteMap[word] + '" alt="' + safe + '" title="' + safe + '">';
+        const img = document.createElement('img');
+        img.className = 'emote-img';
+        img.src = emoteMap[word];
+        img.alt = word;
+        img.title = word;
+        frag.appendChild(img);
+      } else {
+        frag.appendChild(document.createTextNode(word));
       }
-      return word.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }).join(' ');
-    el.innerHTML = html;
+    });
+    el.textContent = '';
+    el.appendChild(frag);
   });
   {% endif %}
   formatNumbers();
-  var vodToggle = document.getElementById('vod-toggle');
-  var vodList = document.getElementById('vod-list');
+  const vodToggle = document.getElementById('vod-toggle');
+  const vodList = document.getElementById('vod-list');
   if (vodToggle && vodList) {
     vodToggle.addEventListener('click', function() {
       vodList.hidden = !vodList.hidden;
@@ -310,7 +322,7 @@
   }
   document.querySelectorAll('.copy-unvip').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      var cmd = '/unvip ' + btn.getAttribute('data-user');
+      const cmd = '/unvip ' + btn.getAttribute('data-user');
       navigator.clipboard.writeText(cmd).then(function() {
         btn.textContent = 'copied!';
         setTimeout(function() { btn.textContent = 'copy /unvip'; }, 1500);

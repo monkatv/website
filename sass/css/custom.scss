@@ -1,6 +1,9 @@
 /* === Reset === */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* === Utilities === */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
 /* === Custom Properties === */
 /* Light is the :root default. The inline script in base.html sets
    data-theme (from localStorage or OS preference) before first paint,
@@ -20,6 +23,8 @@
   --trend-flat: #57606a;
   --chart-bar: #216e39;
   --chart-bar-hover: #2ea043;
+  --twitch-color: #9146ff;
+  --on-accent: #fff;
 }
 [data-theme="dark"] {
   --bg: #0d1117;
@@ -36,9 +41,12 @@
   --trend-flat: #8b949e;
   --chart-bar: #39d353;
   --chart-bar-hover: #4ae168;
+  --twitch-color: #a970ff;
+  --on-accent: #fff;
 }
 
 /* === Base === */
+html { background: var(--bg); }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -87,9 +95,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   gap: .5rem;
   font-size: 1.25rem;
   font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
 }
 .site-logo img { height: 28px; }
-.site-logo { color: var(--text); text-decoration: none; }
 .site-logo:hover { text-decoration: none; }
 
 /* === Theme Toggle === */
@@ -103,7 +112,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   color: var(--text-muted);
   line-height: 0;
 }
-.theme-toggle:hover { border-color: var(--text-muted); color: var(--text); }
+.theme-toggle:hover, .theme-toggle:focus-visible { border-color: var(--text-muted); color: var(--text); }
 [data-theme="light"] .icon-moon { display: inline; }
 [data-theme="light"] .icon-sun { display: none; }
 [data-theme="dark"] .icon-moon { display: none; }
@@ -188,7 +197,7 @@ tr:hover td { background: var(--bg-surface); }
   font-weight: 500;
   white-space: nowrap;
 }
-.tab-btn:hover { color: var(--text); background: var(--bg-surface); }
+.tab-btn:hover, .tab-btn:focus-visible { color: var(--text); background: var(--bg-surface); }
 .tab-btn.active {
   color: var(--text);
   background: var(--bg-surface);
@@ -266,7 +275,7 @@ tr:hover td { background: var(--bg-surface); }
   text-decoration: none;
   padding: .25rem;
 }
-.twitch-link:hover { color: #9146ff; }
+.twitch-link:hover { color: var(--twitch-color); }
 .follower-count {
   font-size: .8rem;
   color: var(--text-muted);
@@ -274,7 +283,7 @@ tr:hover td { background: var(--bg-surface); }
   white-space: nowrap;
 }
 .streamer-avatar { width: 48px; height: 48px; border-radius: 50%; }
-.streamer-info h2 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
+.streamer-info h1, .streamer-info h2, .streamer-info h3 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
 .streamer-info small { color: var(--text-muted); }
 
 /* === Hourly Activity Chart === */
@@ -397,7 +406,7 @@ tr:hover td { background: var(--bg-surface); }
   color: var(--text);
   transition: border-color .15s;
 }
-.weeks-list-item:hover { border-color: var(--text-muted); text-decoration: none; }
+.weeks-list-item:hover, .weeks-list-item:focus-visible { border-color: var(--text-muted); text-decoration: none; }
 .weeks-list-date { font-weight: 600; font-size: .85rem; margin-bottom: .15rem; }
 .weeks-list-stats { font-size: .78rem; color: var(--text-muted); }
 
@@ -428,7 +437,7 @@ tr:hover td { background: var(--bg-surface); }
   padding: .3rem .6rem;
   border-radius: 4px;
 }
-.cal-title:hover { background: var(--border); }
+.cal-title:hover, .cal-title:focus-visible { background: var(--border); }
 .cal-title-static { cursor: default; }
 .cal-title-static:hover { background: none; }
 .cal-nav {
@@ -441,7 +450,7 @@ tr:hover td { background: var(--bg-surface); }
   display: flex;
   align-items: center;
 }
-.cal-nav:hover { background: var(--border); color: var(--text); }
+.cal-nav:hover, .cal-nav:focus-visible { background: var(--border); color: var(--text); }
 .cal-dow-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -469,7 +478,7 @@ tr:hover td { background: var(--bg-surface); }
 a.cal-week { cursor: pointer; }
 a.cal-week.cal-has-data {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 a.cal-week.cal-has-data:hover {
   background: var(--accent-hover);
@@ -518,7 +527,7 @@ a.cal-has-data .cal-today {
 }
 .cal-cell.cal-has-data:hover {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   border-color: var(--accent);
 }
 
@@ -532,16 +541,14 @@ a.cal-has-data .cal-today {
   font-size: 1.35rem;
   color: var(--text);
   list-style: none;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .3rem;
 }
 .alltime-summary h2 {
   border-bottom: none;
   display: inline;
   font-size: inherit;
   margin: 0;
-}
-.alltime-summary {
-  border-bottom: 1px solid var(--border);
-  padding-bottom: .3rem;
 }
 .alltime-details:not([open]) > .alltime-summary {
   display: inline-block;
@@ -581,7 +588,7 @@ a.cal-has-data .cal-today {
   color: var(--text-muted);
   cursor: pointer;
 }
-.show-more-btn:hover { border-color: var(--text-muted); color: var(--text); }
+.show-more-btn:hover, .show-more-btn:focus-visible { border-color: var(--text-muted); color: var(--text); }
 
 
 /* === Report Nav === */
@@ -619,7 +626,7 @@ a.cal-has-data .cal-today {
   gap: 1rem;
 }
 .streamer-card-header .streamer-info { flex: 1; }
-.streamer-card-header .streamer-info h2 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
+.streamer-card-header .streamer-info h3 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
 .streamer-card-header .streamer-info small { color: var(--text-muted); }
 .streamer-card-body .sparkline {
   width: 400px;
@@ -783,12 +790,12 @@ a.cal-has-data .cal-today {
   color: var(--text-muted);
   font-size: .8rem;
 }
-.pag-buttons button:hover:not(:disabled) { border-color: var(--text-muted); color: var(--text); }
+.pag-buttons button:hover:not(:disabled), .pag-buttons button:focus-visible:not(:disabled) { border-color: var(--text-muted); color: var(--text); }
 .pag-buttons button:disabled { opacity: .4; cursor: default; }
 .pag-buttons button.pag-active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 .pag-ellipsis { color: var(--text-muted); padding: 0 .2rem; }
 
@@ -810,7 +817,7 @@ a.cal-has-data .cal-today {
   color: var(--text-muted);
   cursor: pointer;
 }
-.copy-unvip:hover { border-color: var(--text-muted); color: var(--text); }
+.copy-unvip:hover, .copy-unvip:focus-visible { border-color: var(--text-muted); color: var(--text); }
 
 /* === Contributors === */
 .contributors-grid {
@@ -892,5 +899,12 @@ a.cal-has-data .cal-today {
   }
   .weeks-list { max-height: 240px; }
   .dashboard-columns { grid-template-columns: 1fr; }
-  .dashboard-chart .chart-scroll { -webkit-overflow-scrolling: touch; }
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

@@ -2,20 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="color-scheme" content="dark light">
-  <!-- Firefox can paint between external CSS load and script execution,
-       causing a flash. This inline style provides instant background+text
-       using OS preference as a best-guess until the theme script and
-       external CSS take over. Keep colors in sync with custom.css. -->
-  <style>
-    html { background: #0d1117; color: #e6edf3; }
-    @media (prefers-color-scheme: light) { html { background: #ffffff; color: #1f2328; } }
-  </style>
-  <link rel="stylesheet" href="/css/custom.css">
+  <!-- Theme script runs before CSS so data-theme is set when vars resolve.
+       Inline style matches the default (dark) to prevent any flash. -->
   <script>
     (function() {
-      var theme = localStorage.getItem('theme') ||
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      var theme = localStorage.getItem('theme') || 'dark';
       document.documentElement.setAttribute('data-theme', theme);
       document.documentElement.style.colorScheme = theme;
       window.formatNumbers = function() {
@@ -32,6 +23,8 @@
       };
     })();
   </script>
+  <style>html, body { background: #0d1117; color: #e6edf3; }</style>
+  <link rel="stylesheet" href="/css/custom.css">
   <title>{% block title %}{{ config.title }}{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{% block description %}Weekly Twitch chat statistics and emote usage tracking{% endblock %}">
@@ -41,13 +34,17 @@
   <meta property="og:url" content="{% block og_url %}{{ config.base_url }}{% endblock %}">
   <meta property="og:site_name" content="{{ config.title }}">
   <meta property="og:description" content="{% block og_description %}Weekly Twitch chat statistics and emote usage tracking{% endblock %}">
-  <meta property="og:image" content="{% block og_image %}/img/logo.png{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{{ config.base_url }}/img/logo.png{% endblock %}">
   <link rel="canonical" href="{% block canonical %}{{ config.base_url }}{% endblock %}">
   <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://cdn.7tv.app">
+  <link rel="dns-prefetch" href="https://cdn.7tv.app">
   <link rel="preconnect" href="https://cdn.betterttv.net">
+  <link rel="dns-prefetch" href="https://cdn.betterttv.net">
   <link rel="preconnect" href="https://cdn.frankerfacez.com">
+  <link rel="dns-prefetch" href="https://cdn.frankerfacez.com">
   <link rel="preconnect" href="https://static-cdn.jtvnw.net">
+  <link rel="dns-prefetch" href="https://static-cdn.jtvnw.net">
   <script defer src="/zk/js/script.js"></script>
   <script>
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
@@ -57,7 +54,7 @@
 </head>
 <body>
   {% include "header.html" %}
-  {% block content %}{% endblock %}
+  <main>{% block content %}{% endblock %}</main>
   {% include "footer.html" %}
 </body>
 </html>

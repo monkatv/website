@@ -1,3 +1,4 @@
+{% if page.extra.redirect_to is starting_with("/") %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,3 +10,14 @@
 </head>
 <body>Redirecting to <a href="{{ page.extra.redirect_to | safe }}">{{ page.extra.redirect_to | safe }}</a>...</body>
 </html>
+{% else %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="dark light">
+<title>Invalid redirect</title>
+</head>
+<body>Error: only same-origin redirects are allowed.</body>
+</html>
+{% endif %}

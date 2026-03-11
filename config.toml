@@ -1,5 +1,5 @@
 base_url = "https://monka.tv"
 title = "monka.tv"
-compile_sass = false
+compile_sass = true
 build_search_index = false
 minify_html = true

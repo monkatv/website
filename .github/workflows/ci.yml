@@ -14,6 +14,9 @@ permissions:
 
 jobs:
   build:
+    concurrency:
+      group: build-master
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,14 +45,6 @@ jobs:
         if: steps.check-data.outputs.has_new_data || github.event_name == 'workflow_dispatch'
         run: tcs summarize --dir static/api
 
-      - run: zola build
-
-      - name: Upload pages artifact
-        if: github.ref == 'refs/heads/master'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./public
-
       - name: Commit updated summaries to master
         if: github.ref == 'refs/heads/master' && steps.check-data.outputs.has_new_data
         run: |
@@ -62,9 +57,23 @@ jobs:
             git push
           fi
 
+      - run: zola build
+
+      - name: Smoke test build output
+        run: test -f public/index.html && test -f public/fl0m/index.html
+
+      - name: Upload pages artifact
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
   deploy:
     needs: build
     if: github.ref == 'refs/heads/master'
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment:
       name: github-pages

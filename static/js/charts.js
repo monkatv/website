@@ -1,12 +1,12 @@
 (function() {
   'use strict';
 
-  var SVG_NS = 'http://www.w3.org/2000/svg';
-  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   // "2026-03-01" -> "Mar 01, 2026"
   function formatDate(iso) {
-    var p = iso.split('-');
+    const p = iso.split('-');
     return MONTHS[parseInt(p[1], 10) - 1] + ' ' + p[2] + ', ' + p[0];
   }
 
@@ -25,13 +25,41 @@
   }
 
   function svgEl(tag, attrs) {
-    var el = document.createElementNS(SVG_NS, tag);
+    const el = document.createElementNS(SVG_NS, tag);
     if (attrs) {
-      for (var k in attrs) {
+      for (const k in attrs) {
         if (attrs.hasOwnProperty(k)) el.setAttribute(k, attrs[k]);
       }
     }
     return el;
+  }
+
+  /**
+   * attachTooltip(rects, container, tooltip, contentFn, positionFn)
+   *
+   * Shared tooltip wiring for bar charts, sparklines, and hourly charts.
+   * contentFn(el): returns [line1, line2] text strings for the tooltip.
+   * positionFn(e): returns {left, top} in px for tooltip placement.
+   */
+  function attachTooltip(rect, hoverFill, restoreFn, container, tooltip, contentFn, positionFn) {
+    rect.addEventListener('mouseenter', function() {
+      if (hoverFill) this.setAttribute('fill', hoverFill);
+      const lines = contentFn(this);
+      tooltip.textContent = '';
+      tooltip.appendChild(document.createTextNode(lines[0]));
+      tooltip.appendChild(document.createElement('br'));
+      tooltip.appendChild(document.createTextNode(lines[1]));
+      tooltip.style.opacity = '1';
+    });
+    rect.addEventListener('mousemove', function(e) {
+      const pos = positionFn(e);
+      tooltip.style.left = pos.left + 'px';
+      tooltip.style.top = pos.top + 'px';
+    });
+    rect.addEventListener('mouseleave', function() {
+      if (restoreFn) restoreFn(this);
+      tooltip.style.opacity = '0';
+    });
   }
 
   /**
@@ -41,13 +69,13 @@
    * options: { streamer: "fl0m", field: "messages_total" }
    */
   window.renderBarChart = function(containerId, weeks, options) {
-    var container = document.getElementById(containerId);
+    const container = document.getElementById(containerId);
     if (!container || !weeks || weeks.length === 0) return;
 
-    var field = (options && options.field) || 'messages_total';
+    const field = (options && options.field) || 'messages_total';
 
-    var values = [];
-    for (var i = 0; i < weeks.length; i++) {
+    const values = [];
+    for (let i = 0; i < weeks.length; i++) {
       values.push({
         date: weeks[i].end_date,
         startDate: weeks[i].start_date || '',
@@ -55,35 +83,35 @@
       });
     }
 
-    var maxVal = 0;
-    for (var i = 0; i < values.length; i++) {
+    let maxVal = 0;
+    for (let i = 0; i < values.length; i++) {
       if (values[i].val > maxVal) maxVal = values[i].val;
     }
     if (maxVal === 0) maxVal = 1;
 
     // Layout: fixed Y-axis on left, scrollable plot area on right
-    var axisWidth = 44;
-    var marginBottom = 24;
-    var marginTop = 8;
-    var marginRight = 4;
-    var chartHeight = 300;
-    var plotHeight = chartHeight - marginTop - marginBottom;
+    const axisWidth = 44;
+    const marginBottom = 24;
+    const marginTop = 8;
+    const marginRight = 4;
+    const chartHeight = 300;
+    const plotHeight = chartHeight - marginTop - marginBottom;
 
     // Size bars so 52 weeks fill the scrollable area
-    var visibleBars = Math.min(52, values.length);
-    var scrollWidth = container.clientWidth - axisWidth;
-    var barSlot = Math.ceil(scrollWidth / visibleBars);
-    var barGap = Math.max(1, Math.round(barSlot * 0.2));
-    var barWidth = barSlot - barGap;
-    var barsTotal = values.length * (barWidth + barGap) + marginRight;
+    const visibleBars = Math.min(52, values.length);
+    const scrollWidth = container.clientWidth - axisWidth;
+    const barSlot = Math.ceil(scrollWidth / visibleBars);
+    const barGap = Math.max(1, Math.round(barSlot * 0.2));
+    const barWidth = barSlot - barGap;
+    const barsTotal = values.length * (barWidth + barGap) + marginRight;
 
     // Build wrapper: [axis (fixed)] [scrollable bars]
-    var wrapper = document.createElement('div');
+    const wrapper = document.createElement('div');
     wrapper.className = 'chart-wrapper';
     wrapper.style.display = 'flex';
 
     // === Y-axis SVG (fixed) ===
-    var axisSvg = svgEl('svg', {
+    const axisSvg = svgEl('svg', {
       viewBox: '0 0 ' + axisWidth + ' ' + chartHeight,
       class: 'bar-chart-svg'
     });
@@ -91,12 +119,12 @@
     axisSvg.style.height = 'auto';
     axisSvg.style.flexShrink = '0';
 
-    var tickCount = 4;
-    for (var t = 0; t <= tickCount; t++) {
-      var tickVal = Math.round(maxVal * t / tickCount);
-      var y = marginTop + plotHeight - (plotHeight * t / tickCount);
+    const tickCount = 4;
+    for (let t = 0; t <= tickCount; t++) {
+      const tickVal = Math.round(maxVal * t / tickCount);
+      const y = marginTop + plotHeight - (plotHeight * t / tickCount);
       if (t > 0) {
-        var label = svgEl('text', {
+        const label = svgEl('text', {
           x: axisWidth - 6, y: y + 3,
           'text-anchor': 'end',
           fill: 'var(--text-muted)',
@@ -109,7 +137,7 @@
     wrapper.appendChild(axisSvg);
 
     // === Scrollable bars area ===
-    var scrollArea = document.createElement('div');
+    const scrollArea = document.createElement('div');
     scrollArea.className = 'chart-scroll';
     scrollArea.style.overflowX = 'scroll';
     scrollArea.style.flex = '1';
@@ -117,7 +145,7 @@
     scrollArea.style.position = 'relative';
     scrollArea.style.paddingBottom = '14px';
 
-    var barsSvg = svgEl('svg', {
+    const barsSvg = svgEl('svg', {
       viewBox: '0 0 ' + barsTotal + ' ' + chartHeight,
       class: 'bar-chart-svg',
       role: 'img',
@@ -128,8 +156,8 @@
     barsSvg.style.display = 'block';
 
     // Grid lines
-    for (var t = 0; t <= tickCount; t++) {
-      var y = marginTop + plotHeight - (plotHeight * t / tickCount);
+    for (let t = 0; t <= tickCount; t++) {
+      const y = marginTop + plotHeight - (plotHeight * t / tickCount);
       barsSvg.appendChild(svgEl('line', {
         x1: 0, y1: y,
         x2: barsTotal, y2: y,
@@ -138,19 +166,19 @@
     }
 
     // X-axis month labels
-    var lastMonth = '';
-    for (var i = 0; i < values.length; i++) {
-      var parts = values[i].date.split('-');
-      var monthKey = parts[0] + '-' + parts[1];
+    let lastMonth = '';
+    for (let i = 0; i < values.length; i++) {
+      const parts = values[i].date.split('-');
+      const monthKey = parts[0] + '-' + parts[1];
       if (monthKey !== lastMonth) {
         lastMonth = monthKey;
-        var monthIdx = parseInt(parts[1], 10) - 1;
-        var labelText = MONTHS[monthIdx];
+        const monthIdx = parseInt(parts[1], 10) - 1;
+        let labelText = MONTHS[monthIdx];
         if (monthIdx === 0 || i === 0) {
           labelText = MONTHS[monthIdx] + ' ' + parts[0].slice(2);
         }
-        var x = i * (barWidth + barGap) + barWidth / 2;
-        var monthLabel = svgEl('text', {
+        const x = i * (barWidth + barGap) + barWidth / 2;
+        const monthLabel = svgEl('text', {
           x: x, y: chartHeight - 4,
           'text-anchor': 'start',
           fill: 'var(--text-muted)',
@@ -162,18 +190,18 @@
     }
 
     // Tooltip
-    var tooltip = document.createElement('div');
+    const tooltip = document.createElement('div');
     tooltip.className = 'chart-tooltip';
 
     // Bars
-    for (var i = 0; i < values.length; i++) {
-      var barH = (values[i].val / maxVal) * plotHeight;
+    for (let i = 0; i < values.length; i++) {
+      let barH = (values[i].val / maxVal) * plotHeight;
       if (barH < 1 && values[i].val > 0) barH = 1;
-      var x = i * (barWidth + barGap);
-      var y = marginTop + plotHeight - barH;
+      const x = i * (barWidth + barGap);
+      const y = marginTop + plotHeight - barH;
 
-      var isMax = values[i].val === maxVal;
-      var rect = svgEl('rect', {
+      const isMax = values[i].val === maxVal;
+      const rect = svgEl('rect', {
         x: x, y: y,
         width: barWidth, height: barH,
         fill: isMax ? 'var(--chart-bar-hover)' : 'var(--chart-bar)',
@@ -183,27 +211,25 @@
         'data-val': values[i].val,
         'data-max': isMax ? '1' : ''
       });
-      rect.addEventListener('mouseenter', function() {
-        this.setAttribute('fill', 'var(--chart-bar-hover)');
-        var d = formatDateRange(this.getAttribute('data-start-date'), this.getAttribute('data-date'));
-        var v = Number(this.getAttribute('data-val')).toLocaleString();
-        tooltip.innerHTML = d + '<br>' + v + ' msgs';
-        tooltip.style.opacity = '1';
-      });
-      rect.addEventListener('mousemove', function(e) {
-        var cr = scrollArea.getBoundingClientRect();
-        var tx = e.clientX - cr.left + scrollArea.scrollLeft;
-        var maxX = scrollArea.scrollLeft + scrollArea.clientWidth - tooltip.offsetWidth - 4;
-        if (tx > maxX) tx = maxX;
-        tooltip.style.left = tx + 'px';
-        var ty = e.clientY - cr.top - 32;
-        if (ty < 0) ty = e.clientY - cr.top + 16;
-        tooltip.style.top = ty + 'px';
-      });
-      rect.addEventListener('mouseleave', function() {
-        this.setAttribute('fill', this.getAttribute('data-max') ? 'var(--chart-bar-hover)' : 'var(--chart-bar)');
-        tooltip.style.opacity = '0';
-      });
+      attachTooltip(rect, 'var(--chart-bar-hover)',
+        function(el) { el.setAttribute('fill', el.getAttribute('data-max') ? 'var(--chart-bar-hover)' : 'var(--chart-bar)'); },
+        scrollArea, tooltip,
+        function(el) {
+          return [
+            formatDateRange(el.getAttribute('data-start-date'), el.getAttribute('data-date')),
+            Number(el.getAttribute('data-val')).toLocaleString() + ' msgs'
+          ];
+        },
+        function(e) {
+          const cr = scrollArea.getBoundingClientRect();
+          let tx = e.clientX - cr.left + scrollArea.scrollLeft;
+          const maxX = scrollArea.scrollLeft + scrollArea.clientWidth - tooltip.offsetWidth - 4;
+          if (tx > maxX) tx = maxX;
+          let ty = e.clientY - cr.top - 32;
+          if (ty < 0) ty = e.clientY - cr.top + 16;
+          return { left: tx, top: ty };
+        }
+      );
 
       barsSvg.appendChild(rect);
     }
@@ -226,38 +252,38 @@
    */
   window.renderSparkline = function(containerId, values, opts) {
     opts = opts || {};
-    var dates = opts.dates || [];
-    var startDates = opts.startDates || [];
-    var container = document.getElementById(containerId);
+    const dates = opts.dates || [];
+    const startDates = opts.startDates || [];
+    const container = document.getElementById(containerId);
     if (!container || !values || values.length < 2) return;
 
-    var width = 200;
-    var height = 36;
-    var padX = 3;
-    var padY = 4;
+    const width = 200;
+    const height = 36;
+    const padX = 3;
+    const padY = 4;
 
-    var maxVal = 0;
-    var minVal = Infinity;
-    for (var i = 0; i < values.length; i++) {
+    let maxVal = 0;
+    let minVal = Infinity;
+    for (let i = 0; i < values.length; i++) {
       if (values[i] > maxVal) maxVal = values[i];
       if (values[i] < minVal) minVal = values[i];
     }
-    var range = maxVal - minVal;
+    let range = maxVal - minVal;
     if (range === 0) range = 1;
 
-    var coords = [];
-    for (var i = 0; i < values.length; i++) {
-      var x = padX + (i / (values.length - 1)) * (width - 2 * padX);
-      var y = padY + (1 - (values[i] - minVal) / range) * (height - 2 * padY);
+    const coords = [];
+    for (let i = 0; i < values.length; i++) {
+      const x = padX + (i / (values.length - 1)) * (width - 2 * padX);
+      const y = padY + (1 - (values[i] - minVal) / range) * (height - 2 * padY);
       coords.push({x: x, y: y});
     }
 
-    var pointStr = [];
-    for (var i = 0; i < coords.length; i++) {
+    const pointStr = [];
+    for (let i = 0; i < coords.length; i++) {
       pointStr.push(coords[i].x.toFixed(1) + ',' + coords[i].y.toFixed(1));
     }
 
-    var svg = svgEl('svg', {
+    const svg = svgEl('svg', {
       viewBox: '0 0 ' + width + ' ' + height,
       preserveAspectRatio: 'none',
       class: 'sparkline-svg',
@@ -268,7 +294,7 @@
     svg.style.height = '100%';
 
     // Area fill
-    var areaStr = pointStr.join(' ') +
+    const areaStr = pointStr.join(' ') +
       ' ' + coords[coords.length - 1].x.toFixed(1) + ',' + height +
       ' ' + coords[0].x.toFixed(1) + ',' + height;
     svg.appendChild(svgEl('polygon', {
@@ -289,47 +315,49 @@
     }));
 
     // Hover interaction: dot + tooltip
+    let tooltip = null;
     if (dates.length === values.length) {
-      var dot = svgEl('circle', {
+      const dot = svgEl('circle', {
         r: '2.5', fill: 'var(--chart-bar)', opacity: '0',
         'vector-effect': 'non-scaling-stroke',
         stroke: 'var(--bg)', 'stroke-width': '1'
       });
       svg.appendChild(dot);
 
-      var tooltip = document.createElement('div');
+      tooltip = document.createElement('div');
       tooltip.className = 'chart-tooltip';
       tooltip.style.fontSize = '.7rem';
 
-      var slotWidth = (width - 2 * padX) / (values.length - 1);
-      for (var i = 0; i < values.length; i++) {
-        (function(idx) {
-          var hitX = idx === 0 ? 0 : coords[idx].x - slotWidth / 2;
-          var hitW = idx === 0 || idx === values.length - 1 ? slotWidth / 2 + padX : slotWidth;
-          var hit = svgEl('rect', {
-            x: hitX, y: 0, width: hitW, height: height,
-            fill: 'transparent', cursor: 'pointer'
-          });
-          hit.addEventListener('mouseenter', function() {
-            dot.setAttribute('cx', coords[idx].x);
-            dot.setAttribute('cy', coords[idx].y);
+      const slotWidth = (width - 2 * padX) / (values.length - 1);
+      for (let i = 0; i < values.length; i++) {
+        const hitX = i === 0 ? 0 : coords[i].x - slotWidth / 2;
+        const hitW = i === 0 || i === values.length - 1 ? slotWidth / 2 + padX : slotWidth;
+        const hit = svgEl('rect', {
+          x: hitX, y: 0, width: hitW, height: height,
+          fill: 'transparent', cursor: 'pointer'
+        });
+        attachTooltip(hit, null,
+          null, container, tooltip,
+          function() {
+            dot.setAttribute('cx', coords[i].x);
+            dot.setAttribute('cy', coords[i].y);
             dot.setAttribute('opacity', '1');
-            tooltip.innerHTML = formatDateRange(startDates[idx] || '', dates[idx]) + '<br>' + values[idx].toLocaleString() + ' msgs';
-            tooltip.style.opacity = '1';
-          });
-          hit.addEventListener('mousemove', function(e) {
-            var cr = container.getBoundingClientRect();
-            var tx = e.clientX - cr.left + 8;
+            return [
+              formatDateRange(startDates[i] || '', dates[i]),
+              values[i].toLocaleString() + ' msgs'
+            ];
+          },
+          function(e) {
+            const cr = container.getBoundingClientRect();
+            let tx = e.clientX - cr.left + 8;
             if (tx + 120 > cr.width) tx = e.clientX - cr.left - 120;
-            tooltip.style.left = tx + 'px';
-            tooltip.style.top = (e.clientY - cr.top - 28) + 'px';
-          });
-          hit.addEventListener('mouseleave', function() {
-            dot.setAttribute('opacity', '0');
-            tooltip.style.opacity = '0';
-          });
-          svg.appendChild(hit);
-        })(i);
+            return { left: tx, top: e.clientY - cr.top - 28 };
+          }
+        );
+        hit.addEventListener('mouseleave', function() {
+          dot.setAttribute('opacity', '0');
+        });
+        svg.appendChild(hit);
       }
 
       container.style.position = 'relative';
@@ -341,16 +369,16 @@
     // Labels below sparkline
     if (dates.length >= 2) {
       function shortDate(s) {
-        var p = s.split('-');
+        const p = s.split('-');
         return MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10);
       }
-      var dl = document.createElement('div');
+      const dl = document.createElement('div');
       dl.className = 'sparkline-dates';
-      var s1 = document.createElement('span');
+      const s1 = document.createElement('span');
       s1.textContent = shortDate(dates[0]);
-      var s2 = document.createElement('span');
+      const s2 = document.createElement('span');
       s2.textContent = formatNum(minVal) + '\u2013' + formatNum(maxVal);
-      var s3 = document.createElement('span');
+      const s3 = document.createElement('span');
       s3.textContent = shortDate(dates[dates.length - 1]);
       dl.appendChild(s1);
       dl.appendChild(s2);
@@ -366,26 +394,26 @@
    * Renders a compact 24-bar chart showing chat activity by hour of day.
    */
   window.renderHourlyChart = function(containerId, hours) {
-    var container = document.getElementById(containerId);
+    const container = document.getElementById(containerId);
     if (!container || !hours || hours.length !== 24) return;
 
-    var maxVal = 0;
-    for (var i = 0; i < 24; i++) {
+    let maxVal = 0;
+    for (let i = 0; i < 24; i++) {
       if (hours[i] > maxVal) maxVal = hours[i];
     }
     if (maxVal === 0) return;
 
-    var axisW = 44;
-    var plotW = 600;
-    var W = axisW + plotW;
-    var marginTop = 12;
-    var barH = 80;
-    var labelH = 16;
-    var H = marginTop + barH + labelH;
-    var gap = 3;
-    var barW = (plotW - gap * 23) / 24;
+    const axisW = 44;
+    const plotW = 600;
+    const W = axisW + plotW;
+    const marginTop = 12;
+    const barH = 80;
+    const labelH = 16;
+    const H = marginTop + barH + labelH;
+    const gap = 3;
+    const barW = (plotW - gap * 23) / 24;
 
-    var svg = svgEl('svg', {
+    const svg = svgEl('svg', {
       viewBox: '0 0 ' + W + ' ' + H,
       preserveAspectRatio: 'xMidYMid meet',
       role: 'img',
@@ -397,16 +425,16 @@
     svg.style.overflow = 'visible';
 
     // Y-axis ticks and grid lines
-    var tickCount = 3;
-    for (var t = 0; t <= tickCount; t++) {
-      var tickVal = Math.round(maxVal * t / tickCount);
-      var ty = marginTop + barH - (barH * t / tickCount);
+    const tickCount = 3;
+    for (let t = 0; t <= tickCount; t++) {
+      const tickVal = Math.round(maxVal * t / tickCount);
+      const ty = marginTop + barH - (barH * t / tickCount);
       svg.appendChild(svgEl('line', {
         x1: axisW, y1: ty, x2: W, y2: ty,
         stroke: 'var(--border)', 'stroke-width': '0.5'
       }));
       if (t > 0) {
-        var label = svgEl('text', {
+        const label = svgEl('text', {
           x: axisW - 4, y: ty + 3,
           'text-anchor': 'end',
           fill: 'var(--text-muted)',
@@ -417,51 +445,45 @@
       }
     }
 
-    var tooltip = document.createElement('div');
+    const tooltip = document.createElement('div');
     tooltip.className = 'chart-tooltip';
 
-    var HOUR_LABELS = ['12a','','','3a','','','6a','','','9a','','','12p','','','3p','','','6p','','','9p','',''];
+    const HOUR_LABELS = ['12a','','','3a','','','6a','','','9a','','','12p','','','3p','','','6p','','','9p','',''];
 
-    for (var i = 0; i < 24; i++) {
-      var h = (hours[i] / maxVal) * barH;
+    for (let i = 0; i < 24; i++) {
+      let h = (hours[i] / maxVal) * barH;
       if (h < 1 && hours[i] > 0) h = 1;
-      var x = axisW + i * (barW + gap);
-      var y = marginTop + barH - h;
-      var isMax = hours[i] === maxVal;
+      const x = axisW + i * (barW + gap);
+      const y = marginTop + barH - h;
+      const isMax = hours[i] === maxVal;
 
-      var rect = svgEl('rect', {
+      const rect = svgEl('rect', {
         x: x, y: y, width: barW, height: h,
         fill: isMax ? 'var(--chart-bar-hover)' : 'var(--chart-bar)',
         rx: '2',
         'data-hour': i, 'data-val': hours[i], 'data-max': isMax ? '1' : ''
       });
 
-      (function(r, idx) {
-        r.addEventListener('mouseenter', function() {
-          this.setAttribute('fill', 'var(--chart-bar-hover)');
-          var hr = idx;
-          var ampm = hr === 0 ? '12 AM' : hr < 12 ? hr + ' AM' : hr === 12 ? '12 PM' : (hr - 12) + ' PM';
-          tooltip.innerHTML = ampm + '<br>' + Number(this.getAttribute('data-val')).toLocaleString() + ' msgs';
-          tooltip.style.opacity = '1';
-        });
-        r.addEventListener('mousemove', function(e) {
-          var cr = container.getBoundingClientRect();
-          var tx = e.clientX - cr.left + 8;
+      attachTooltip(rect, 'var(--chart-bar-hover)',
+        function(el) { el.setAttribute('fill', el.getAttribute('data-max') ? 'var(--chart-bar-hover)' : 'var(--chart-bar)'); },
+        container, tooltip,
+        function(el) {
+          const ampm = i === 0 ? '12 AM' : i < 12 ? i + ' AM' : i === 12 ? '12 PM' : (i - 12) + ' PM';
+          return [ampm, Number(el.getAttribute('data-val')).toLocaleString() + ' msgs'];
+        },
+        function(e) {
+          const cr = container.getBoundingClientRect();
+          let tx = e.clientX - cr.left + 8;
           if (tx + 120 > cr.width) tx = e.clientX - cr.left - 120;
-          tooltip.style.left = tx + 'px';
-          tooltip.style.top = (e.clientY - cr.top - 28) + 'px';
-        });
-        r.addEventListener('mouseleave', function() {
-          this.setAttribute('fill', this.getAttribute('data-max') ? 'var(--chart-bar-hover)' : 'var(--chart-bar)');
-          tooltip.style.opacity = '0';
-        });
-      })(rect, i);
+          return { left: tx, top: e.clientY - cr.top - 28 };
+        }
+      );
 
       svg.appendChild(rect);
 
       // Hour labels
       if (HOUR_LABELS[i]) {
-        var lbl = svgEl('text', {
+        const lbl = svgEl('text', {
           x: x + barW / 2, y: H - 2,
           'text-anchor': 'middle',
           fill: 'var(--text-muted)',

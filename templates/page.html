@@ -28,7 +28,7 @@
     <a href="/{{ parts[0] | safe }}/" class="report-back" title="Back to {{ data.streamer.login }}">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </a>
-    {% if summary.avatar_url %}<img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="report-avatar" alt="{{ data.streamer.login }}">{% endif %}
+    {% if summary.avatar_url %}<img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="report-avatar" alt="{{ data.streamer.login }}" loading="eager" fetchpriority="high">{% endif %}
     <h1 class="report-title">{{ summary.display_name }}</h1>
     <span class="report-sep">&middot;</span>
     <span class="report-period">{{ data.period.start_date | date(format="%b %d") }} &ndash; {{ data.period.end_date | date(format="%b %d, %Y") }}</span>
@@ -159,7 +159,7 @@
           <td>
             <span class="emote-cell">
               {% if cdn and emote.id %}
-              <img class="emote-img" src="{{ cdn | replace(from='{id}', to=emote.id) }}" alt="{{ emote.name }}" loading="lazy">
+              <img class="emote-img" src="{{ cdn | replace(from='{id}', to=emote.id) }}" alt="{{ emote.name }}" width="28" height="28" loading="lazy">
               {% endif %}
               {% if emote.id and data.emotes.urls[provider] %}
               <a href="{{ data.emotes.urls[provider] | replace(from='{id}', to=emote.id) }}">{{ emote.name }}</a>

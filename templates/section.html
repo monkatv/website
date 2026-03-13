@@ -24,7 +24,7 @@
     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
   </a>
   <div class="streamer-card">
-    <img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="streamer-avatar" alt="{{ summary.display_name }}">
+    <img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="streamer-avatar" alt="{{ summary.display_name }}" loading="eager" fetchpriority="high">
     <div class="streamer-info">
       <h1>{{ summary.display_name }}</h1>
       {% if summary.total_weeks > 0 %}
@@ -144,7 +144,7 @@
           {% if emote_idx < 5 and emote.count > 0 %}
             <span class="emote-preview-item">
               {% if emote.id and cur_cdn %}
-              <img src="{{ cur_cdn | replace(from='{id}', to=emote.id) }}" alt="{{ emote.name }}" loading="lazy">
+              <img src="{{ cur_cdn | replace(from='{id}', to=emote.id) }}" alt="{{ emote.name }}" width="28" height="28" loading="lazy">
               {% endif %}
               {{ emote.name }}
               <span class="emote-preview-count">{{ emote.count }}</span>
@@ -254,11 +254,11 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="dashboard-chart" id="chart-messages"></div>
 <script>
 (function() {
-  var rendered = false;
-  var details = document.querySelector('.alltime-details');
+  let rendered = false;
+  const details = document.querySelector('.alltime-details');
   function tryRender() {
     if (rendered) return;
-    var el = document.getElementById('chart-messages');
+    const el = document.getElementById('chart-messages');
     if (el && el.clientWidth > 0) {
       renderBarChart("chart-messages", __summaryWeeks, {
         streamer: "{{ section.extra.streamer_login | safe }}"
@@ -308,25 +308,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 (function() {
-  var emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=latest.emotes) }};
+  const emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=latest.emotes) }};
   document.addEventListener('DOMContentLoaded', function() {
     formatNumbers();
     document.querySelectorAll('[data-emote-name]').forEach(function(el) {
-      var name = el.getAttribute('data-emote-name');
+      const name = el.getAttribute('data-emote-name');
       if (emoteMap[name]) {
-        var img = document.createElement('img');
+        const img = document.createElement('img');
         img.src = emoteMap[name];
         img.alt = name;
         img.loading = 'lazy';
         el.insertBefore(img, el.firstChild);
       }
     });
-    var moreBtn = document.getElementById('alltime-more');
-    var lessBtn = document.getElementById('alltime-less');
+    const moreBtn = document.getElementById('alltime-more');
+    const lessBtn = document.getElementById('alltime-less');
     if (moreBtn && lessBtn) {
-      var levels = [5, 10, 20];
-      var cur = 0;
-      var container = document.getElementById('alltime-lists');
+      const levels = [5, 10, 20];
+      let cur = 0;
+      const container = document.getElementById('alltime-lists');
       function updateAlltime() {
         container.querySelectorAll('[data-tier]').forEach(function(el) {
           el.hidden = parseInt(el.getAttribute('data-tier')) > levels[cur];
@@ -338,18 +338,18 @@ document.addEventListener('DOMContentLoaded', function() {
       lessBtn.addEventListener('click', function() { cur--; updateAlltime(); });
     }
     // Size weeks-list to exactly 5 items, scroll the rest
-    var weeksList = document.querySelector('.weeks-list');
+    const weeksList = document.querySelector('.weeks-list');
     if (weeksList) {
-      var items = weeksList.querySelectorAll('.weeks-list-item');
+      const items = weeksList.querySelectorAll('.weeks-list-item');
       if (items.length > 5) {
-        var gap = parseFloat(getComputedStyle(weeksList).gap) || 0;
-        var h = 0;
-        for (var i = 0; i < 5; i++) h += items[i].getBoundingClientRect().height;
+        const gap = parseFloat(getComputedStyle(weeksList).gap) || 0;
+        let h = 0;
+        for (let i = 0; i < 5; i++) h += items[i].getBoundingClientRect().height;
         h += gap * 4;
         weeksList.style.maxHeight = Math.ceil(h) + 'px';
       }
     }
-    var calEl = document.getElementById('weeks-calendar');
+    const calEl = document.getElementById('weeks-calendar');
     if (calEl && window.initWeeksCalendar) {
       initWeeksCalendar(calEl, __summaryWeeks, "{{ section.extra.streamer_login | safe }}");
     }

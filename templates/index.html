@@ -34,9 +34,9 @@
     <div class="streamer-card-body">
       <div class="streamer-card-left">
         <div class="streamer-card-header">
-          <img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="streamer-avatar" alt="{{ summary.display_name }}">
+          <img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="streamer-avatar" alt="{{ summary.display_name }}" loading="eager" fetchpriority="high">
           <div class="streamer-info">
-            <h3>{{ summary.display_name }}</h3>
+            <h2>{{ summary.display_name }}</h2>
             {% if summary.total_weeks > 0 %}
             <small>Tracking since {{ summary.all_time.first_date | date(format="%B %Y") }} &middot; {{ summary.total_weeks }} weeks</small>
             {% endif %}
@@ -56,7 +56,7 @@
           {% if last_week.top_emote %}
           <div class="streamer-card-stat">
             {% if top_emote_url %}
-            <img src="{{ top_emote_url | safe }}" alt="{{ last_week.top_emote }}" class="streamer-card-emote" width="28" height="28">
+            <img src="{{ top_emote_url | safe }}" alt="{{ last_week.top_emote }}" class="streamer-card-emote" width="28" height="28" loading="eager">
             {% else %}
             <span class="streamer-card-stat-value">{{ last_week.top_emote }}</span>
             {% endif %}
@@ -85,9 +85,9 @@
   {% endif %}
   <script>
   (function() {
-    var recent = {{ recent_weeks | json_encode() | safe }};
-    var vals = [], dates = [], startDates = [];
-    for (var i = 0; i < recent.length; i++) {
+    const recent = {{ recent_weeks | json_encode() | safe }};
+    const vals = [], dates = [], startDates = [];
+    for (let i = 0; i < recent.length; i++) {
       vals.push(recent[i].messages_total);
       dates.push(recent[i].end_date);
       startDates.push(recent[i].start_date || '');

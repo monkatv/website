@@ -9,6 +9,7 @@
 {% block canonical %}{{ page.permalink }}{% endblock %}
 
 {% block extra_head %}
+{% set data = load_data(path="static/" ~ page.extra.json_path) %}
 <script src="/js/table.js?v={{ now() | date(format="%s") }}" defer></script>
 {% if data.copypastas | length > 0 %}<script src="/js/global-emotes.js?v={{ now() | date(format="%s") }}" defer></script>{% endif %}
 {% endblock %}

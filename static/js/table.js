@@ -16,6 +16,23 @@
       });
       document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
     });
+
+    // Keyboard navigation: arrow keys move between tabs
+    btn.addEventListener('keydown', function(e) {
+      var buttons = Array.from(btn.closest('.tab-buttons').querySelectorAll('.tab-btn'));
+      var idx = buttons.indexOf(btn);
+      var target = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        target = buttons[(idx + 1) % buttons.length];
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        target = buttons[(idx - 1 + buttons.length) % buttons.length];
+      }
+      if (target) {
+        e.preventDefault();
+        target.click();
+        target.focus();
+      }
+    });
   });
 
   // Table sorting

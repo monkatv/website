@@ -6,7 +6,7 @@
        Inline style matches the default (dark) to prevent any flash. -->
   <script>
     (function() {
-      var theme = localStorage.getItem('theme') || 'dark';
+      const theme = localStorage.getItem('theme') || 'dark';
       document.documentElement.setAttribute('data-theme', theme);
       document.documentElement.style.colorScheme = theme;
       window.formatNumbers = function() {
@@ -16,16 +16,19 @@
         });
       };
       window.toggleTheme = function() {
-        var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
         document.documentElement.style.colorScheme = next;
         localStorage.setItem('theme', next);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', next === 'dark' ? '#0d1117' : '#ffffff');
       };
     })();
   </script>
   <style>{% include "critical-css.html" %}</style>
-  <link rel="preload" href="/css/custom.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/css/custom.css"></noscript>
+  <meta name="theme-color" content="#0d1117">
+  <link rel="preload" href="/css/custom.css?v={{ now() | date(format="%s") }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/css/custom.css?v={{ now() | date(format="%s") }}"></noscript>
   <title>{% block title %}{{ config.title }}{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{% block description %}Weekly Twitch chat statistics and emote usage tracking{% endblock %}">
@@ -46,7 +49,7 @@
   <link rel="dns-prefetch" href="https://cdn.frankerfacez.com">
   <link rel="preconnect" href="https://static-cdn.jtvnw.net">
   <link rel="dns-prefetch" href="https://static-cdn.jtvnw.net">
-  <script defer src="/zk/js/script.js"></script>
+  <script defer src="/zk/js/script.js?v={{ now() | date(format="%s") }}"></script>
   <script>
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
     plausible.init({ endpoint: "/zk/api/event" })

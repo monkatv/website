@@ -9,8 +9,8 @@
 {% block canonical %}{{ page.permalink }}{% endblock %}
 
 {% block extra_head %}
-<script src="/js/table.js" defer></script>
-<script src="/js/global-emotes.js" defer></script>
+<script src="/js/table.js?v={{ now() | date(format="%s") }}" defer></script>
+{% if data.copypastas | length > 0 %}<script src="/js/global-emotes.js?v={{ now() | date(format="%s") }}" defer></script>{% endif %}
 {% endblock %}
 
 {% block content %}

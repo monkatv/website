@@ -27,13 +27,13 @@
 
   function calHeader(title, isStatic) {
     let html = '<div class="cal-header">';
-    html += '<button class="cal-nav" data-action="prev"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8L10 13"/></svg></button>';
+    html += '<button class="cal-nav" data-action="prev" aria-label="Previous"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8L10 13"/></svg></button>';
     if (isStatic) {
       html += '<span class="cal-title cal-title-static">' + title + '</span>';
     } else {
       html += '<button class="cal-title" data-action="up">' + title + '</button>';
     }
-    html += '<button class="cal-nav" data-action="next"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3L11 8L6 13"/></svg></button>';
+    html += '<button class="cal-nav" data-action="next" aria-label="Next"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3L11 8L6 13"/></svg></button>';
     html += '</div>';
     return html;
   }

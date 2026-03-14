@@ -241,6 +241,14 @@
 
     // Scroll to the right so latest weeks are visible
     scrollArea.scrollLeft = scrollArea.scrollWidth;
+
+    // Screen-reader summary
+    var total = 0;
+    for (var si = 0; si < values.length; si++) total += values[si].val;
+    var srDiv = document.createElement('div');
+    srDiv.className = 'sr-only';
+    srDiv.textContent = 'Bar chart: ' + values.length + ' weeks, total ' + total.toLocaleString() + ' messages, peak ' + maxVal.toLocaleString();
+    container.appendChild(srDiv);
   };
 
   /**
@@ -497,5 +505,18 @@
     container.style.position = 'relative';
     container.appendChild(svg);
     container.appendChild(tooltip);
+
+    // Screen-reader summary
+    var hrTotal = 0;
+    var peakHour = 0;
+    for (var hi = 0; hi < 24; hi++) {
+      hrTotal += hours[hi];
+      if (hours[hi] > hours[peakHour]) peakHour = hi;
+    }
+    var peakLabel = peakHour === 0 ? '12 AM' : peakHour < 12 ? peakHour + ' AM' : peakHour === 12 ? '12 PM' : (peakHour - 12) + ' PM';
+    var hrSr = document.createElement('div');
+    hrSr.className = 'sr-only';
+    hrSr.textContent = 'Hourly activity: ' + hrTotal.toLocaleString() + ' total messages, peak at ' + peakLabel + ' (' + hours[peakHour].toLocaleString() + ')';
+    container.appendChild(hrSr);
   };
 })();

@@ -289,6 +289,24 @@ tr:hover td { background: var(--bg-surface); }
 /* === Hourly Activity Chart === */
 .hourly-chart {
   margin: 0 0 1.5rem;
+  min-height: 120px;
+}
+.hourly-chart:empty::after,
+.dashboard-chart:empty::after,
+.sparkline:empty::after {
+  content: "Loading\2026";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: inherit;
+  color: var(--text-muted);
+  font-size: .8rem;
+}
+
+/* === Dashboard Chart === */
+.dashboard-chart {
+  min-height: 320px;
 }
 
 /* === Trend Indicators === */
@@ -301,7 +319,6 @@ tr:hover td { background: var(--bg-surface); }
 .stat-trend-down { color: var(--trend-down); }
 .stat-trend-flat { color: var(--trend-flat); }
 
-/* === Dashboard Chart === */
 .dashboard-chart {
   margin: 1.5rem 0;
 }
@@ -748,7 +765,9 @@ a.cal-has-data .cal-today {
   z-index: 10;
   pointer-events: none;
 }
-.vod-pill:hover .vod-tip { display: block; }
+.vod-pill:hover .vod-tip,
+.vod-pill:focus-within .vod-tip { display: block; }
+.vod-tip { max-width: calc(100vw - 2rem); right: auto; }
 .vod-tip img { width: 100%; border-radius: 4px; display: block; }
 .vod-tip-title {
   display: block;

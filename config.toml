@@ -3,3 +3,4 @@ title = "monka.tv"
 compile_sass = true
 build_search_index = false
 minify_html = true
+generate_feeds = true

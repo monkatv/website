@@ -10,7 +10,7 @@
 
 {% block extra_head %}
 <script src="/js/table.js" defer></script>
-<script src="/js/global-emotes.js"></script>
+<script src="/js/global-emotes.js" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -284,7 +284,7 @@
 {% endif %}
 
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
   {% if data.copypastas | length > 0 %}
   const emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }};
   const ge = window.__globalEmotes || {};
@@ -332,6 +332,6 @@
       });
     });
   });
-})();
+});
 </script>
 {% endblock %}

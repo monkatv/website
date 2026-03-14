@@ -23,8 +23,9 @@
       };
     })();
   </script>
-  <style>html, body { background: #0d1117; color: #e6edf3; }</style>
-  <link rel="stylesheet" href="/css/custom.css">
+  <style>{% include "critical-css.html" %}</style>
+  <link rel="preload" href="/css/custom.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/css/custom.css"></noscript>
   <title>{% block title %}{{ config.title }}{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{% block description %}Weekly Twitch chat statistics and emote usage tracking{% endblock %}">

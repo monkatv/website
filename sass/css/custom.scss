@@ -283,7 +283,7 @@ tr:hover td { background: var(--bg-surface); }
   white-space: nowrap;
 }
 .streamer-avatar { width: 48px; height: 48px; border-radius: 50%; }
-.streamer-info h1, .streamer-info h2, .streamer-info h3 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
+.streamer-info h1, .streamer-info h2 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
 .streamer-info small { color: var(--text-muted); }
 
 /* === Hourly Activity Chart === */
@@ -626,8 +626,6 @@ a.cal-has-data .cal-today {
   gap: 1rem;
 }
 .streamer-card-header .streamer-info { flex: 1; }
-.streamer-card-header .streamer-info h2 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
-.streamer-card-header .streamer-info small { color: var(--text-muted); }
 .streamer-card-body .sparkline {
   width: 400px;
   height: 80px;

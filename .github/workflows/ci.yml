@@ -48,7 +48,7 @@ jobs:
         run: tcs summarize --dir static/api
 
       - name: Commit updated summaries to master
-        if: github.ref == 'refs/heads/master' && steps.check-data.outputs.has_new_data
+        if: github.ref == 'refs/heads/master' && (steps.check-data.outputs.has_new_data || github.event_name == 'workflow_dispatch')
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

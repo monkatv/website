@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "meta": {
-    "generated_at": "2026-03-16T13:41:21Z",
+    "generated_at": "2026-03-16T13:54:50Z",
     "defaults": {
       "users_limit": 20,
       "commands_limit": 10,

@@ -44,6 +44,9 @@
         </div>
         {% if summary.total_weeks > 0 %}
         <div class="streamer-card-week-label">Last week</div>
+        {% if last_week.vod_count == 0 %}
+        <p class="no-data">No streams</p>
+        {% else %}
         <div class="streamer-card-stats">
           <div class="streamer-card-stat">
             <span class="streamer-card-stat-value" data-fmt="{{ last_week.messages_total }}">{{ last_week.messages_total }}</span>
@@ -68,6 +71,7 @@
             <span class="streamer-card-stat-label">chatters</span>
           </div>
         </div>
+        {% endif %}
         {% endif %}
       </div>
       {% if summary.total_weeks >= 2 %}

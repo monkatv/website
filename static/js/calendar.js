@@ -7,7 +7,7 @@
                       'July', 'August', 'September', 'October', 'November', 'December'];
   const DOW = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-  let container, streamer, weekEnds;
+  let container, streamer, weekEnds, emptyWeeks;
   let view = 'month';
   let curYear, curMonth, yearRangeStart;
   const weeksByMonth = {};
@@ -72,9 +72,11 @@
       if (days[0].m !== curMonth && days[6].m !== curMonth) continue;
 
       const hasData = weekEnds.has(sundayStr);
+      const isEmpty = emptyWeeks.has(sundayStr);
 
       if (hasData) {
-        html += '<a class="cal-week cal-has-data" href="/' + streamer + '/' + sundayStr + '/">';
+        var weekCls = isEmpty ? 'cal-week cal-has-data cal-empty-week' : 'cal-week cal-has-data';
+        html += '<a class="' + weekCls + '" href="/' + streamer + '/' + sundayStr + '/">';
       } else {
         html += '<div class="cal-week">';
       }
@@ -164,9 +166,11 @@
     container = el;
     streamer = streamerLogin;
     weekEnds = new Set();
+    emptyWeeks = new Set();
 
     weeks.forEach(function(w) {
       weekEnds.add(w.end_date);
+      if (w.vod_count === 0) emptyWeeks.add(w.end_date);
       const ym = w.end_date.substring(0, 7);
       if (!weeksByMonth[ym]) weeksByMonth[ym] = [];
       weeksByMonth[ym].push(w.end_date);

@@ -144,6 +144,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   color: var(--text-muted);
   margin-top: .2rem;
 }
+.no-data {
+  color: var(--text-muted);
+  font-style: italic;
+}
 
 /* === Tables === */
 table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: .9rem; }
@@ -502,6 +506,14 @@ a.cal-week.cal-has-data:hover {
   text-decoration: none;
 }
 a.cal-week.cal-has-data .cal-other { opacity: .6; }
+a.cal-week.cal-empty-week {
+  background: var(--border);
+  color: var(--text-muted);
+}
+a.cal-week.cal-empty-week:hover {
+  background: var(--text-muted);
+  color: var(--on-accent);
+}
 .cal-day {
   padding: .45rem 0;
   font-size: .85rem;

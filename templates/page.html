@@ -59,6 +59,10 @@
   {% endif %}
 </div>
 
+{% if data.vods | length == 0 %}
+{# === No Streams === #}
+<p class="no-data">No streams this week</p>
+{% else %}
 {# === Stat Cards === #}
 <div class="stats">
   <div class="stat">
@@ -228,6 +232,7 @@
   {% endfor %}
   </tbody>
 </table>
+{% endif %}
 {% endif %}
 
 {# === Expired VIPs === #}

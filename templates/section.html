@@ -85,6 +85,9 @@
 {# ============================= #}
 {% if num_weeks > 0 %}
 <h2>This Week</h2>
+{% if cur_vods == 0 %}
+<p class="no-data">No streams this week</p>
+{% else %}
 <div class="stats">
   <div class="stat">
     <div class="stat-value" data-fmt="{{ cur_total }}">{{ cur_total }}</div>
@@ -171,6 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderHourlyChart('hourly-chart', {{ latest.hourly_activity | json_encode() | safe }});
 });
 </script>
+{% endif %}
 {% endif %}
 {% endif %}
 
@@ -289,9 +293,13 @@ document.addEventListener('DOMContentLoaded', function() {
         <a class="weeks-list-item" href="/{{ section.extra.streamer_login | safe }}/{{ w.end_date }}/">
           <div class="weeks-list-date">{% if w.start_date %}{{ w.start_date | date(format="%b %d") }} &ndash; {% endif %}{{ w.end_date | date(format="%b %d, %Y") }}</div>
           <div class="weeks-list-stats">
+            {% if w.vod_count == 0 %}
+            No streams
+            {% else %}
             <span data-fmt="{{ w.messages_total }}">{{ w.messages_total }}</span> msgs
             &middot; {{ w.vod_count }} VODs
             {% if w.top_emote %}&middot; {{ w.top_emote }}{% endif %}
+            {% endif %}
           </div>
         </a>
         {% set_global shown = shown + 1 %}

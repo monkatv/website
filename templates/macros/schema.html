@@ -1,0 +1,23 @@
+{# Schema version guards for JSON produced by tcs.
+
+   When tcs bumps a JSON schema (adds/removes/renames fields), these macros
+   fail the Zola build with a clear error so a stale template doesn't ship
+   silent rendering bugs. Update the expected versions when templates have
+   been updated to match the new shape.
+
+   The failure is triggered by calling a function that does not exist in
+   Tera — Tera errors on unknown calls, which aborts the build. The function
+   name *is* the error message: read the failing call to understand the
+   mismatch. #}
+
+{% macro check_week(data) %}
+{%- if data.schema_version != 1 -%}
+{{ tcs_week_json_schema_mismatch_templates_expect_1_update_them(found=data.schema_version) }}
+{%- endif -%}
+{% endmacro %}
+
+{% macro check_summary(data) %}
+{%- if data.schema_version != 1 -%}
+{{ tcs_summary_json_schema_mismatch_templates_expect_1_update_them(found=data.schema_version) }}
+{%- endif -%}
+{% endmacro %}

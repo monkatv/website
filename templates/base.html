@@ -25,7 +25,10 @@
       };
     })();
   </script>
-  <style>{% include "critical-css.html" %}</style>
+  {# Single source of truth: sass/css/_critical.scss is plain CSS (no SCSS
+     syntax), inlined here for first paint and @imported into custom.scss
+     so the deferred stylesheet has the same rules. #}
+  <style>{{ load_data(path="sass/css/_critical.scss") | safe }}</style>
   <meta name="theme-color" content="#0d1117">
   <link rel="preload" href="/css/custom.css?v={{ now() | date(format="%s") }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/custom.css?v={{ now() | date(format="%s") }}"></noscript>

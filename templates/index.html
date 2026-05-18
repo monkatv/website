@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% import "macros/schema.html" as schema %}
+
+{% block description %}{{ section.description | default(value="Weekly Twitch chat statistics and emote usage tracking") }}{% endblock %}
+{% block og_description %}{{ section.description | default(value="Weekly Twitch chat statistics and emote usage tracking") }}{% endblock %}
 
 {% block extra_head %}
 <script src="/js/charts.js" defer></script>
@@ -6,6 +10,11 @@
 
 {% block content %}
 <h1 class="sr-only">{{ config.title }}</h1>
+{% if section.content %}
+<section class="site-intro">
+  {{ section.content | safe }}
+</section>
+{% endif %}
 {% set ep = load_data(path="data/emote_providers.toml") %}
 {% set providers = ep.providers %}
 {% set img_cdns = ep.img_cdns %}
@@ -14,7 +23,9 @@
 {% for s in streamers.streamers %}
   {% set streamer_section = get_section(path=s.login ~ "/_index.md") %}
   {% set summary = load_data(path="static/api/" ~ s.login ~ "/summary.json") %}
+  {{ schema::check_summary(data=summary) }}
   {% set latest = load_data(path="static/api/" ~ s.login ~ "/latest.json") %}
+  {{ schema::check_week(data=latest) }}
 
   {# Build emote URL for top emote #}
   {% set last_week = summary.weeks | last %}

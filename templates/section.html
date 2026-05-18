@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% import "macros/trend.html" as macros %}
 {% import "macros/emotes.html" as emote_macros %}
+{% import "macros/schema.html" as schema %}
 
 {% block title %}{{ section.title }} — {{ config.title }}{% endblock %}
-{% block description %}{{ section.title }}{% endblock %}
+{% block description %}{% set s = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/summary.json") %}{% set n = s.display_name | default(value=section.extra.streamer_login) %}{{ n }} Twitch chat statistics{% if s.total_weeks and s.total_weeks > 0 %} — {{ s.total_weeks }} weeks of data tracked since {{ s.all_time.first_date | date(format="%B %Y") }}{% endif %}: top emotes, chatters, copypastas, and per-VOD breakdowns.{% endblock %}
 {% block og_title %}{{ section.title }}{% endblock %}
 {% block og_url %}{{ section.permalink }}{% endblock %}
-{% block og_description %}{{ section.title }}{% endblock %}
+{% block og_description %}{% set s = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/summary.json") %}{% set n = s.display_name | default(value=section.extra.streamer_login) %}{{ n }} Twitch chat statistics{% if s.total_weeks and s.total_weeks > 0 %} — {{ s.total_weeks }} weeks of data tracked since {{ s.all_time.first_date | date(format="%B %Y") }}{% endif %}: top emotes, chatters, copypastas, and per-VOD breakdowns.{% endblock %}
+{% block og_image %}{% set s = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/summary.json") %}{% if s.avatar_url %}{{ s.avatar_url | safe }}{% else %}{{ config.base_url }}/img/src/logo.png{% endif %}{% endblock %}
 {% block canonical %}{{ section.permalink }}{% endblock %}
 
 {% block extra_head %}
@@ -16,7 +18,9 @@
 
 {% block content %}
 {% set summary = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/summary.json") %}
+{{ schema::check_summary(data=summary) }}
 {% set latest = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/latest.json") %}
+{{ schema::check_week(data=latest) }}
 
 {# === Streamer Header === #}
 <div class="section-header">

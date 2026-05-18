@@ -4,3 +4,14 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.7tv.app https://cdn.betterttv.net https://cdn.frankerfacez.com https://static-cdn.jtvnw.net; connect-src 'self'; font-src 'self'; frame-ancestors 'none'
+
+# Dated weekly stats files never change once written — cache aggressively.
+/api/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# These two rotate weekly (latest.json is a symlink; summary.json is rebuilt).
+# Short max-age with SWR keeps the site snappy while picking up new runs.
+/api/*/latest.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
+/api/*/summary.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600

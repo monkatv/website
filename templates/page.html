@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% import "macros/emotes.html" as emote_macros %}
+{% import "macros/schema.html" as schema %}
 
 {% block title %}{{ page.title }} — {{ config.title }}{% endblock %}
-{% block description %}{{ page.title }}{% endblock %}
+{% block description %}{{ page.description | default(value=page.title) }}{% endblock %}
 {% block og_title %}{{ page.title }}{% endblock %}
 {% block og_url %}{{ page.permalink }}{% endblock %}
-{% block og_description %}{{ page.title }}{% endblock %}
+{% block og_description %}{{ page.description | default(value=page.title) }}{% endblock %}
+{% block og_image %}{%- set parts = page.path | trim_start_matches(pat="/") | split(pat="/") -%}{%- set s = load_data(path="static/api/" ~ parts[0] ~ "/summary.json") -%}{% if s.avatar_url %}{{ s.avatar_url | safe }}{% else %}{{ config.base_url }}/img/src/logo.png{% endif %}{% endblock %}
 {% block canonical %}{{ page.permalink }}{% endblock %}
 
 {% block extra_head %}
@@ -16,12 +18,14 @@
 
 {% block content %}
 {% set data = load_data(path="static/" ~ page.extra.json_path) %}
+{{ schema::check_week(data=data) }}
 {% set total = data.messages.total %}
 {% set unique = data.messages.unique %}
 {% set dupes = total - unique %}
 {% set bot = data.messages.bot_total %}
 
 {% set summary = load_data(path="static/api/" ~ data.streamer.login ~ "/summary.json") %}
+{{ schema::check_summary(data=summary) }}
 
 {% set parts = page.path | trim_start_matches(pat="/") | split(pat="/") %}
 <div class="report-header">

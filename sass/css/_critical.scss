@@ -1,14 +1,22 @@
-/* Critical CSS — inlined for first paint. The full stylesheet loads async.
-   When editing styles for above-the-fold elements, update BOTH this file
-   and sass/css/custom.scss to keep them in sync. */
+/* Single source of truth for above-fold CSS.
+ *
+ * Two consumers:
+ *   1) templates/base.html inlines this file verbatim via load_data() into
+ *      a <style> tag for first paint.
+ *   2) custom.scss @imports it so the deferred stylesheet contains the
+ *      same rules and there's no flash of restyle.
+ *
+ * Keep this file restricted to plain CSS (no SCSS-only syntax) so the
+ * inline-from-source path remains valid in the browser. Anything
+ * non-essential to first paint belongs in custom.scss instead. */
 
-/* Reset */
+/* === Reset === */
 *, *::before, *::after { box-sizing: border-box; }
 
-/* Utilities */
+/* === Utilities === */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
-/* Custom Properties */
+/* === Custom Properties (design tokens — used above- and below-fold) === */
 :root, [data-theme="light"] {
   --bg: #ffffff;
   --bg-surface: #f6f8fa;
@@ -18,9 +26,12 @@
   --link: #0969da;
   --link-hover: #0550ae;
   --accent: #216e39;
+  --accent-hover: #2ea043;
   --trend-up: #1a7f37;
   --trend-down: #cf222e;
   --trend-flat: #57606a;
+  --chart-bar: #216e39;
+  --chart-bar-hover: #2ea043;
   --twitch-color: #9146ff;
   --on-accent: #fff;
 }
@@ -33,14 +44,17 @@
   --link: #58a6ff;
   --link-hover: #79c0ff;
   --accent: #39d353;
+  --accent-hover: #4ae168;
   --trend-up: #3fb950;
   --trend-down: #f85149;
   --trend-flat: #8b949e;
+  --chart-bar: #39d353;
+  --chart-bar-hover: #4ae168;
   --twitch-color: #a970ff;
   --on-accent: #fff;
 }
 
-/* Base */
+/* === Base === */
 html { background: var(--bg); }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
@@ -56,17 +70,17 @@ body {
   flex-direction: column;
 }
 
-/* Links */
+/* === Links === */
 a { color: var(--link); text-decoration: none; }
 a:hover { color: var(--link-hover); text-decoration: underline; }
 
-/* Typography */
+/* === Typography === */
 h1, h2, h3 { margin: 1.5rem 0 .75rem; font-weight: 600; line-height: 1.25; }
 h1 { font-size: 1.75rem; }
 h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
 h3 { font-size: 1.15rem; }
 
-/* Header */
+/* === Header === */
 .site-header {
   display: flex;
   align-items: center;
@@ -86,7 +100,7 @@ h3 { font-size: 1.15rem; }
 .site-logo img { height: 28px; }
 .site-logo:hover { text-decoration: none; }
 
-/* Theme Toggle */
+/* === Theme Toggle === */
 .theme-toggle {
   margin-left: auto;
   background: none;
@@ -103,7 +117,7 @@ h3 { font-size: 1.15rem; }
 [data-theme="dark"] .icon-moon { display: none; }
 [data-theme="dark"] .icon-sun { display: inline; }
 
-/* Stat Cards */
+/* === Stat Cards === */
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -130,13 +144,13 @@ h3 { font-size: 1.15rem; }
   margin-top: .2rem;
 }
 
-/* Trend Indicators */
+/* === Trend Indicators === */
 .stat-trend { font-size: .75rem; font-weight: 600; margin-top: .15rem; }
 .stat-trend-up { color: var(--trend-up); }
 .stat-trend-down { color: var(--trend-down); }
 .stat-trend-flat { color: var(--trend-flat); }
 
-/* Section Header */
+/* === Section Header === */
 .section-header {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -146,7 +160,7 @@ h3 { font-size: 1.15rem; }
 .section-back { color: var(--text-muted); display: flex; }
 .section-back:hover { color: var(--text); }
 
-/* Streamer Card (shared) */
+/* === Streamer Card (shared) === */
 .streamer-card {
   display: flex;
   align-items: center;
@@ -173,7 +187,7 @@ h3 { font-size: 1.15rem; }
 .streamer-info h1, .streamer-info h2 { margin: 0; font-size: 1.25rem; border: none; padding: 0; }
 .streamer-info small { color: var(--text-muted); }
 
-/* Homepage Streamer Cards */
+/* === Homepage Streamer Cards === */
 .streamer-card-link {
   display: block;
   text-decoration: none;
@@ -205,7 +219,7 @@ h3 { font-size: 1.15rem; }
 .sparkline { display: inline-block; width: 120px; height: 32px; vertical-align: middle; }
 .sparkline-dates { display: flex; justify-content: space-between; font-size: .65rem; color: var(--text-muted); margin-top: .1rem; }
 
-/* Report Header */
+/* === Report Header === */
 .report-header { margin-bottom: 1.5rem; }
 .report-headline { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
 .report-back { display: flex; align-items: center; color: var(--text); text-decoration: none; margin-right: .25rem; transition: color .15s; flex-shrink: 0; }
@@ -230,7 +244,7 @@ h3 { font-size: 1.15rem; }
 .vod-badge:hover { border-color: var(--text-muted); color: var(--text); }
 .vod-badge svg { flex-shrink: 0; }
 
-/* Footer (margin-top:auto affects body flex layout) */
+/* === Footer (margin-top:auto affects body flex layout) === */
 .site-footer {
   margin-top: auto;
   padding: .5rem 0;
@@ -242,7 +256,7 @@ h3 { font-size: 1.15rem; }
 .site-footer p { margin: .15rem 0; }
 .site-footer a { color: var(--link); text-decoration: underline; }
 
-/* Responsive (critical elements only) */
+/* === Responsive (critical elements only) === */
 @media (max-width: 640px) {
   body { padding: 0 1rem; }
   .stats { grid-template-columns: repeat(2, 1fr); }

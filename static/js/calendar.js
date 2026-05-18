@@ -7,6 +7,10 @@
                       'July', 'August', 'September', 'October', 'November', 'December'];
   const DOW = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const CHEVRON_LEFT = 'M10 3L5 8L10 13';
+  const CHEVRON_RIGHT = 'M6 3L11 8L6 13';
+
   let container, streamer, weekEnds, emptyWeeks;
   let view = 'month';
   let curYear, curMonth, yearRangeStart;
@@ -25,17 +29,53 @@
     return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate() };
   }
 
+  function chevron(pathD) {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('width', '14');
+    svg.setAttribute('height', '14');
+    svg.setAttribute('viewBox', '0 0 16 16');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2.5');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', pathD);
+    svg.appendChild(path);
+    return svg;
+  }
+
   function calHeader(title, isStatic) {
-    let html = '<div class="cal-header">';
-    html += '<button class="cal-nav" data-action="prev" aria-label="Previous"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8L10 13"/></svg></button>';
+    const header = document.createElement('div');
+    header.className = 'cal-header';
+
+    const prev = document.createElement('button');
+    prev.className = 'cal-nav';
+    prev.dataset.action = 'prev';
+    prev.setAttribute('aria-label', 'Previous');
+    prev.appendChild(chevron(CHEVRON_LEFT));
+    header.appendChild(prev);
+
+    let titleEl;
     if (isStatic) {
-      html += '<span class="cal-title cal-title-static">' + title + '</span>';
+      titleEl = document.createElement('span');
+      titleEl.className = 'cal-title cal-title-static';
     } else {
-      html += '<button class="cal-title" data-action="up">' + title + '</button>';
+      titleEl = document.createElement('button');
+      titleEl.className = 'cal-title';
+      titleEl.dataset.action = 'up';
     }
-    html += '<button class="cal-nav" data-action="next" aria-label="Next"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3L11 8L6 13"/></svg></button>';
-    html += '</div>';
-    return html;
+    titleEl.textContent = title;
+    header.appendChild(titleEl);
+
+    const next = document.createElement('button');
+    next.className = 'cal-nav';
+    next.dataset.action = 'next';
+    next.setAttribute('aria-label', 'Next');
+    next.appendChild(chevron(CHEVRON_RIGHT));
+    header.appendChild(next);
+
+    return header;
   }
 
   function render() {
@@ -45,11 +85,17 @@
   }
 
   function renderMonth() {
-    let html = calHeader(MONTH_FULL[curMonth - 1] + ' ' + curYear, false);
+    const frag = document.createDocumentFragment();
+    frag.appendChild(calHeader(MONTH_FULL[curMonth - 1] + ' ' + curYear, false));
 
-    html += '<div class="cal-dow-row">';
-    DOW.forEach(function(d) { html += '<span>' + d + '</span>'; });
-    html += '</div>';
+    const dowRow = document.createElement('div');
+    dowRow.className = 'cal-dow-row';
+    DOW.forEach(function(d) {
+      const span = document.createElement('span');
+      span.textContent = d;
+      dowRow.appendChild(span);
+    });
+    frag.appendChild(dowRow);
 
     const firstDow = dayOfWeek(curYear, curMonth, 1);
     const start = addDays(curYear, curMonth, 1, -firstDow);
@@ -57,7 +103,9 @@
     const today = new Date();
     const todayY = today.getFullYear(), todayM = today.getMonth() + 1, todayD = today.getDate();
 
-    html += '<div class="cal-body">';
+    const body = document.createElement('div');
+    body.className = 'cal-body';
+
     for (let row = 0; row < 6; row++) {
       const days = [];
       let sundayStr = null;
@@ -74,42 +122,53 @@
       const hasData = weekEnds.has(sundayStr);
       const isEmpty = emptyWeeks.has(sundayStr);
 
+      let weekEl;
       if (hasData) {
-        var weekCls = isEmpty ? 'cal-week cal-has-data cal-empty-week' : 'cal-week cal-has-data';
-        html += '<a class="' + weekCls + '" href="/' + streamer + '/' + sundayStr + '/">';
+        weekEl = document.createElement('a');
+        weekEl.className = isEmpty ? 'cal-week cal-has-data cal-empty-week' : 'cal-week cal-has-data';
+        weekEl.href = '/' + streamer + '/' + sundayStr + '/';
       } else {
-        html += '<div class="cal-week">';
+        weekEl = document.createElement('div');
+        weekEl.className = 'cal-week';
       }
 
       days.forEach(function(cell) {
+        const span = document.createElement('span');
         let cls = 'cal-day';
         if (cell.m !== curMonth) cls += ' cal-other';
         if (cell.y === todayY && cell.m === todayM && cell.d === todayD) cls += ' cal-today';
-        html += '<span class="' + cls + '">' + cell.d + '</span>';
+        span.className = cls;
+        span.textContent = cell.d;
+        weekEl.appendChild(span);
       });
 
-      html += hasData ? '</a>' : '</div>';
+      body.appendChild(weekEl);
     }
-    html += '</div>';
+    frag.appendChild(body);
 
-    container.innerHTML = html;
+    container.replaceChildren(frag);
     bindNav();
   }
 
   function renderMonths() {
-    let html = calHeader('' + curYear, false);
+    const frag = document.createDocumentFragment();
+    frag.appendChild(calHeader('' + curYear, false));
 
-    html += '<div class="cal-cell-grid">';
+    const grid = document.createElement('div');
+    grid.className = 'cal-cell-grid';
     for (let m = 1; m <= 12; m++) {
       const ym = curYear + '-' + pad(m);
       const hasData = !!weeksByMonth[ym];
-      let cls = 'cal-cell';
-      if (hasData) cls += ' cal-has-data';
-      html += '<button class="' + cls + '" data-action="month" data-month="' + m + '">' + MONTHS[m - 1] + '</button>';
+      const btn = document.createElement('button');
+      btn.className = hasData ? 'cal-cell cal-has-data' : 'cal-cell';
+      btn.dataset.action = 'month';
+      btn.dataset.month = String(m);
+      btn.textContent = MONTHS[m - 1];
+      grid.appendChild(btn);
     }
-    html += '</div>';
+    frag.appendChild(grid);
 
-    container.innerHTML = html;
+    container.replaceChildren(frag);
     bindNav();
   }
 
@@ -117,18 +176,23 @@
     if (!yearRangeStart) yearRangeStart = curYear - curYear % 10 - 1;
     const rangeEnd = yearRangeStart + 11;
 
-    let html = calHeader(yearRangeStart + ' \u2013 ' + rangeEnd, true);
+    const frag = document.createDocumentFragment();
+    frag.appendChild(calHeader(yearRangeStart + ' – ' + rangeEnd, true));
 
-    html += '<div class="cal-cell-grid">';
+    const grid = document.createElement('div');
+    grid.className = 'cal-cell-grid';
     for (let y = yearRangeStart; y <= rangeEnd; y++) {
       const hasData = !!weeksByYear['' + y];
-      let cls = 'cal-cell';
-      if (hasData) cls += ' cal-has-data';
-      html += '<button class="' + cls + '" data-action="year" data-year="' + y + '">' + y + '</button>';
+      const btn = document.createElement('button');
+      btn.className = hasData ? 'cal-cell cal-has-data' : 'cal-cell';
+      btn.dataset.action = 'year';
+      btn.dataset.year = String(y);
+      btn.textContent = '' + y;
+      grid.appendChild(btn);
     }
-    html += '</div>';
+    frag.appendChild(grid);
 
-    container.innerHTML = html;
+    container.replaceChildren(frag);
     bindNav();
   }
 

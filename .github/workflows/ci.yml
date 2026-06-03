@@ -35,7 +35,16 @@ jobs:
       - name: Check for new data files
         id: check-data
         run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- 'static/api/*/20*.json' 'content/' 2>/dev/null | grep -q .; then
+          before="${{ github.event.before }}"
+          # First push reports an all-zero "before" SHA, and force-pushes can name a
+          # commit we don't have locally (fetch-depth: 2 keeps only HEAD + its parent).
+          # In either case fall back to HEAD~1; if even that is missing, regenerate.
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${before}^{commit}" 2>/dev/null; then
+            before="$(git rev-parse --verify --quiet HEAD~1 || true)"
+          fi
+          if [ -z "$before" ]; then
+            echo "has_new_data=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "$before" "${{ github.sha }}" -- 'static/api/*/20*.json' 'content/' | grep -q .; then
             echo "has_new_data=true" >> "$GITHUB_OUTPUT"
           fi
 

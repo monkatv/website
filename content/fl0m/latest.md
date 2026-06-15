@@ -4,5 +4,5 @@ template = "redirect.html"
 date = 9999-12-31
 
 [extra]
-redirect_to = "/fl0m/2026-06-07/"
+redirect_to = "/fl0m/2026-06-14/"
 +++

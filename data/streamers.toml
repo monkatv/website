@@ -2,8 +2,8 @@
 # the tcs project's streamers/*.toml configs.
 #
 # To add/remove a streamer or change rendering flags, edit the
-# corresponding file in https://github.com/monkatv/tcs/tree/master/streamers
-# and let the next weekly-stats run regenerate this file.
+# tcs streamers/*.toml source config and let the next weekly-stats
+# run regenerate this file.
 
 [[streamers]]
 login = "fl0m"

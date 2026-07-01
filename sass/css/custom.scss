@@ -626,3 +626,11 @@ a.cal-has-data .cal-today {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Light-mode contrast: Twitch user colours are tuned for the dark chat UI; cap
+   their OKLCH lightness on the light theme so pale ones stay readable on white.
+   Dark theme keeps the raw colour. Falls back to the raw colour on browsers
+   without relative-colour support. */
+.chatter-name { color: var(--uc, currentColor); }
+.chatter-name { color: #{"oklch(from var(--uc, currentColor) min(l, 0.5) c h)"}; }
+[data-theme="dark"] .chatter-name { color: var(--uc, currentColor); }

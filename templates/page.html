@@ -113,7 +113,7 @@
     {% if loop.index0 < users_limit %}
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
-      <td><span class="chatter-name" {% if user.color %}style="color: {{ user.color }}"{% endif %}>{{ user.username }}</span></td>
+      <td><span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></td>
       <td class="col-count" data-fmt="{{ user.count }}">{{ user.count }}</td>
     </tr>
     {% endif %}
@@ -261,7 +261,7 @@
   <tbody>
   {% for vip in data.expired_vips %}
     <tr>
-      <td><span class="chatter-name" {% if vip.color %}style="color: {{ vip.color }}"{% endif %}>{{ vip.username }}</span></td>
+      <td><span class="chatter-name" {% if vip.color %}style="--uc: {{ vip.color }}"{% endif %}>{{ vip.username }}</span></td>
       <td>{{ vip.granted_at }}</td>
       <td>{{ vip.removed_at }}</td>
       <td><button class="copy-unvip" data-user="{{ vip.username }}" title="Copy /unvip {{ vip.username }}">copy /unvip</button></td>

@@ -134,7 +134,7 @@
       {% for user in latest.users %}
         {% if loop.index0 < 5 %}
         <li>
-          <span>{{ loop.index }}. <span class="chatter-name" {% if user.color %}style="color: {{ user.color }}"{% endif %}>{{ user.username }}</span></span>
+          <span>{{ loop.index }}. <span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></span>
           <span class="chatter-count" data-fmt="{{ user.count }}">{{ user.count }}</span>
         </li>
         {% endif %}
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
       {% for user in summary.all_time.top_chatters %}
         {% if loop.index0 < 20 %}
         <li{% if loop.index0 >= 5 %} data-tier="{% if loop.index0 < 10 %}10{% else %}20{% endif %}" hidden{% endif %}>
-          <span>{{ loop.index }}. <span class="chatter-name" {% if user.color %}style="color: {{ user.color }}"{% endif %}>{{ user.username }}</span></span>
+          <span>{{ loop.index }}. <span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></span>
           <span class="chatter-count" data-fmt="{{ user.count }}">{{ user.count }}</span>
         </li>
         {% endif %}

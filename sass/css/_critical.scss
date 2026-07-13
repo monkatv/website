@@ -204,7 +204,7 @@ h3 { font-size: 1.15rem; }
 .streamer-card-left { flex: 1; min-width: 0; }
 .streamer-card-header { display: flex; align-items: center; gap: 1rem; }
 .streamer-card-header .streamer-info { flex: 1; }
-.streamer-card-body .sparkline { width: 400px; height: 80px; flex-shrink: 0; }
+.streamer-card-body .sparkline { width: 430px; height: 80px; flex-shrink: 0; } /* 400 plot + 30 y-axis gutter */
 .streamer-card-week-label {
   font-size: .7rem;
   color: var(--text-muted);

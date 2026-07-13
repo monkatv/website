@@ -278,11 +278,12 @@
     }
     let range = maxVal - minVal;
     if (range === 0) range = 1;
+    const padBottom = 1;
 
     const coords = [];
     for (let i = 0; i < values.length; i++) {
       const x = padX + (i / (values.length - 1)) * (width - 2 * padX);
-      const y = padY + (1 - (values[i] - minVal) / range) * (height - 2 * padY);
+      const y = padY + (1 - (values[i] - minVal) / range) * (height - padY - padBottom);
       coords.push({x: x, y: y});
     }
 
@@ -371,7 +372,19 @@
       container.style.position = 'relative';
     }
 
-    container.appendChild(svg);
+    container.style.position = 'relative';
+    const plot = document.createElement('div');
+    plot.className = 'sparkline-plot';
+    plot.appendChild(svg);
+    const yMax = document.createElement('span');
+    yMax.className = 'sparkline-ylabel sparkline-ylabel-max';
+    yMax.textContent = formatNum(maxVal);
+    const yMin = document.createElement('span');
+    yMin.className = 'sparkline-ylabel sparkline-ylabel-min';
+    yMin.textContent = formatNum(minVal);
+    plot.appendChild(yMax);
+    plot.appendChild(yMin);
+    container.appendChild(plot);
     if (tooltip) container.appendChild(tooltip);
 
     // Labels below sparkline
@@ -384,12 +397,9 @@
       dl.className = 'sparkline-dates';
       const s1 = document.createElement('span');
       s1.textContent = shortDate(dates[0]);
-      const s2 = document.createElement('span');
-      s2.textContent = formatNum(minVal) + '\u2013' + formatNum(maxVal);
       const s3 = document.createElement('span');
       s3.textContent = shortDate(dates[dates.length - 1]);
       dl.appendChild(s1);
-      dl.appendChild(s2);
       dl.appendChild(s3);
       container.appendChild(dl);
     }

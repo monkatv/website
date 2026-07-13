@@ -634,3 +634,17 @@ a.cal-has-data .cal-today {
 .chatter-name { color: var(--uc, currentColor); }
 .chatter-name { color: #{"oklch(from var(--uc, currentColor) min(l, 0.5) c h)"}; }
 [data-theme="dark"] .chatter-name { color: var(--uc, currentColor); }
+
+/* Sparkline y-axis: peak + zero labels in a left gutter (HTML overlay; SVG text
+   would distort under preserveAspectRatio:none). Plot wrapper pins the labels to
+   the chart floor/ceiling regardless of the date caption below it. */
+.sparkline-plot { position: relative; height: 80px; padding-left: 30px; box-sizing: border-box; }
+.sparkline-plot .sparkline-svg { width: 100%; height: 100%; }
+.sparkline-ylabel {
+  position: absolute; left: 0; width: 26px; text-align: right;
+  font-size: .6rem; line-height: 1; color: var(--text-muted);
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.sparkline-ylabel-max { top: 0; }
+.sparkline-ylabel-min { bottom: 0; }
+.sparkline-dates { padding-left: 30px; }

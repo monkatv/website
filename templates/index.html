@@ -5,7 +5,7 @@
 {% block og_description %}{{ section.description | default(value="Weekly Twitch chat statistics and emote usage tracking") }}{% endblock %}
 
 {% block extra_head %}
-<script src="/js/charts.js" defer></script>
+<script src="/js/charts.js?v={{ now() | date(format="%s") }}" defer></script>
 {% endblock %}
 
 {% block content %}

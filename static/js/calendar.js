@@ -201,6 +201,7 @@
       el.addEventListener('click', function(e) {
         e.preventDefault();
         const action = this.getAttribute('data-action');
+        const focusClass = this.className;
 
         if (action === 'prev') {
           if (view === 'month') { curMonth--; if (curMonth < 1) { curMonth = 12; curYear--; } }
@@ -222,6 +223,14 @@
         }
 
         render();
+
+        // Restore focus to the equivalent control after render
+        var focusTarget = container.querySelector('[data-action="' + action + '"]');
+        if (focusTarget && focusClass.includes('cal-nav')) {
+          focusTarget.focus();
+        } else if (focusTarget && focusClass.includes('cal-title')) {
+          focusTarget.focus();
+        }
       });
     });
   }

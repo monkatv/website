@@ -60,8 +60,9 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <a href="#main" class="skip-link">Skip to content</a>
   {% include "header.html" %}
-  <main>{% block content %}{% endblock %}</main>
+  <main id="main">{% block content %}{% endblock %}</main>
   {% include "footer.html" %}
 </body>
 </html>

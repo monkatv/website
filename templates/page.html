@@ -61,7 +61,7 @@
     <span class="report-sep">&middot;</span>
     <span class="report-period">{{ data.period.start_date | date(format="%b %d") }} &ndash; {{ data.period.end_date | date(format="%b %d, %Y") }}</span>
     {% if data.vods | length > 0 %}
-    <button class="vod-badge" id="vod-toggle" title="Show VOD links">
+    <button class="vod-badge" id="vod-toggle" title="Show VOD links" aria-expanded="false" aria-controls="vod-list">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2L3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29l-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43Z"/></svg>
       {{ data.vods | length }} VODs
     </button>
@@ -178,7 +178,7 @@
   {% set cdn = img_cdns[loop.index0] %}
 
   <div class="tab-panel{% if loop.first %} active{% endif %}" id="tab-{{ provider }}" role="tabpanel" aria-labelledby="tab-btn-{{ provider }}">
-    <table id="table-{{ provider }}" data-page-size="25">
+    <table id="table-{{ provider }}" data-page-size="25" data-json-path="{{ page.extra.json_path | safe }}" data-provider="{{ provider }}" data-total="{{ emotes | length }}" data-cdn="{{ cdn | safe }}"{% if data.emotes.urls[provider] %} data-url="{{ data.emotes.urls[provider] | safe }}"{% endif %}>
       <thead>
         <tr>
           <th data-sort="text">Emote</th>
@@ -187,6 +187,7 @@
       </thead>
       <tbody>
       {% for emote in emotes %}
+        {% if loop.index0 < 25 %}
         <tr{% if emote.count == 0 %} data-zero="1"{% endif %}>
           <td>
             <span class="emote-cell">
@@ -202,6 +203,7 @@
           </td>
           <td class="col-count" data-fmt="{{ emote.count }}">{{ emote.count }}</td>
         </tr>
+        {% endif %}
       {% endfor %}
       </tbody>
     </table>
@@ -318,6 +320,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Create a status announcer for copy/paste feedback
+  const statusAnnouncer = document.createElement('span');
+  statusAnnouncer.setAttribute('role', 'status');
+  statusAnnouncer.setAttribute('aria-live', 'polite');
+  statusAnnouncer.className = 'sr-only';
+  document.body.appendChild(statusAnnouncer);
+
   {% if data.copypastas | length > 0 %}
   const emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }};
   const ge = window.__globalEmotes || {};
@@ -351,6 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (vodToggle && vodList) {
     vodToggle.addEventListener('click', function() {
       vodList.hidden = !vodList.hidden;
+      vodToggle.setAttribute('aria-expanded', !vodList.hidden);
     });
   }
   document.querySelectorAll('.copy-unvip').forEach(function(btn) {
@@ -358,9 +368,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const cmd = '/unvip ' + btn.getAttribute('data-user');
       navigator.clipboard.writeText(cmd).then(function() {
         btn.textContent = 'copied!';
+        statusAnnouncer.textContent = 'Copied to clipboard';
         setTimeout(function() { btn.textContent = 'copy /unvip'; }, 1500);
       }).catch(function() {
         btn.textContent = 'failed';
+        statusAnnouncer.textContent = 'Failed to copy';
         setTimeout(function() { btn.textContent = 'copy /unvip'; }, 1500);
       });
     });

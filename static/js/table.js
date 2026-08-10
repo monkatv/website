@@ -2,14 +2,17 @@
   'use strict';
 
   // Tab switching
-  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  document.querySelectorAll('.tab-btn').forEach(function(btn, idx) {
+    btn.setAttribute('tabindex', idx === 0 ? '0' : '-1');
     btn.addEventListener('click', function() {
       btn.closest('.tab-nav').querySelectorAll('.tab-btn').forEach(function(b) {
         b.classList.remove('active');
         b.setAttribute('aria-selected', 'false');
+        b.setAttribute('tabindex', '-1');
       });
       btn.classList.add('active');
       btn.setAttribute('aria-selected', 'true');
+      btn.setAttribute('tabindex', '0');
 
       document.querySelectorAll('.tab-panel').forEach(function(p) {
         p.classList.remove('active');
@@ -37,41 +40,53 @@
 
   // Table sorting
   document.querySelectorAll('th[data-sort]').forEach(function(th) {
-    th.addEventListener('click', function() {
+    th.setAttribute('tabindex', '0');
+    function doSort() {
       const table = th.closest('table');
-      const tbody = table.querySelector('tbody');
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-      const col = th.cellIndex;
-      const type = th.dataset.sort;
-      const asc = th.getAttribute('data-dir') !== 'asc';
+      // A partially loaded table must fetch its remaining rows BEFORE sorting,
+      // or the lazy rows would be appended unsorted after the first 25.
+      ensureRowsLoaded(table).then(function() {
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const col = th.cellIndex;
+        const type = th.dataset.sort;
+        const asc = th.getAttribute('data-dir') !== 'asc';
 
-      table.querySelectorAll('th[data-sort]').forEach(function(h) {
-        h.removeAttribute('data-dir');
-      });
-      th.setAttribute('data-dir', asc ? 'asc' : 'desc');
+        table.querySelectorAll('th[data-sort]').forEach(function(h) {
+          h.removeAttribute('data-dir');
+        });
+        th.setAttribute('data-dir', asc ? 'asc' : 'desc');
 
-      rows.sort(function(a, b) {
-        let va = a.cells[col].textContent.trim();
-        let vb = b.cells[col].textContent.trim();
-        if (type === 'num') {
-          va = parseInt(va.replace(/,/g, '')) || 0;
-          vb = parseInt(vb.replace(/,/g, '')) || 0;
-        } else {
-          va = va.toLowerCase();
-          vb = vb.toLowerCase();
+        rows.sort(function(a, b) {
+          let va = a.cells[col].textContent.trim();
+          let vb = b.cells[col].textContent.trim();
+          if (type === 'num') {
+            va = parseInt(va.replace(/,/g, '')) || 0;
+            vb = parseInt(vb.replace(/,/g, '')) || 0;
+          } else {
+            va = va.toLowerCase();
+            vb = vb.toLowerCase();
+          }
+          if (va < vb) return asc ? -1 : 1;
+          if (va > vb) return asc ? 1 : -1;
+          return 0;
+        });
+
+        rows.forEach(function(row) { tbody.appendChild(row); });
+
+        // Re-apply pagination after sort
+        const tableId = table.id;
+        if (tableId && state[tableId]) {
+          state[tableId].page = 0;
+          applyVisibility(tableId);
         }
-        if (va < vb) return asc ? -1 : 1;
-        if (va > vb) return asc ? 1 : -1;
-        return 0;
       });
-
-      rows.forEach(function(row) { tbody.appendChild(row); });
-
-      // Re-apply pagination after sort
-      const tableId = table.id;
-      if (tableId && state[tableId]) {
-        state[tableId].page = 0;
-        applyVisibility(tableId);
+    }
+    th.addEventListener('click', doSort);
+    th.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        doSort();
       }
     });
   });
@@ -99,6 +114,89 @@
   // Per-table state for pagination + hide-unused
   const state = {};
 
+  // Cache for lazy-loaded JSON per path
+  const jsonCache = {};
+
+  function ensureRowsLoaded(table) {
+    return new Promise(function(resolve) {
+      const tbody = table.querySelector('tbody');
+      const renderedCount = Array.from(tbody.querySelectorAll('tr')).length;
+      const totalCount = parseInt(table.getAttribute('data-total')) || renderedCount;
+
+      if (renderedCount >= totalCount) {
+        resolve();
+        return;
+      }
+
+      const jsonPath = table.getAttribute('data-json-path');
+      const provider = table.getAttribute('data-provider');
+      const cdn = table.getAttribute('data-cdn');
+      const urlPattern = table.getAttribute('data-url');
+
+      if (!jsonCache[jsonPath]) {
+        // json_path is repo-relative ("api/.../DATE.json"); normalize any
+        // leading slashes so we never emit a protocol-relative "//" URL.
+        jsonCache[jsonPath] = fetch('/' + jsonPath.replace(/^\/+/, '')).then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        });
+      }
+
+      jsonCache[jsonPath].then(function(data) {
+        const emotes = data.emotes[provider] || [];
+        const urls = data.emotes.urls || {};
+
+        for (let i = renderedCount; i < emotes.length; i++) {
+          const emote = emotes[i];
+          const tr = document.createElement('tr');
+          if (emote.count === 0) tr.setAttribute('data-zero', '1');
+
+          const td1 = document.createElement('td');
+          const cell = document.createElement('span');
+          cell.className = 'emote-cell';
+
+          if (cdn && emote.id) {
+            const img = document.createElement('img');
+            img.className = 'emote-img';
+            img.src = cdn.replace('{id}', emote.id);
+            img.alt = emote.name;
+            img.width = 28;
+            img.height = 28;
+            img.loading = 'lazy';
+            cell.appendChild(img);
+          }
+
+          if (emote.id && urlPattern) {
+            const a = document.createElement('a');
+            a.href = urlPattern.replace('{id}', emote.id);
+            a.textContent = emote.name;
+            cell.appendChild(a);
+          } else {
+            cell.appendChild(document.createTextNode(emote.name));
+          }
+
+          td1.appendChild(cell);
+          tr.appendChild(td1);
+
+          const td2 = document.createElement('td');
+          td2.className = 'col-count';
+          td2.setAttribute('data-fmt', emote.count);
+          td2.textContent = emote.count;
+          tr.appendChild(td2);
+
+          tbody.appendChild(tr);
+        }
+
+        // The initial formatNumbers() pass ran before these rows existed.
+        if (window.formatNumbers) window.formatNumbers();
+        resolve();
+      }).catch(function(err) {
+        console.warn('Lazy emote load failed for', jsonPath, err);
+        resolve();
+      });
+    });
+  }
+
   function applyVisibility(tableId) {
     const table = document.getElementById(tableId);
     if (!table) return;
@@ -122,7 +220,17 @@
       visibleIdx++;
     });
 
-    renderPagination(tableId, visibleIdx);
+    // Lazily loaded tables render only the first page of rows in HTML; until
+    // the rest are fetched, paginate against the server-declared total (else
+    // totalPages computes to 1 and the load can never be triggered). Once
+    // hide-unused is active the table is always fully loaded (the toggle
+    // fetches first), so the DOM count is authoritative there.
+    const declaredTotal = parseInt(table.getAttribute('data-total')) || 0;
+    const totalForPagination = (!s.hideUnused && declaredTotal > allRows.length)
+      ? declaredTotal
+      : visibleIdx;
+
+    renderPagination(tableId, totalForPagination);
   }
 
   function renderPagination(tableId, totalVisible) {
@@ -130,6 +238,7 @@
     const container = document.getElementById('pag-' + provider);
     if (!container) return;
     container.innerHTML = '';
+    container.setAttribute('aria-label', 'Pagination for ' + provider + ' table');
 
     const s = state[tableId];
     const totalPages = Math.ceil(totalVisible / s.pageSize);
@@ -149,7 +258,10 @@
     prevBtn.textContent = '\u2190 Prev';
     prevBtn.disabled = s.page === 0;
     prevBtn.addEventListener('click', function() {
-      if (s.page > 0) { s.page--; applyVisibility(tableId); }
+      if (s.page > 0) {
+        s.page--;
+        ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
+      }
     });
     nav.appendChild(prevBtn);
 
@@ -177,7 +289,10 @@
         const btn = document.createElement('button');
         btn.textContent = String(p + 1);
         if (p === s.page) btn.className = 'pag-active';
-        btn.addEventListener('click', function() { s.page = p; applyVisibility(tableId); });
+        btn.addEventListener('click', function() {
+          s.page = p;
+          ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
+        });
         nav.appendChild(btn);
       }
     });
@@ -186,7 +301,10 @@
     nextBtn.textContent = 'Next \u2192';
     nextBtn.disabled = s.page >= totalPages - 1;
     nextBtn.addEventListener('click', function() {
-      if (s.page < totalPages - 1) { s.page++; applyVisibility(tableId); }
+      if (s.page < totalPages - 1) {
+        s.page++;
+        ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
+      }
     });
     nav.appendChild(nextBtn);
 
@@ -207,7 +325,8 @@
       Object.keys(state).forEach(function(tableId) {
         state[tableId].hideUnused = hideToggle.checked;
         state[tableId].page = 0;
-        applyVisibility(tableId);
+        const table = document.getElementById(tableId);
+        ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
       });
     });
   }

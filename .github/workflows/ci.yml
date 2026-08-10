@@ -95,16 +95,16 @@ jobs:
         run: |
           python3 << 'PYTHON_EOF'
           import json
-          import toml
+          import tomllib
           from pathlib import Path
 
           # Check main index exists
           assert Path('public/index.html').exists(), "public/index.html missing"
 
           # Read streamers from data/streamers.toml
-          with open('data/streamers.toml', 'r') as f:
-            streamers_config = toml.load(f)
-          streamers = list(streamers_config.get('streamers', {}).keys())
+          with open('data/streamers.toml', 'rb') as f:
+            streamers_config = tomllib.load(f)
+          streamers = [s['login'] for s in streamers_config.get('streamers', [])]
 
           # Check each streamer has an index page
           missing_streamers = []

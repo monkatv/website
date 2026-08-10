@@ -403,6 +403,12 @@
       dl.appendChild(s3);
       container.appendChild(dl);
     }
+
+    // Screen-reader summary
+    var srDiv = document.createElement('div');
+    srDiv.className = 'sr-only';
+    srDiv.textContent = 'Message trend over ' + values.length + ' weeks: minimum ' + minVal.toLocaleString() + ', maximum ' + maxVal.toLocaleString() + ', latest ' + values[values.length - 1].toLocaleString();
+    container.appendChild(srDiv);
   };
 
   /**

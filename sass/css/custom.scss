@@ -648,3 +648,35 @@ a.cal-has-data .cal-today {
 .sparkline-ylabel-max { top: 0; }
 .sparkline-ylabel-min { bottom: 0; }
 .sparkline-dates { padding-left: 30px; }
+
+/* === Incomplete Data Warning Banner === */
+.incomplete-data-banner {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.banner-icon { font-size: 1.2rem; }
+.banner-text { flex: 1; color: var(--text); }
+.banner-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.banner-close:hover { color: var(--text); }

@@ -27,6 +27,29 @@
 {% set summary = load_data(path="static/api/" ~ data.streamer.login ~ "/summary.json") %}
 {{ schema::check_summary(data=summary) }}
 
+{# Check for incomplete data: failed providers or warnings #}
+{% set has_failed_providers = false %}
+{% if data.emote_providers is defined %}
+  {% for provider, status in data.emote_providers %}
+    {% if status == "failed" %}
+      {% set_global has_failed_providers = true %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# Banner keys ONLY on genuine provider failure ('failed'), never on the
+   warnings array: historical JSONs carry permanent "Emote fetch failed"
+   warnings for streamers with no BTTV/FFZ account, which is expected, not
+   incomplete data. #}
+{% if has_failed_providers %}
+<div class="incomplete-data-banner" role="alert">
+  <div class="banner-content">
+    <span class="banner-icon">⚠️</span>
+    <span class="banner-text">Some data sources failed this week — emote counts may be incomplete</span>
+    <button class="banner-close" aria-label="Dismiss" onclick="this.parentElement.parentElement.style.display='none'">&times;</button>
+  </div>
+</div>
+{% endif %}
+
 {% set parts = page.path | trim_start_matches(pat="/") | split(pat="/") %}
 <div class="report-header">
   <div class="report-headline">

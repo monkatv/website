@@ -52,6 +52,27 @@ jobs:
         if: steps.check-data.outputs.has_new_data || github.event_name == 'workflow_dispatch'
         run: pip install 'tcs @ git+https://${{ secrets.GH_ACCESS_TOKEN }}@github.com/monkatv/tcs.git'
 
+      - name: Validate JSON files
+        run: |
+          python3 << 'PYTHON_EOF'
+          import json
+          from pathlib import Path
+          api_dir = Path('static/api')
+          bad_files = []
+          for json_file in api_dir.glob('**/*.json'):
+            try:
+              with open(json_file, 'r') as f:
+                json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+              bad_files.append(f"{json_file}: {e}")
+          if bad_files:
+            print("Invalid JSON files found:")
+            for msg in bad_files:
+              print(f"  {msg}")
+            exit(1)
+          print(f"✓ All JSON files valid ({len(list(api_dir.glob('**/*.json')))} files)")
+          PYTHON_EOF
+
       - name: Generate summary JSONs
         if: steps.check-data.outputs.has_new_data || github.event_name == 'workflow_dispatch'
         run: tcs summarize --dir static/api
@@ -71,7 +92,57 @@ jobs:
       - run: zola build
 
       - name: Smoke test build output
-        run: test -f public/index.html && test -f public/fl0m/index.html
+        run: |
+          python3 << 'PYTHON_EOF'
+          import json
+          import tomllib
+          from pathlib import Path
+
+          # Check main index exists
+          assert Path('public/index.html').exists(), "public/index.html missing"
+
+          # Read streamers from data/streamers.toml
+          with open('data/streamers.toml', 'rb') as f:
+            streamers_config = tomllib.load(f)
+          streamers = [s['login'] for s in streamers_config.get('streamers', [])]
+
+          # Check each streamer has an index page
+          missing_streamers = []
+          for streamer in streamers:
+            streamer_index = Path(f'public/{streamer}/index.html')
+            if not streamer_index.exists():
+              missing_streamers.append(streamer)
+
+          if missing_streamers:
+            print(f"Missing index pages for: {', '.join(missing_streamers)}")
+            exit(1)
+
+          # Check main index contains all streamer logins
+          with open('public/index.html', 'r') as f:
+            index_html = f.read()
+
+          missing_in_index = []
+          for streamer in streamers:
+            if streamer not in index_html:
+              missing_in_index.append(streamer)
+
+          if missing_in_index:
+            print(f"Streamer logins missing from public/index.html: {', '.join(missing_in_index)}")
+            exit(1)
+
+          # Check one built API summary.json is valid
+          if streamers:
+            summary_path = Path(f'public/api/{streamers[0]}/summary.json')
+            if summary_path.exists():
+              try:
+                with open(summary_path, 'r') as f:
+                  json.load(f)
+              except json.JSONDecodeError as e:
+                print(f"Invalid JSON in {summary_path}: {e}")
+                exit(1)
+
+          print(f"✓ Smoke tests passed ({len(streamers)} streamers, all index pages exist)")
+          PYTHON_EOF
 
       - name: Upload pages artifact
         if: github.ref == 'refs/heads/master'

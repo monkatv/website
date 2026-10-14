@@ -314,9 +314,8 @@ document.addEventListener('DOMContentLoaded', function() {
   document.body.appendChild(statusAnnouncer);
 
   {% if data.copypastas | length > 0 %}
-  const emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }};
-  const ge = window.__globalEmotes || {};
-  for (const k in ge) { if (ge.hasOwnProperty(k) && !emoteMap[k]) emoteMap[k] = ge[k]; }
+  // Channel emotes win over global ones with the same name.
+  const emoteMap = Object.assign({}, window.__globalEmotes, {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }});
   document.querySelectorAll('.copypasta-text').forEach(function(el) {
     const text = el.textContent;
     const parts = text.split(' ');

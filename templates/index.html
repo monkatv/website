@@ -21,7 +21,6 @@
 
 {% set streamers = load_data(path="data/streamers.toml") %}
 {% for s in streamers.streamers %}
-  {% set streamer_section = get_section(path=s.login ~ "/_index.md") %}
   {% set summary = load_data(path="static/api/" ~ s.login ~ "/summary.json") %}
   {{ schema::check_summary(data=summary) }}
   {% set latest = load_data(path="static/api/" ~ s.login ~ "/latest.json") %}
@@ -96,14 +95,11 @@
   <script>
   (function() {
     const recent = {{ recent_weeks | json_encode() | safe }};
-    const vals = [], dates = [], startDates = [];
-    for (let i = 0; i < recent.length; i++) {
-      vals.push(recent[i].messages_total);
-      dates.push(recent[i].end_date);
-      startDates.push(recent[i].start_date || '');
-    }
     document.addEventListener('DOMContentLoaded', function() {
-      renderSparkline("sparkline-{{ s.login }}", vals, { dates: dates, startDates: startDates });
+      renderSparkline("sparkline-{{ s.login }}", recent.map(w => w.messages_total), {
+        dates: recent.map(w => w.end_date),
+        startDates: recent.map(w => w.start_date || ''),
+      });
     });
   })();
   </script>

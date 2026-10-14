@@ -121,7 +121,7 @@
       const emotes = data.emotes[provider] || [];
       const urls = data.emotes.urls || {};
 
-      for (let i = renderedCount; i < emotes.length; i++) {
+      for (let i = tbody.rows.length; i < emotes.length; i++) {
         const emote = emotes[i];
         const tr = document.createElement('tr');
         if (emote.count === 0) tr.setAttribute('data-zero', '1');
@@ -212,7 +212,7 @@
     container.setAttribute('aria-label', 'Pagination for ' + provider + ' table');
 
     const s = state[table.id];
-    function goTo(p) { s.page = p; refresh(table); }
+    function goTo(p) { s.page = Math.max(0, Math.min(p, totalPages - 1)); refresh(table); }
     const totalPages = Math.ceil(totalVisible / s.pageSize);
     if (totalPages <= 1) return;
 

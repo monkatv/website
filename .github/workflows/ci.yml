@@ -63,7 +63,7 @@ jobs:
           bad = []
           for f in files:
               try:
-                  json.loads(f.read_bytes())
+                  json.loads(f.read_text(encoding="utf-8"))
               except (ValueError, OSError) as e:
                   bad.append(f"  {f}: {e}")
           if bad:

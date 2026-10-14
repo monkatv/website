@@ -7,9 +7,7 @@
                       'July', 'August', 'September', 'October', 'November', 'December'];
   const DOW = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-  const CHEVRON_LEFT = 'M10 3L5 8L10 13';
-  const CHEVRON_RIGHT = 'M6 3L11 8L6 13';
+  const chevron = d => '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
 
   let container, streamer, weekEnds, emptyWeeks;
   let view = 'month';
@@ -29,52 +27,14 @@
     return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate() };
   }
 
-  function chevron(pathD) {
-    const svg = document.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('width', '14');
-    svg.setAttribute('height', '14');
-    svg.setAttribute('viewBox', '0 0 16 16');
-    svg.setAttribute('fill', 'none');
-    svg.setAttribute('stroke', 'currentColor');
-    svg.setAttribute('stroke-width', '2.5');
-    svg.setAttribute('stroke-linecap', 'round');
-    svg.setAttribute('stroke-linejoin', 'round');
-    const path = document.createElementNS(SVG_NS, 'path');
-    path.setAttribute('d', pathD);
-    svg.appendChild(path);
-    return svg;
-  }
-
   function calHeader(title, isStatic) {
     const header = document.createElement('div');
     header.className = 'cal-header';
-
-    const prev = document.createElement('button');
-    prev.className = 'cal-nav';
-    prev.dataset.action = 'prev';
-    prev.setAttribute('aria-label', 'Previous');
-    prev.appendChild(chevron(CHEVRON_LEFT));
-    header.appendChild(prev);
-
-    let titleEl;
-    if (isStatic) {
-      titleEl = document.createElement('span');
-      titleEl.className = 'cal-title cal-title-static';
-    } else {
-      titleEl = document.createElement('button');
-      titleEl.className = 'cal-title';
-      titleEl.dataset.action = 'up';
-    }
-    titleEl.textContent = title;
-    header.appendChild(titleEl);
-
-    const next = document.createElement('button');
-    next.className = 'cal-nav';
-    next.dataset.action = 'next';
-    next.setAttribute('aria-label', 'Next');
-    next.appendChild(chevron(CHEVRON_RIGHT));
-    header.appendChild(next);
-
+    header.innerHTML =
+      '<button class="cal-nav" data-action="prev" aria-label="Previous">' + chevron('M10 3L5 8L10 13') + '</button>' +
+      (isStatic ? '<span class="cal-title cal-title-static">' + title + '</span>'
+                : '<button class="cal-title" data-action="up">' + title + '</button>') +
+      '<button class="cal-nav" data-action="next" aria-label="Next">' + chevron('M6 3L11 8L6 13') + '</button>';
     return header;
   }
 
@@ -147,7 +107,6 @@
     frag.appendChild(body);
 
     container.replaceChildren(frag);
-    bindNav();
   }
 
   function renderMonths() {
@@ -169,7 +128,6 @@
     frag.appendChild(grid);
 
     container.replaceChildren(frag);
-    bindNav();
   }
 
   function renderYears() {
@@ -193,50 +151,41 @@
     frag.appendChild(grid);
 
     container.replaceChildren(frag);
-    bindNav();
   }
 
-  function bindNav() {
-    container.querySelectorAll('[data-action]').forEach(function(el) {
-      el.addEventListener('click', function(e) {
-        e.preventDefault();
-        const action = this.getAttribute('data-action');
-        const focusClass = this.className;
+  function onNav(e) {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    e.preventDefault();
+    const action = el.dataset.action;
 
-        if (action === 'prev') {
-          if (view === 'month') { curMonth--; if (curMonth < 1) { curMonth = 12; curYear--; } }
-          else if (view === 'months') { curYear--; }
-          else { yearRangeStart -= 12; }
-        } else if (action === 'next') {
-          if (view === 'month') { curMonth++; if (curMonth > 12) { curMonth = 1; curYear++; } }
-          else if (view === 'months') { curYear++; }
-          else { yearRangeStart += 12; }
-        } else if (action === 'up') {
-          if (view === 'month') { view = 'months'; }
-          else if (view === 'months') { view = 'years'; yearRangeStart = curYear - curYear % 10 - 1; }
-        } else if (action === 'month') {
-          curMonth = parseInt(this.getAttribute('data-month'));
-          view = 'month';
-        } else if (action === 'year') {
-          curYear = parseInt(this.getAttribute('data-year'));
-          view = 'months';
-        }
+    if (action === 'prev') {
+      if (view === 'month') { curMonth--; if (curMonth < 1) { curMonth = 12; curYear--; } }
+      else if (view === 'months') { curYear--; }
+      else { yearRangeStart -= 12; }
+    } else if (action === 'next') {
+      if (view === 'month') { curMonth++; if (curMonth > 12) { curMonth = 1; curYear++; } }
+      else if (view === 'months') { curYear++; }
+      else { yearRangeStart += 12; }
+    } else if (action === 'up') {
+      if (view === 'month') { view = 'months'; }
+      else if (view === 'months') { view = 'years'; yearRangeStart = curYear - curYear % 10 - 1; }
+    } else if (action === 'month') {
+      curMonth = parseInt(el.dataset.month);
+      view = 'month';
+    } else if (action === 'year') {
+      curYear = parseInt(el.dataset.year);
+      view = 'months';
+    }
 
-        render();
-
-        // Restore focus to the equivalent control after render
-        var focusTarget = container.querySelector('[data-action="' + action + '"]');
-        if (focusTarget && focusClass.includes('cal-nav')) {
-          focusTarget.focus();
-        } else if (focusTarget && focusClass.includes('cal-title')) {
-          focusTarget.focus();
-        }
-      });
-    });
+    render();
+    const focusTarget = container.querySelector('[data-action="' + action + '"]');
+    if (focusTarget) focusTarget.focus();
   }
 
   window.initWeeksCalendar = function(el, weeks, streamerLogin) {
     container = el;
+    container.addEventListener('click', onNav);
     streamer = streamerLogin;
     weekEnds = new Set();
     emptyWeeks = new Set();
@@ -245,8 +194,7 @@
       weekEnds.add(w.end_date);
       if (w.vod_count === 0) emptyWeeks.add(w.end_date);
       const ym = w.end_date.substring(0, 7);
-      if (!weeksByMonth[ym]) weeksByMonth[ym] = [];
-      weeksByMonth[ym].push(w.end_date);
+      weeksByMonth[ym] = true;
       weeksByYear[w.end_date.substring(0, 4)] = true;
     });
 

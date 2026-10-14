@@ -5,10 +5,8 @@
 {% block title %}{{ page.title }} — {{ config.title }}{% endblock %}
 {% block description %}{{ page.description | default(value=page.title) }}{% endblock %}
 {% block og_title %}{{ page.title }}{% endblock %}
-{% block og_url %}{{ page.permalink }}{% endblock %}
 {% block og_description %}{{ page.description | default(value=page.title) }}{% endblock %}
-{% block og_image %}{%- set parts = page.path | trim_start_matches(pat="/") | split(pat="/") -%}{%- set s = load_data(path="static/api/" ~ parts[0] ~ "/summary.json") -%}{% if s.avatar_url %}{{ s.avatar_url | safe }}{% else %}{{ config.base_url }}/img/src/logo.png{% endif %}{% endblock %}
-{% block canonical %}{{ page.permalink }}{% endblock %}
+{% block og_image %}{%- set s = load_data(path="static/api/" ~ page.components.0 ~ "/summary.json") -%}{% if s.avatar_url %}{{ s.avatar_url | safe }}{% else %}{{ config.base_url }}/img/src/logo.png{% endif %}{% endblock %}
 
 {% block extra_head %}
 {% set data = load_data(path="static/" ~ page.extra.json_path) %}
@@ -50,10 +48,9 @@
 </div>
 {% endif %}
 
-{% set parts = page.path | trim_start_matches(pat="/") | split(pat="/") %}
 <div class="report-header">
   <div class="report-headline">
-    <a href="/{{ parts[0] | safe }}/" class="report-back" title="Back to {{ data.streamer.login }}">
+    <a href="/{{ data.streamer.login | safe }}/" class="report-back" title="Back to {{ data.streamer.login }}">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </a>
     {% if summary.avatar_url %}<img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="report-avatar" alt="{{ data.streamer.login }}" loading="eager" fetchpriority="high">{% endif %}
@@ -75,7 +72,7 @@
       <span class="vod-tip">
         <img src="{{ vod.thumbnail_url | safe }}" width="320" height="180" alt="" loading="lazy">
         <span class="vod-tip-title">{{ vod.title }}</span>
-        <span class="vod-tip-meta">{% if vod.duration_seconds %}{{ vod.duration_seconds / 3600 | round(precision=1) }}h{% endif %}{% if vod.view_count %}{% if vod.duration_seconds %} &middot; {% endif %}<span data-fmt="{{ vod.view_count }}">{{ vod.view_count }}</span> views{% endif %}</span>
+        <span class="vod-tip-meta">{% if vod.duration_seconds %}{{ vod.duration_seconds / 3600 | round(precision=1) }}h{% endif %}{% if vod.view_count %}{% if vod.duration_seconds %} &middot; {% endif %}{{ vod.view_count | num_format }} views{% endif %}</span>
       </span>
       {% endif %}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2L3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29l-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43Z"/></svg>
@@ -93,11 +90,11 @@
 {# === Stat Cards === #}
 <div class="stats">
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ total }}">{{ total }}</div>
+    <div class="stat-value">{{ total | num_format }}</div>
     <div class="stat-label">Total messages</div>
   </div>
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ unique }}">{{ unique }}</div>
+    <div class="stat-value">{{ unique | num_format }}</div>
     <div class="stat-label">Unique messages</div>
   </div>
   <div class="stat">
@@ -132,14 +129,12 @@
   </thead>
   <tbody>
   {% set users_limit = data.meta.defaults.users_limit %}
-  {% for user in data.users %}
-    {% if loop.index0 < users_limit %}
+  {% for user in data.users | slice(end=users_limit) %}
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></td>
-      <td class="col-count" data-fmt="{{ user.count }}">{{ user.count }}</td>
+      <td class="col-count">{{ user.count | num_format }}</td>
     </tr>
-    {% endif %}
   {% endfor %}
   </tbody>
 </table>
@@ -186,8 +181,7 @@
         </tr>
       </thead>
       <tbody>
-      {% for emote in emotes %}
-        {% if loop.index0 < 25 %}
+      {% for emote in emotes | slice(end=25) %}
         <tr{% if emote.count == 0 %} data-zero="1"{% endif %}>
           <td>
             <span class="emote-cell">
@@ -201,9 +195,8 @@
               {% endif %}
             </span>
           </td>
-          <td class="col-count" data-fmt="{{ emote.count }}">{{ emote.count }}</td>
+          <td class="col-count">{{ emote.count | num_format }}</td>
         </tr>
-        {% endif %}
       {% endfor %}
       </tbody>
     </table>
@@ -224,14 +217,12 @@
   </thead>
   <tbody>
   {% set commands_limit = data.meta.defaults.commands_limit %}
-  {% for cmd in data.commands %}
-    {% if loop.index0 < commands_limit %}
+  {% for cmd in data.commands | slice(end=commands_limit) %}
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td>{{ cmd.name }}</td>
-      <td class="col-count" data-fmt="{{ cmd.count }}">{{ cmd.count }}</td>
+      <td class="col-count">{{ cmd.count | num_format }}</td>
     </tr>
-    {% endif %}
   {% endfor %}
   </tbody>
 </table>
@@ -250,14 +241,12 @@
   </thead>
   <tbody>
   {% set copypastas_limit = data.meta.defaults.copypastas_limit %}
-  {% for pasta in data.copypastas %}
-    {% if loop.index0 < copypastas_limit %}
+  {% for pasta in data.copypastas | slice(end=copypastas_limit) %}
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="copypasta-text" title="{{ pasta.text }}">{{ pasta.text }}</span></td>
-      <td class="col-count" data-fmt="{{ pasta.count }}">{{ pasta.count }}</td>
+      <td class="col-count">{{ pasta.count | num_format }}</td>
     </tr>
-    {% endif %}
   {% endfor %}
   </tbody>
 </table>
@@ -266,13 +255,8 @@
 
 {# === Expired VIPs === #}
 {% set streamers_cfg = load_data(path="data/streamers.toml") %}
-{% set_global show_vips = false %}
-{% for s in streamers_cfg.streamers %}
-  {% if s.login == data.streamer.login %}
-    {% set_global show_vips = s.show_expired_vips | default(value=false) %}
-  {% endif %}
-{% endfor %}
-{% if show_vips and data.expired_vips | length > 0 %}
+{% set cfg = streamers_cfg.streamers | filter(attribute="login", value=data.streamer.login) | first %}
+{% if cfg.show_expired_vips | default(value=false) and data.expired_vips | length > 0 %}
 <h2>Expired VIPs</h2>
 <table>
   <thead>
@@ -328,9 +312,8 @@ document.addEventListener('DOMContentLoaded', function() {
   document.body.appendChild(statusAnnouncer);
 
   {% if data.copypastas | length > 0 %}
-  const emoteMap = {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }};
-  const ge = window.__globalEmotes || {};
-  for (const k in ge) { if (ge.hasOwnProperty(k) && !emoteMap[k]) emoteMap[k] = ge[k]; }
+  // Channel emotes win over global ones with the same name.
+  const emoteMap = Object.assign({}, window.__globalEmotes, {{ emote_macros::emote_map_js(providers=providers, img_cdns=img_cdns, emotes=data.emotes) }});
   document.querySelectorAll('.copypasta-text').forEach(function(el) {
     const text = el.textContent;
     const parts = text.split(' ');
@@ -354,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
     el.appendChild(frag);
   });
   {% endif %}
-  formatNumbers();
   const vodToggle = document.getElementById('vod-toggle');
   const vodList = document.getElementById('vod-list');
   if (vodToggle && vodList) {

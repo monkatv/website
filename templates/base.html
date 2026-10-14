@@ -9,12 +9,6 @@
       const theme = localStorage.getItem('theme') || 'dark';
       document.documentElement.setAttribute('data-theme', theme);
       document.documentElement.style.colorScheme = theme;
-      window.formatNumbers = function() {
-        document.querySelectorAll('[data-fmt]').forEach(function(el) {
-          var v = Number(el.getAttribute('data-fmt'));
-          if (!isNaN(v)) el.textContent = v.toLocaleString();
-        });
-      };
       window.toggleTheme = function() {
         const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
@@ -38,20 +32,16 @@
   <meta property="og:title" content="{% block og_title %}{{ config.title }}{% endblock %}">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
-  <meta property="og:url" content="{% block og_url %}{{ config.base_url }}{% endblock %}">
+  <meta property="og:url" content="{{ current_url | default(value=config.base_url) | safe }}">
   <meta property="og:site_name" content="{{ config.title }}">
   <meta property="og:description" content="{% block og_description %}Weekly Twitch chat statistics and emote usage tracking{% endblock %}">
   <meta property="og:image" content="{% block og_image %}{{ config.base_url }}/img/src/logo.png{% endblock %}">
-  <link rel="canonical" href="{% block canonical %}{{ config.base_url }}{% endblock %}">
+  <link rel="canonical" href="{{ current_url | default(value=config.base_url) | safe }}">
   <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://cdn.7tv.app">
-  <link rel="dns-prefetch" href="https://cdn.7tv.app">
   <link rel="preconnect" href="https://cdn.betterttv.net">
-  <link rel="dns-prefetch" href="https://cdn.betterttv.net">
   <link rel="preconnect" href="https://cdn.frankerfacez.com">
-  <link rel="dns-prefetch" href="https://cdn.frankerfacez.com">
   <link rel="preconnect" href="https://static-cdn.jtvnw.net">
-  <link rel="dns-prefetch" href="https://static-cdn.jtvnw.net">
   <script defer src="/zk/js/script.js?v={{ now() | date(format="%s") }}"></script>
   <script>
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};

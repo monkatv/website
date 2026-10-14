@@ -10,3 +10,15 @@
   {% endfor -%}
 }
 {% endmacro %}
+
+{# CDN image URL of the first emote called `name` that has an id, in provider order; "" if none. #}
+{% macro emote_url(name, providers, img_cdns, emotes) -%}
+{%- set_global url = "" -%}
+{%- for provider in providers -%}
+  {%- set cdn = img_cdns[loop.index0] -%}
+  {%- for e in emotes[provider] -%}
+    {%- if url == "" and e.id and e.name == name -%}{%- set_global url = cdn | replace(from='{id}', to=e.id) -%}{%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+{{ url | safe }}
+{%- endmacro %}

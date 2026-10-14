@@ -56,21 +56,19 @@ jobs:
         run: |
           python3 << 'PYTHON_EOF'
           import json
+          import sys
           from pathlib import Path
-          api_dir = Path('static/api')
-          bad_files = []
-          for json_file in api_dir.glob('**/*.json'):
-            try:
-              with open(json_file, 'r') as f:
-                json.load(f)
-            except (json.JSONDecodeError, OSError) as e:
-              bad_files.append(f"{json_file}: {e}")
-          if bad_files:
-            print("Invalid JSON files found:")
-            for msg in bad_files:
-              print(f"  {msg}")
-            exit(1)
-          print(f"✓ All JSON files valid ({len(list(api_dir.glob('**/*.json')))} files)")
+
+          files = list(Path("static/api").glob("**/*.json"))
+          bad = []
+          for f in files:
+              try:
+                  json.loads(f.read_text(encoding="utf-8"))
+              except (ValueError, OSError) as e:
+                  bad.append(f"  {f}: {e}")
+          if bad:
+              sys.exit("Invalid JSON files found:\n" + "\n".join(bad))
+          print(f"✓ All JSON files valid ({len(files)} files)")
           PYTHON_EOF
 
       - name: Generate summary JSONs
@@ -95,52 +93,28 @@ jobs:
         run: |
           python3 << 'PYTHON_EOF'
           import json
+          import sys
           import tomllib
           from pathlib import Path
 
-          # Check main index exists
-          assert Path('public/index.html').exists(), "public/index.html missing"
-
-          # Read streamers from data/streamers.toml
-          with open('data/streamers.toml', 'rb') as f:
-            streamers_config = tomllib.load(f)
-          streamers = [s['login'] for s in streamers_config.get('streamers', [])]
-
-          # Check each streamer has an index page
-          missing_streamers = []
-          for streamer in streamers:
-            streamer_index = Path(f'public/{streamer}/index.html')
-            if not streamer_index.exists():
-              missing_streamers.append(streamer)
-
-          if missing_streamers:
-            print(f"Missing index pages for: {', '.join(missing_streamers)}")
-            exit(1)
-
-          # Check main index contains all streamer logins
-          with open('public/index.html', 'r') as f:
-            index_html = f.read()
-
-          missing_in_index = []
-          for streamer in streamers:
-            if streamer not in index_html:
-              missing_in_index.append(streamer)
-
-          if missing_in_index:
-            print(f"Streamer logins missing from public/index.html: {', '.join(missing_in_index)}")
-            exit(1)
-
-          # Check one built API summary.json is valid
+          index = Path("public/index.html")
+          if not index.exists():
+              sys.exit("public/index.html missing")
+          streamers = [s["login"] for s in tomllib.loads(Path("data/streamers.toml").read_text()).get("streamers", [])]
+          missing = [s for s in streamers if not Path(f"public/{s}/index.html").exists()]
+          if missing:
+              sys.exit(f"Missing index pages for: {', '.join(missing)}")
+          index_html = index.read_text()
+          absent = [s for s in streamers if s not in index_html]
+          if absent:
+              sys.exit(f"Streamer logins missing from public/index.html: {', '.join(absent)}")
           if streamers:
-            summary_path = Path(f'public/api/{streamers[0]}/summary.json')
-            if summary_path.exists():
-              try:
-                with open(summary_path, 'r') as f:
-                  json.load(f)
-              except json.JSONDecodeError as e:
-                print(f"Invalid JSON in {summary_path}: {e}")
-                exit(1)
-
+              summary = Path(f"public/api/{streamers[0]}/summary.json")
+              if summary.exists():
+                  try:
+                      json.loads(summary.read_text())
+                  except json.JSONDecodeError as e:
+                      sys.exit(f"Invalid JSON in {summary}: {e}")
           print(f"✓ Smoke tests passed ({len(streamers)} streamers, all index pages exist)")
           PYTHON_EOF
 

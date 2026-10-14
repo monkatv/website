@@ -61,8 +61,8 @@
           let va = a.cells[col].textContent.trim();
           let vb = b.cells[col].textContent.trim();
           if (type === 'num') {
-            va = parseInt(va.replace(/,/g, '')) || 0;
-            vb = parseInt(vb.replace(/,/g, '')) || 0;
+            va = parseInt(va.replace(/\D/g, '')) || 0;
+            vb = parseInt(vb.replace(/\D/g, '')) || 0;
           } else {
             va = va.toLowerCase();
             vb = vb.toLowerCase();
@@ -91,26 +91,6 @@
     });
   });
 
-  // Defer/restore image src for hidden rows to avoid unnecessary downloads
-  function deferImages(row, hide) {
-    const imgs = row.querySelectorAll('img[src], img[data-src]');
-    for (let i = 0; i < imgs.length; i++) {
-      const img = imgs[i];
-      if (hide) {
-        if (img.src) {
-          img.setAttribute('data-src', img.src);
-          img.removeAttribute('src');
-        }
-      } else {
-        const deferred = img.getAttribute('data-src');
-        if (deferred) {
-          img.src = deferred;
-          img.removeAttribute('data-src');
-        }
-      }
-    }
-  }
-
   // Per-table state for pagination + hide-unused
   const state = {};
 
@@ -118,82 +98,71 @@
   const jsonCache = {};
 
   function ensureRowsLoaded(table) {
-    return new Promise(function(resolve) {
-      const tbody = table.querySelector('tbody');
-      const renderedCount = Array.from(tbody.querySelectorAll('tr')).length;
-      const totalCount = parseInt(table.getAttribute('data-total')) || renderedCount;
+    const tbody = table.tBodies[0];
+    const renderedCount = tbody.rows.length;
+    const totalCount = parseInt(table.getAttribute('data-total')) || renderedCount;
+    if (renderedCount >= totalCount) return Promise.resolve();
 
-      if (renderedCount >= totalCount) {
-        resolve();
-        return;
-      }
+    const jsonPath = table.getAttribute('data-json-path');
+    const provider = table.getAttribute('data-provider');
+    const cdn = table.getAttribute('data-cdn');
+    const urlPattern = table.getAttribute('data-url');
 
-      const jsonPath = table.getAttribute('data-json-path');
-      const provider = table.getAttribute('data-provider');
-      const cdn = table.getAttribute('data-cdn');
-      const urlPattern = table.getAttribute('data-url');
+    if (!jsonCache[jsonPath]) {
+      // json_path is repo-relative ("api/.../DATE.json"); normalize any
+      // leading slashes so we never emit a protocol-relative "//" URL.
+      jsonCache[jsonPath] = fetch('/' + jsonPath.replace(/^\/+/, '')).then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      });
+    }
 
-      if (!jsonCache[jsonPath]) {
-        // json_path is repo-relative ("api/.../DATE.json"); normalize any
-        // leading slashes so we never emit a protocol-relative "//" URL.
-        jsonCache[jsonPath] = fetch('/' + jsonPath.replace(/^\/+/, '')).then(function(r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        });
-      }
+    return jsonCache[jsonPath].then(function(data) {
+      const emotes = data.emotes[provider] || [];
+      const urls = data.emotes.urls || {};
 
-      jsonCache[jsonPath].then(function(data) {
-        const emotes = data.emotes[provider] || [];
-        const urls = data.emotes.urls || {};
+      for (let i = tbody.rows.length; i < emotes.length; i++) {
+        const emote = emotes[i];
+        const tr = document.createElement('tr');
+        if (emote.count === 0) tr.setAttribute('data-zero', '1');
 
-        for (let i = renderedCount; i < emotes.length; i++) {
-          const emote = emotes[i];
-          const tr = document.createElement('tr');
-          if (emote.count === 0) tr.setAttribute('data-zero', '1');
+        const td1 = document.createElement('td');
+        const cell = document.createElement('span');
+        cell.className = 'emote-cell';
 
-          const td1 = document.createElement('td');
-          const cell = document.createElement('span');
-          cell.className = 'emote-cell';
-
-          if (cdn && emote.id) {
-            const img = document.createElement('img');
-            img.className = 'emote-img';
-            img.src = cdn.replace('{id}', emote.id);
-            img.alt = emote.name;
-            img.width = 28;
-            img.height = 28;
-            img.loading = 'lazy';
-            cell.appendChild(img);
-          }
-
-          if (emote.id && urlPattern) {
-            const a = document.createElement('a');
-            a.href = urlPattern.replace('{id}', emote.id);
-            a.textContent = emote.name;
-            cell.appendChild(a);
-          } else {
-            cell.appendChild(document.createTextNode(emote.name));
-          }
-
-          td1.appendChild(cell);
-          tr.appendChild(td1);
-
-          const td2 = document.createElement('td');
-          td2.className = 'col-count';
-          td2.setAttribute('data-fmt', emote.count);
-          td2.textContent = emote.count;
-          tr.appendChild(td2);
-
-          tbody.appendChild(tr);
+        if (cdn && emote.id) {
+          const img = document.createElement('img');
+          img.className = 'emote-img';
+          img.loading = 'lazy';
+          img.src = cdn.replace('{id}', emote.id);
+          img.alt = emote.name;
+          img.width = 28;
+          img.height = 28;
+          cell.appendChild(img);
         }
 
-        // The initial formatNumbers() pass ran before these rows existed.
-        if (window.formatNumbers) window.formatNumbers();
-        resolve();
-      }).catch(function(err) {
-        console.warn('Lazy emote load failed for', jsonPath, err);
-        resolve();
-      });
+        if (emote.id && urlPattern) {
+          const a = document.createElement('a');
+          a.href = urlPattern.replace('{id}', emote.id);
+          a.textContent = emote.name;
+          cell.appendChild(a);
+        } else {
+          cell.appendChild(document.createTextNode(emote.name));
+        }
+
+        td1.appendChild(cell);
+        tr.appendChild(td1);
+
+        const td2 = document.createElement('td');
+        td2.className = 'col-count';
+        td2.textContent = emote.count.toLocaleString('en-US');
+        tr.appendChild(td2);
+
+        tbody.appendChild(tr);
+      }
+
+    }).catch(function(err) {
+      console.warn('Lazy emote load failed for', jsonPath, err);
     });
   }
 
@@ -211,12 +180,9 @@
       const isZero = row.hasAttribute('data-zero') && s.hideUnused;
       if (isZero) {
         row.hidden = true;
-        deferImages(row, true);
         return;
       }
-      const hide = visibleIdx < startIdx || visibleIdx >= endIdx;
-      row.hidden = hide;
-      deferImages(row, hide);
+      row.hidden = visibleIdx < startIdx || visibleIdx >= endIdx;
       visibleIdx++;
     });
 
@@ -230,17 +196,23 @@
       ? declaredTotal
       : visibleIdx;
 
-    renderPagination(tableId, totalForPagination);
+    renderPagination(table, totalForPagination);
   }
 
-  function renderPagination(tableId, totalVisible) {
-    const provider = tableId.replace('table-', '');
+  // Fetch any rows not rendered yet, then redraw the page.
+  function refresh(table) {
+    ensureRowsLoaded(table).then(function() { applyVisibility(table.id); });
+  }
+
+  function renderPagination(table, totalVisible) {
+    const provider = table.dataset.provider;
     const container = document.getElementById('pag-' + provider);
     if (!container) return;
     container.innerHTML = '';
     container.setAttribute('aria-label', 'Pagination for ' + provider + ' table');
 
-    const s = state[tableId];
+    const s = state[table.id];
+    function goTo(p) { s.page = Math.max(0, Math.min(p, totalPages - 1)); refresh(table); }
     const totalPages = Math.ceil(totalVisible / s.pageSize);
     if (totalPages <= 1) return;
 
@@ -257,12 +229,7 @@
     const prevBtn = document.createElement('button');
     prevBtn.textContent = '\u2190 Prev';
     prevBtn.disabled = s.page === 0;
-    prevBtn.addEventListener('click', function() {
-      if (s.page > 0) {
-        s.page--;
-        ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
-      }
-    });
+    prevBtn.addEventListener('click', function() { goTo(s.page - 1); });
     nav.appendChild(prevBtn);
 
     // Page buttons (up to 7 with ellipsis)
@@ -289,10 +256,7 @@
         const btn = document.createElement('button');
         btn.textContent = String(p + 1);
         if (p === s.page) btn.className = 'pag-active';
-        btn.addEventListener('click', function() {
-          s.page = p;
-          ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
-        });
+        btn.addEventListener('click', function() { goTo(p); });
         nav.appendChild(btn);
       }
     });
@@ -300,12 +264,7 @@
     const nextBtn = document.createElement('button');
     nextBtn.textContent = 'Next \u2192';
     nextBtn.disabled = s.page >= totalPages - 1;
-    nextBtn.addEventListener('click', function() {
-      if (s.page < totalPages - 1) {
-        s.page++;
-        ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
-      }
-    });
+    nextBtn.addEventListener('click', function() { goTo(s.page + 1); });
     nav.appendChild(nextBtn);
 
     container.appendChild(nav);
@@ -325,8 +284,7 @@
       Object.keys(state).forEach(function(tableId) {
         state[tableId].hideUnused = hideToggle.checked;
         state[tableId].page = 0;
-        const table = document.getElementById(tableId);
-        ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
+        refresh(document.getElementById(tableId));
       });
     });
   }

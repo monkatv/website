@@ -1,3 +1,4 @@
+// Global Twitch emotes, a fallback for the copypasta renderer. Source: https://emotes.adamcy.pl/v1/global/emotes/twitch
 window.__globalEmotes = {
   "Kappa": "https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/1.0",
   "LUL": "https://static-cdn.jtvnw.net/emoticons/v2/425618/default/dark/1.0",

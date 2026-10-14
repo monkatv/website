@@ -41,7 +41,7 @@
   <a href="https://www.twitch.tv/{{ section.extra.streamer_login }}" class="twitch-link" target="_blank" rel="noopener noreferrer" title="View on Twitch">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
     {% if summary.followers %}
-    <span class="follower-count"><span data-fmt="{{ summary.followers }}">{{ summary.followers }}</span> followers</span>
+    <span class="follower-count"><span>{{ summary.followers | num_format }}</span> followers</span>
     {% endif %}
   </a>
 </div>
@@ -69,17 +69,17 @@
 {% else %}
 <div class="stats">
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ cur.messages_total }}">{{ cur.messages_total }}</div>
+    <div class="stat-value">{{ cur.messages_total | num_format }}</div>
     <div class="stat-label">Total messages</div>
     {% if num_weeks > 1 %}{{ macros::trend(cur=cur.messages_total, prev=prev.messages_total) }}{% endif %}
   </div>
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ cur.messages_unique }}">{{ cur.messages_unique }}</div>
+    <div class="stat-value">{{ cur.messages_unique | num_format }}</div>
     <div class="stat-label">Unique messages</div>
     {% if num_weeks > 1 %}{{ macros::trend(cur=cur.messages_unique, prev=prev.messages_unique) }}{% endif %}
   </div>
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ cur.active_chatters }}">{{ cur.active_chatters }}</div>
+    <div class="stat-value">{{ cur.active_chatters | num_format }}</div>
     <div class="stat-label">Active chatters</div>
     {% if num_weeks > 1 %}{{ macros::trend(cur=cur.active_chatters, prev=prev.active_chatters) }}{% endif %}
   </div>
@@ -109,7 +109,7 @@
       {% for user in latest.users | slice(end=5) %}
         <li>
           <span>{{ loop.index }}. <span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></span>
-          <span class="chatter-count" data-fmt="{{ user.count }}">{{ user.count }}</span>
+          <span class="chatter-count">{{ user.count | num_format }}</span>
         </li>
       {% endfor %}
     </ul>
@@ -125,7 +125,7 @@
           <span class="emote-preview-item">
             {% if img %}<img src="{{ img | safe }}" alt="{{ emote.name }}" width="28" height="28" loading="lazy">{% endif %}
             {{ emote.name }}
-            <span class="emote-preview-count">{{ emote.count }}</span>
+            <span class="emote-preview-count">{{ emote.count | num_format }}</span>
           </span>
         {% endif %}
       {% endfor %}
@@ -158,16 +158,16 @@ document.addEventListener('DOMContentLoaded', function() {
 <summary class="alltime-summary"><h2>All Time</h2></summary>
 <div class="stats">
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ summary.all_time.total_messages }}">{{ summary.all_time.total_messages }}</div>
+    <div class="stat-value">{{ summary.all_time.total_messages | num_format }}</div>
     <div class="stat-label">Total messages</div>
   </div>
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ summary.all_time.total_unique }}">{{ summary.all_time.total_unique }}</div>
+    <div class="stat-value">{{ summary.all_time.total_unique | num_format }}</div>
     <div class="stat-label">Unique messages</div>
   </div>
   {% if summary.total_weeks > 0 %}
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ summary.all_time.total_messages / summary.total_weeks | round(precision=0) }}">{{ summary.all_time.total_messages / summary.total_weeks | round(precision=0) }}</div>
+    <div class="stat-value" >{{ summary.all_time.total_messages / summary.total_weeks | round(precision=0) | int | num_format }}</div>
     <div class="stat-label">Avg messages/week</div>
   </div>
   {% endif %}
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
       {% for user in summary.all_time.top_chatters | slice(end=20) %}
         <li{% if loop.index0 >= 5 %} data-tier="{% if loop.index0 < 10 %}10{% else %}20{% endif %}" hidden{% endif %}>
           <span>{{ loop.index }}. <span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></span>
-          <span class="chatter-count" data-fmt="{{ user.count }}">{{ user.count }}</span>
+          <span class="chatter-count">{{ user.count | num_format }}</span>
         </li>
       {% endfor %}
     </ul>
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <span class="emote-preview-item"{% if loop.index0 >= 5 %} data-tier="{% if loop.index0 < 10 %}10{% else %}20{% endif %}" hidden{% endif %}>
           {% if top_img %}<img src="{{ top_img | safe }}" alt="{{ emote.name }}" width="28" height="28" loading="lazy">{% endif %}
           {{ emote.name }}
-          <span class="emote-preview-count" data-fmt="{{ emote.count }}">{{ emote.count }}</span>
+          <span class="emote-preview-count">{{ emote.count | num_format }}</span>
         </span>
       {% endfor %}
     </div>
@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
             {% if w.vod_count == 0 %}
             No streams
             {% else %}
-            <span data-fmt="{{ w.messages_total }}">{{ w.messages_total }}</span> msgs
+            <span>{{ w.messages_total | num_format }}</span> msgs
             &middot; {{ w.vod_count }} VODs
             {% if w.top_emote %}&middot; {{ w.top_emote }}{% endif %}
             {% endif %}
@@ -278,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
-    formatNumbers();
     const moreBtn = document.getElementById('alltime-more');
     const lessBtn = document.getElementById('alltime-less');
     if (moreBtn && lessBtn) {

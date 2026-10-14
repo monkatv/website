@@ -49,7 +49,7 @@
         {% else %}
         <div class="streamer-card-stats">
           <div class="streamer-card-stat">
-            <span class="streamer-card-stat-value" data-fmt="{{ last_week.messages_total }}">{{ last_week.messages_total }}</span>
+            <span class="streamer-card-stat-value">{{ last_week.messages_total | num_format }}</span>
             <span class="streamer-card-stat-label">messages</span>
           </div>
           <div class="streamer-card-stat">
@@ -67,7 +67,7 @@
           </div>
           {% endif %}
           <div class="streamer-card-stat">
-            <span class="streamer-card-stat-value" data-fmt="{{ last_week.active_chatters }}">{{ last_week.active_chatters }}</span>
+            <span class="streamer-card-stat-value">{{ last_week.active_chatters | num_format }}</span>
             <span class="streamer-card-stat-label">chatters</span>
           </div>
         </div>
@@ -96,9 +96,4 @@
   {% endif %}
 {% endfor %}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  formatNumbers();
-});
-</script>
 {% endblock %}

@@ -61,8 +61,8 @@
           let va = a.cells[col].textContent.trim();
           let vb = b.cells[col].textContent.trim();
           if (type === 'num') {
-            va = parseInt(va.replace(/,/g, '')) || 0;
-            vb = parseInt(vb.replace(/,/g, '')) || 0;
+            va = parseInt(va.replace(/\D/g, '')) || 0;
+            vb = parseInt(vb.replace(/\D/g, '')) || 0;
           } else {
             va = va.toLowerCase();
             vb = vb.toLowerCase();
@@ -155,15 +155,12 @@
 
         const td2 = document.createElement('td');
         td2.className = 'col-count';
-        td2.setAttribute('data-fmt', emote.count);
-        td2.textContent = emote.count;
+        td2.textContent = emote.count.toLocaleString('en-US');
         tr.appendChild(td2);
 
         tbody.appendChild(tr);
       }
 
-      // The initial formatNumbers() pass ran before these rows existed.
-      if (window.formatNumbers) window.formatNumbers();
     }).catch(function(err) {
       console.warn('Lazy emote load failed for', jsonPath, err);
     });

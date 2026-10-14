@@ -74,7 +74,7 @@
       <span class="vod-tip">
         <img src="{{ vod.thumbnail_url | safe }}" width="320" height="180" alt="" loading="lazy">
         <span class="vod-tip-title">{{ vod.title }}</span>
-        <span class="vod-tip-meta">{% if vod.duration_seconds %}{{ vod.duration_seconds / 3600 | round(precision=1) }}h{% endif %}{% if vod.view_count %}{% if vod.duration_seconds %} &middot; {% endif %}<span data-fmt="{{ vod.view_count }}">{{ vod.view_count }}</span> views{% endif %}</span>
+        <span class="vod-tip-meta">{% if vod.duration_seconds %}{{ vod.duration_seconds / 3600 | round(precision=1) }}h{% endif %}{% if vod.view_count %}{% if vod.duration_seconds %} &middot; {% endif %}<span>{{ vod.view_count | num_format }}</span> views{% endif %}</span>
       </span>
       {% endif %}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2L3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29l-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43Z"/></svg>
@@ -92,11 +92,11 @@
 {# === Stat Cards === #}
 <div class="stats">
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ total }}">{{ total }}</div>
+    <div class="stat-value">{{ total | num_format }}</div>
     <div class="stat-label">Total messages</div>
   </div>
   <div class="stat">
-    <div class="stat-value" data-fmt="{{ unique }}">{{ unique }}</div>
+    <div class="stat-value">{{ unique | num_format }}</div>
     <div class="stat-label">Unique messages</div>
   </div>
   <div class="stat">
@@ -135,7 +135,7 @@
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></td>
-      <td class="col-count" data-fmt="{{ user.count }}">{{ user.count }}</td>
+      <td class="col-count">{{ user.count | num_format }}</td>
     </tr>
   {% endfor %}
   </tbody>
@@ -197,7 +197,7 @@
               {% endif %}
             </span>
           </td>
-          <td class="col-count" data-fmt="{{ emote.count }}">{{ emote.count }}</td>
+          <td class="col-count">{{ emote.count | num_format }}</td>
         </tr>
       {% endfor %}
       </tbody>
@@ -223,7 +223,7 @@
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td>{{ cmd.name }}</td>
-      <td class="col-count" data-fmt="{{ cmd.count }}">{{ cmd.count }}</td>
+      <td class="col-count">{{ cmd.count | num_format }}</td>
     </tr>
   {% endfor %}
   </tbody>
@@ -247,7 +247,7 @@
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="copypasta-text" title="{{ pasta.text }}">{{ pasta.text }}</span></td>
-      <td class="col-count" data-fmt="{{ pasta.count }}">{{ pasta.count }}</td>
+      <td class="col-count">{{ pasta.count | num_format }}</td>
     </tr>
   {% endfor %}
   </tbody>
@@ -339,7 +339,6 @@ document.addEventListener('DOMContentLoaded', function() {
     el.appendChild(frag);
   });
   {% endif %}
-  formatNumbers();
   const vodToggle = document.getElementById('vod-toggle');
   const vodList = document.getElementById('vod-list');
   if (vodToggle && vodList) {

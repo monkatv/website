@@ -186,7 +186,7 @@
         rx: '1'
       });
       attachTooltip(rect, 'var(--chart-bar-hover)', el => el.setAttribute('fill', fill), tooltip,
-        () => [formatDateRange(values[i].startDate, values[i].date), values[i].val.toLocaleString() + ' msgs'],
+        () => [formatDateRange(values[i].startDate, values[i].date), values[i].val.toLocaleString('en-US') + ' msgs'],
         function(e) {
           const cr = scrollArea.getBoundingClientRect();
           let tx = e.clientX - cr.left + scrollArea.scrollLeft;
@@ -210,7 +210,7 @@
 
     // Screen-reader summary
     const total = values.reduce((sum, v) => sum + v.val, 0);
-    srNote(container, 'Bar chart: ' + values.length + ' weeks, total ' + total.toLocaleString() + ' messages, peak ' + maxVal.toLocaleString());
+    srNote(container, 'Bar chart: ' + values.length + ' weeks, total ' + total.toLocaleString('en-US') + ' messages, peak ' + maxVal.toLocaleString('en-US'));
   };
 
   /**
@@ -301,7 +301,7 @@
             dot.setAttribute('cx', coords[i].x);
             dot.setAttribute('cy', coords[i].y);
             dot.setAttribute('opacity', '1');
-            return [formatDateRange(startDates[i] || '', dates[i]), values[i].toLocaleString() + ' msgs'];
+            return [formatDateRange(startDates[i] || '', dates[i]), values[i].toLocaleString('en-US') + ' msgs'];
           },
           nearCursor(container)
         );
@@ -338,7 +338,7 @@
     }
 
     // Screen-reader summary
-    srNote(container, 'Message trend over ' + values.length + ' weeks: minimum ' + minVal.toLocaleString() + ', maximum ' + maxVal.toLocaleString() + ', latest ' + values[values.length - 1].toLocaleString());
+    srNote(container, 'Message trend over ' + values.length + ' weeks: minimum ' + minVal.toLocaleString('en-US') + ', maximum ' + maxVal.toLocaleString('en-US') + ', latest ' + values[values.length - 1].toLocaleString('en-US'));
   };
 
   /**
@@ -408,7 +408,7 @@
 
       const rect = svgEl('rect', { x: x, y: marginTop + barH - h, width: barW, height: h, fill: fill, rx: '2' });
       attachTooltip(rect, 'var(--chart-bar-hover)', el => el.setAttribute('fill', fill), tooltip,
-        () => [hourLabel(i), hours[i].toLocaleString() + ' msgs'],
+        () => [hourLabel(i), hours[i].toLocaleString('en-US') + ' msgs'],
         nearCursor(container)
       );
       svg.appendChild(rect);
@@ -432,6 +432,6 @@
 
     // Screen-reader summary
     const peakHour = hours.indexOf(maxVal);
-    srNote(container, 'Hourly activity: ' + hours.reduce((a, b) => a + b, 0).toLocaleString() + ' total messages, peak at ' + hourLabel(peakHour) + ' (' + maxVal.toLocaleString() + ')');
+    srNote(container, 'Hourly activity: ' + hours.reduce((a, b) => a + b, 0).toLocaleString('en-US') + ' total messages, peak at ' + hourLabel(peakHour) + ' (' + maxVal.toLocaleString('en-US') + ')');
   };
 })();

@@ -5,10 +5,8 @@
 {% block title %}{{ page.title }} — {{ config.title }}{% endblock %}
 {% block description %}{{ page.description | default(value=page.title) }}{% endblock %}
 {% block og_title %}{{ page.title }}{% endblock %}
-{% block og_url %}{{ page.permalink }}{% endblock %}
 {% block og_description %}{{ page.description | default(value=page.title) }}{% endblock %}
 {% block og_image %}{%- set s = load_data(path="static/api/" ~ page.components.0 ~ "/summary.json") -%}{% if s.avatar_url %}{{ s.avatar_url | safe }}{% else %}{{ config.base_url }}/img/src/logo.png{% endif %}{% endblock %}
-{% block canonical %}{{ page.permalink }}{% endblock %}
 
 {% block extra_head %}
 {% set data = load_data(path="static/" ~ page.extra.json_path) %}

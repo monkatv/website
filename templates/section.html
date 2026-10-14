@@ -12,8 +12,8 @@
 {% block canonical %}{{ section.permalink }}{% endblock %}
 
 {% block extra_head %}
-<script src="/js/charts.js" defer></script>
-<script src="/js/calendar.js" defer></script>
+<script src="/js/charts.js?v={{ now() | date(format="%s") }}" defer></script>
+<script src="/js/calendar.js?v={{ now() | date(format="%s") }}" defer></script>
 {% endblock %}
 
 {% block content %}

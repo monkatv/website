@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="color-scheme" content="dark light">
-{#- Same-origin paths only: "//host" and "/\host" are protocol-relative in browsers. -#}
-{% if page.extra.redirect_to is matching("^/($|[^/\\\\])") %}
+{#- Same-origin paths only: "//host" and "/\host" are protocol-relative in browsers, which also drop tabs and newlines. -#}
+{% if page.extra.redirect_to is matching("^/($|[^/\\\\\t\n\r])[^\t\n\r]*$") %}
 <title>Redirecting...</title>
 <meta http-equiv="refresh" content="0; url={{ page.extra.redirect_to | safe }}">
 <link rel="canonical" href="{{ page.extra.redirect_to | safe }}">

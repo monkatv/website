@@ -66,7 +66,6 @@ tr:hover td { background: var(--bg-surface); }
 }
 .tab-buttons {
   display: flex;
-  gap: 0;
 }
 .tab-btn {
   background: var(--bg);
@@ -195,7 +194,6 @@ tr:hover td { background: var(--bg-surface); }
   border-radius: 6px;
   padding: .3rem .6rem;
 }
-.emote-preview-item[hidden] { display: none; }
 .emote-preview-item img { width: 28px; height: 28px; object-fit: contain; }
 .emote-preview-count { color: var(--text-muted); font-size: .75rem; }
 
@@ -212,7 +210,6 @@ tr:hover td { background: var(--bg-surface); }
   border-bottom: 1px solid var(--border);
   font-size: .85rem;
 }
-.chatter-preview li[hidden] { display: none; }
 .chatter-preview li:last-child { border-bottom: none; }
 .chatter-preview .chatter-count { color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
@@ -243,7 +240,6 @@ tr:hover td { background: var(--bg-surface); }
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: .6rem .75rem;
-  text-decoration: none;
   color: var(--text);
   transition: border-color .15s;
 }
@@ -313,10 +309,8 @@ tr:hover td { background: var(--bg-surface); }
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
   border-radius: 6px;
-  text-decoration: none;
   color: var(--text);
 }
-a.cal-week { cursor: pointer; }
 a.cal-week.cal-has-data {
   background: var(--accent);
   color: var(--on-accent);
@@ -428,7 +422,7 @@ a.cal-has-data .cal-today {
   gap: .5rem;
   margin-top: auto;
 }
-.show-more-btn {
+.show-more-btn, .copy-unvip {
   background: none;
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -437,7 +431,8 @@ a.cal-has-data .cal-today {
   color: var(--text-muted);
   cursor: pointer;
 }
-.show-more-btn:hover, .show-more-btn:focus-visible { border-color: var(--text-muted); color: var(--text); }
+.copy-unvip { padding: .15rem .4rem; }
+.show-more-btn:hover, .show-more-btn:focus-visible, .copy-unvip:hover, .copy-unvip:focus-visible { border-color: var(--text-muted); color: var(--text); }
 
 /* === Report Nav === */
 .report-nav {
@@ -456,7 +451,6 @@ a.cal-has-data .cal-today {
   gap: .4rem;
   margin-top: .5rem;
 }
-.vod-grid[hidden] { display: none; }
 .vod-pill {
   position: relative;
   display: inline-flex;
@@ -468,7 +462,6 @@ a.cal-has-data .cal-today {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 999px;
-  text-decoration: none;
   transition: border-color .15s, color .15s;
 }
 .vod-pill:hover { border-color: var(--text-muted); color: var(--text); text-decoration: none; }
@@ -490,7 +483,7 @@ a.cal-has-data .cal-today {
 }
 .vod-pill:hover .vod-tip,
 .vod-pill:focus-within .vod-tip { display: block; }
-.vod-tip { max-width: calc(100vw - 2rem); right: auto; }
+.vod-tip { max-width: calc(100vw - 2rem); }
 .vod-tip img { width: 100%; border-radius: 4px; display: block; }
 .vod-tip-title {
   display: block;
@@ -547,17 +540,6 @@ a.cal-has-data .cal-today {
 
 .chatter-name { white-space: nowrap; }
 
-/* === Copy /unvip button === */
-.copy-unvip {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: .15rem .4rem;
-  font-size: .8rem;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-.copy-unvip:hover, .copy-unvip:focus-visible { border-color: var(--text-muted); color: var(--text); }
 
 /* === Contributors === */
 .contributors-grid {
@@ -574,7 +556,6 @@ a.cal-has-data .cal-today {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  text-decoration: none;
   color: var(--text);
   transition: border-color .15s;
 }

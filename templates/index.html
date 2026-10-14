@@ -92,12 +92,7 @@
   </a>
 
   {% if summary.total_weeks >= 2 %}
-  {% set weeks_len = summary.weeks | length %}
-  {% if weeks_len > 8 %}
-    {% set recent_weeks = summary.weeks | slice(start=weeks_len - 8) %}
-  {% else %}
-    {% set recent_weeks = summary.weeks %}
-  {% endif %}
+  {% set recent_weeks = summary.weeks | slice(start=-8) %}
   <script>
   (function() {
     const recent = {{ recent_weeks | json_encode() | safe }};

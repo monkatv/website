@@ -7,7 +7,7 @@
 {% block og_title %}{{ page.title }}{% endblock %}
 {% block og_url %}{{ page.permalink }}{% endblock %}
 {% block og_description %}{{ page.description | default(value=page.title) }}{% endblock %}
-{% block og_image %}{%- set parts = page.path | trim_start_matches(pat="/") | split(pat="/") -%}{%- set s = load_data(path="static/api/" ~ parts[0] ~ "/summary.json") -%}{% if s.avatar_url %}{{ s.avatar_url | safe }}{% else %}{{ config.base_url }}/img/src/logo.png{% endif %}{% endblock %}
+{% block og_image %}{%- set s = load_data(path="static/api/" ~ page.components.0 ~ "/summary.json") -%}{% if s.avatar_url %}{{ s.avatar_url | safe }}{% else %}{{ config.base_url }}/img/src/logo.png{% endif %}{% endblock %}
 {% block canonical %}{{ page.permalink }}{% endblock %}
 
 {% block extra_head %}
@@ -50,10 +50,9 @@
 </div>
 {% endif %}
 
-{% set parts = page.path | trim_start_matches(pat="/") | split(pat="/") %}
 <div class="report-header">
   <div class="report-headline">
-    <a href="/{{ parts[0] | safe }}/" class="report-back" title="Back to {{ data.streamer.login }}">
+    <a href="/{{ data.streamer.login | safe }}/" class="report-back" title="Back to {{ data.streamer.login }}">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     </a>
     {% if summary.avatar_url %}<img src="{{ summary.avatar_url | safe }}" width="48" height="48" class="report-avatar" alt="{{ data.streamer.login }}" loading="eager" fetchpriority="high">{% endif %}
@@ -132,14 +131,12 @@
   </thead>
   <tbody>
   {% set users_limit = data.meta.defaults.users_limit %}
-  {% for user in data.users %}
-    {% if loop.index0 < users_limit %}
+  {% for user in data.users | slice(end=users_limit) %}
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></td>
       <td class="col-count" data-fmt="{{ user.count }}">{{ user.count }}</td>
     </tr>
-    {% endif %}
   {% endfor %}
   </tbody>
 </table>
@@ -186,8 +183,7 @@
         </tr>
       </thead>
       <tbody>
-      {% for emote in emotes %}
-        {% if loop.index0 < 25 %}
+      {% for emote in emotes | slice(end=25) %}
         <tr{% if emote.count == 0 %} data-zero="1"{% endif %}>
           <td>
             <span class="emote-cell">
@@ -203,7 +199,6 @@
           </td>
           <td class="col-count" data-fmt="{{ emote.count }}">{{ emote.count }}</td>
         </tr>
-        {% endif %}
       {% endfor %}
       </tbody>
     </table>
@@ -224,14 +219,12 @@
   </thead>
   <tbody>
   {% set commands_limit = data.meta.defaults.commands_limit %}
-  {% for cmd in data.commands %}
-    {% if loop.index0 < commands_limit %}
+  {% for cmd in data.commands | slice(end=commands_limit) %}
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td>{{ cmd.name }}</td>
       <td class="col-count" data-fmt="{{ cmd.count }}">{{ cmd.count }}</td>
     </tr>
-    {% endif %}
   {% endfor %}
   </tbody>
 </table>
@@ -250,14 +243,12 @@
   </thead>
   <tbody>
   {% set copypastas_limit = data.meta.defaults.copypastas_limit %}
-  {% for pasta in data.copypastas %}
-    {% if loop.index0 < copypastas_limit %}
+  {% for pasta in data.copypastas | slice(end=copypastas_limit) %}
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="copypasta-text" title="{{ pasta.text }}">{{ pasta.text }}</span></td>
       <td class="col-count" data-fmt="{{ pasta.count }}">{{ pasta.count }}</td>
     </tr>
-    {% endif %}
   {% endfor %}
   </tbody>
 </table>
@@ -266,13 +257,8 @@
 
 {# === Expired VIPs === #}
 {% set streamers_cfg = load_data(path="data/streamers.toml") %}
-{% set_global show_vips = false %}
-{% for s in streamers_cfg.streamers %}
-  {% if s.login == data.streamer.login %}
-    {% set_global show_vips = s.show_expired_vips | default(value=false) %}
-  {% endif %}
-{% endfor %}
-{% if show_vips and data.expired_vips | length > 0 %}
+{% set cfg = streamers_cfg.streamers | filter(attribute="login", value=data.streamer.login) | first %}
+{% if cfg.show_expired_vips | default(value=false) and data.expired_vips | length > 0 %}
 <h2>Expired VIPs</h2>
 <table>
   <thead>

@@ -38,6 +38,7 @@
   <meta property="og:image" content="{% block og_image %}{{ config.base_url }}/img/src/logo.png{% endblock %}">
   <link rel="canonical" href="{{ current_url | default(value=config.base_url) | safe }}">
   <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="/atom.xml">
   <link rel="preconnect" href="https://cdn.7tv.app">
   <link rel="preconnect" href="https://cdn.betterttv.net">
   <link rel="preconnect" href="https://cdn.frankerfacez.com">

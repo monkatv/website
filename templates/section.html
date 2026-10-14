@@ -10,8 +10,8 @@
 {% block og_image %}{% set s = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/summary.json") %}{% if s.avatar_url %}{{ s.avatar_url | safe }}{% else %}{{ config.base_url }}/img/src/logo.png{% endif %}{% endblock %}
 
 {% block extra_head %}
-<script src="/js/charts.js" defer></script>
-<script src="/js/calendar.js" defer></script>
+<script src="/js/charts.js?v={{ now() | date(format="%s") }}" defer></script>
+<script src="/js/calendar.js?v={{ now() | date(format="%s") }}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -292,17 +292,22 @@ document.addEventListener('DOMContentLoaded', function() {
       moreBtn.addEventListener('click', function() { cur++; updateAlltime(); });
       lessBtn.addEventListener('click', function() { cur--; updateAlltime(); });
     }
-    // Size weeks-list to exactly 5 items, scroll the rest
+    // Size weeks-list to exactly 5 items, scroll the rest. custom.css loads
+    // asynchronously, so measure again whenever the items change size.
     const weeksList = document.querySelector('.weeks-list');
-    if (weeksList) {
-      const items = weeksList.querySelectorAll('.weeks-list-item');
-      if (items.length > 5) {
+    const weekItems = weeksList ? weeksList.querySelectorAll('.weeks-list-item') : [];
+    if (weekItems.length > 5) {
+      const fitFiveWeeks = function() {
+        // A stylesheet max-height (the mobile layout's) wins over the five-item fit.
+        weeksList.style.maxHeight = '';
+        if (getComputedStyle(weeksList).maxHeight !== 'none') return;
         const gap = parseFloat(getComputedStyle(weeksList).gap) || 0;
-        let h = 0;
-        for (let i = 0; i < 5; i++) h += items[i].getBoundingClientRect().height;
-        h += gap * 4;
+        let h = gap * 4;
+        for (let i = 0; i < 5; i++) h += weekItems[i].getBoundingClientRect().height;
         weeksList.style.maxHeight = Math.ceil(h) + 'px';
-      }
+      };
+      fitFiveWeeks();
+      new ResizeObserver(fitFiveWeeks).observe(weekItems[0]);
     }
     const calEl = document.getElementById('weeks-calendar');
     if (calEl && window.initWeeksCalendar) {

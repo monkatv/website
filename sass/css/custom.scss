@@ -31,7 +31,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 }
 
 /* === Tables === */
-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: .9rem; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
 thead { border-bottom: 2px solid var(--border); }
 th {
   padding: .6rem .75rem;
@@ -51,9 +51,11 @@ td { padding: .5rem .75rem; border-bottom: 1px solid var(--border); }
 tr:hover td { background: var(--bg-surface); }
 .col-rank { color: var(--text-muted); width: 2.5rem; text-align: right; }
 .col-count { text-align: right; font-variant-numeric: tabular-nums; }
+/* On phones the Expired VIPs headers alone are wider than the screen. */
+.table-scroll { overflow-x: auto; margin-bottom: 1rem; }
 
 /* === Emote cell === */
-.emote-cell { display: flex; align-items: center; gap: .5rem; }
+.emote-cell { display: flex; align-items: center; gap: .5rem; overflow-wrap: anywhere; } /* 7TV names reach 100 chars */
 .emote-img { width: 28px; height: 28px; object-fit: contain; vertical-align: middle; }
 
 /* === Tabs === */

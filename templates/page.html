@@ -72,7 +72,7 @@
       <span class="vod-tip">
         <img src="{{ vod.thumbnail_url | safe }}" width="320" height="180" alt="" loading="lazy">
         <span class="vod-tip-title">{{ vod.title }}</span>
-        <span class="vod-tip-meta">{% if vod.duration_seconds %}{{ vod.duration_seconds / 3600 | round(precision=1) }}h{% endif %}{% if vod.view_count %}{% if vod.duration_seconds %} &middot; {% endif %}{{ vod.view_count | num_format }} views{% endif %}</span>
+        <span class="vod-tip-meta">{% if vod.duration_seconds %}{{ vod.duration_seconds / 3600 | round(precision=1) }}h{% endif %}{% if vod.view_count %}{% if vod.duration_seconds %} &middot; {% endif %}{{ vod.view_count | int | num_format }} views{% endif %}</span>
       </span>
       {% endif %}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2L3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29l-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43Z"/></svg>
@@ -90,11 +90,11 @@
 {# === Stat Cards === #}
 <div class="stats">
   <div class="stat">
-    <div class="stat-value">{{ total | num_format }}</div>
+    <div class="stat-value">{{ total | int | num_format }}</div>
     <div class="stat-label">Total messages</div>
   </div>
   <div class="stat">
-    <div class="stat-value">{{ unique | num_format }}</div>
+    <div class="stat-value">{{ unique | int | num_format }}</div>
     <div class="stat-label">Unique messages</div>
   </div>
   <div class="stat">
@@ -119,6 +119,7 @@
 
 {# === Top Chatters === #}
 <h2>Top Chatters</h2>
+<div class="table-scroll">
 <table>
   <thead>
     <tr>
@@ -133,11 +134,12 @@
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="chatter-name" {% if user.color %}style="--uc: {{ user.color }}"{% endif %}>{{ user.username }}</span></td>
-      <td class="col-count">{{ user.count | num_format }}</td>
+      <td class="col-count">{{ user.count | int | num_format }}</td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
+</div>
 
 {# === Emotes (Tabbed) === #}
 <h2>Emotes</h2>
@@ -173,6 +175,7 @@
   {% set cdn = img_cdns[loop.index0] %}
 
   <div class="tab-panel{% if loop.first %} active{% endif %}" id="tab-{{ provider }}" role="tabpanel" aria-labelledby="tab-btn-{{ provider }}">
+    <div class="table-scroll">
     <table id="table-{{ provider }}" data-page-size="25" data-json-path="{{ page.extra.json_path | safe }}" data-provider="{{ provider }}" data-total="{{ emotes | length }}" data-cdn="{{ cdn | safe }}"{% if data.emotes.urls[provider] %} data-url="{{ data.emotes.urls[provider] | safe }}"{% endif %}>
       <thead>
         <tr>
@@ -195,11 +198,12 @@
               {% endif %}
             </span>
           </td>
-          <td class="col-count">{{ emote.count | num_format }}</td>
+          <td class="col-count">{{ emote.count | int | num_format }}</td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
+    </div>
     <div class="table-pagination" id="pag-{{ provider }}"></div>
   </div>
 {% endfor %}
@@ -207,6 +211,7 @@
 {# === Commands === #}
 {% if data.commands | length > 0 %}
 <h2>Commands</h2>
+<div class="table-scroll">
 <table>
   <thead>
     <tr>
@@ -221,16 +226,18 @@
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td>{{ cmd.name }}</td>
-      <td class="col-count">{{ cmd.count | num_format }}</td>
+      <td class="col-count">{{ cmd.count | int | num_format }}</td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
+</div>
 {% endif %}
 
 {# === Copypastas === #}
 {% if data.copypastas | length > 0 %}
 <h2>Copypastas</h2>
+<div class="table-scroll">
 <table>
   <thead>
     <tr>
@@ -245,11 +252,12 @@
     <tr>
       <td class="col-rank">{{ loop.index }}</td>
       <td><span class="copypasta-text" title="{{ pasta.text }}">{{ pasta.text }}</span></td>
-      <td class="col-count">{{ pasta.count | num_format }}</td>
+      <td class="col-count">{{ pasta.count | int | num_format }}</td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
+</div>
 {% endif %}
 {% endif %}
 
@@ -258,6 +266,7 @@
 {% set cfg = streamers_cfg.streamers | filter(attribute="login", value=data.streamer.login) | first %}
 {% if cfg.show_expired_vips | default(value=false) and data.expired_vips | length > 0 %}
 <h2>Expired VIPs</h2>
+<div class="table-scroll">
 <table>
   <thead>
     <tr>
@@ -278,6 +287,7 @@
   {% endfor %}
   </tbody>
 </table>
+</div>
 {% endif %}
 
 {# === Prev / Next Navigation === #}

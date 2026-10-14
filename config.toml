@@ -3,4 +3,5 @@ title = "monka.tv"
 compile_sass = true
 build_search_index = false
 minify_html = true
+# feed_limit would also count the /*/latest/ stubs (dated 9999-12-31) that templates/atom.xml drops.
 generate_feeds = true

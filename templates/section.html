@@ -117,21 +117,17 @@
   <div>
     <h3>Top Emotes</h3>
     <div class="emote-preview">
-      {% set_global emote_idx = 0 %}
-      {% for provider in providers %}
-        {% set_global cur_cdn = img_cdns[loop.index0] %}
-        {% for emote in latest.emotes[provider] %}
-          {% if emote_idx < 5 and emote.count > 0 %}
-            <span class="emote-preview-item">
-              {% if emote.id and cur_cdn %}
-              <img src="{{ cur_cdn | replace(from='{id}', to=emote.id) }}" alt="{{ emote.name }}" width="28" height="28" loading="lazy">
-              {% endif %}
-              {{ emote.name }}
-              <span class="emote-preview-count">{{ emote.count }}</span>
-            </span>
-            {% set_global emote_idx = emote_idx + 1 %}
-          {% endif %}
-        {% endfor %}
+      {% set_global week_emotes = [] %}
+      {% for provider in providers %}{% set_global week_emotes = week_emotes | concat(with=latest.emotes[provider]) %}{% endfor %}
+      {% for emote in week_emotes | sort(attribute="count") | reverse | slice(end=5) %}
+        {% if emote.count > 0 %}
+          {% set img = emote_macros::emote_url(name=emote.name, providers=providers, img_cdns=img_cdns, emotes=latest.emotes) %}
+          <span class="emote-preview-item">
+            {% if img %}<img src="{{ img | safe }}" alt="{{ emote.name }}" width="28" height="28" loading="lazy">{% endif %}
+            {{ emote.name }}
+            <span class="emote-preview-count">{{ emote.count }}</span>
+          </span>
+        {% endif %}
       {% endfor %}
     </div>
   </div>

@@ -355,6 +355,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const weekItems = weeksList ? weeksList.querySelectorAll('.weeks-list-item') : [];
     if (weekItems.length > 5) {
       const fitFiveWeeks = function() {
+        // A stylesheet max-height (the mobile layout's) wins over the five-item fit.
+        weeksList.style.maxHeight = '';
+        if (getComputedStyle(weeksList).maxHeight !== 'none') return;
         const gap = parseFloat(getComputedStyle(weeksList).gap) || 0;
         let h = gap * 4;
         for (let i = 0; i < 5; i++) h += weekItems[i].getBoundingClientRect().height;

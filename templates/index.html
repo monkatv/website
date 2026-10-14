@@ -59,7 +59,7 @@
           {% if last_week.top_emote %}
           <div class="streamer-card-stat">
             {% if top_emote_url %}
-            <img src="{{ top_emote_url | safe }}" alt="{{ last_week.top_emote }}" class="streamer-card-emote" width="28" height="28" loading="eager">
+            <img src="{{ top_emote_url }}" alt="{{ last_week.top_emote }}" class="streamer-card-emote" width="28" height="28" loading="eager">
             {% else %}
             <span class="streamer-card-stat-value">{{ last_week.top_emote }}</span>
             {% endif %}

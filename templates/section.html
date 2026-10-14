@@ -235,9 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (rendered) return;
     const el = document.getElementById('chart-messages');
     if (el && el.clientWidth > 0) {
-      renderBarChart("chart-messages", __summaryWeeks, {
-        streamer: "{{ section.extra.streamer_login | safe }}"
-      });
+      renderBarChart("chart-messages", __summaryWeeks);
       rendered = true;
     }
   }

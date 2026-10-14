@@ -2,49 +2,45 @@
   'use strict';
 
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  // "2026-03-01" -> "Mar 01, 2026"
-  function formatDate(iso) {
-    const p = iso.split('-');
-    return MONTHS[parseInt(p[1], 10) - 1] + ' ' + p[2] + ', ' + p[0];
-  }
+  const utc = opts => new Intl.DateTimeFormat('en-US', Object.assign({ timeZone: 'UTC' }, opts));
+  const fmtMD = utc({ month: 'short', day: '2-digit' });
+  const fmtMDY = utc({ month: 'short', day: '2-digit', year: 'numeric' });
+  const fmtShort = utc({ month: 'short', day: 'numeric' });
+  const fmtMonth = utc({ month: 'short' });
+  const fmtMonthYY = utc({ month: 'short', year: '2-digit' });
+  const formatNum = new Intl.NumberFormat('en', { notation: 'compact' }).format;
+  const hourLabel = h => h === 0 ? '12 AM' : h < 12 ? h + ' AM' : h === 12 ? '12 PM' : (h - 12) + ' PM';
 
   // "2026-03-02", "2026-03-08" -> "Mar 02 – Mar 08, 2026"
   function formatDateRange(startIso, endIso) {
-    if (startIso) {
-      return formatDate(startIso).replace(/,\s*\d{4}$/, '') + ' \u2013 ' + formatDate(endIso);
-    }
-    return formatDate(endIso);
-  }
-
-  function formatNum(n) {
-    if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'K';
-    return String(n);
+    return (startIso ? fmtMD.format(new Date(startIso)) + ' – ' : '') + fmtMDY.format(new Date(endIso));
   }
 
   function svgEl(tag, attrs) {
     const el = document.createElementNS(SVG_NS, tag);
-    if (attrs) {
-      for (const k in attrs) {
-        if (attrs.hasOwnProperty(k)) el.setAttribute(k, attrs[k]);
-      }
-    }
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
     return el;
   }
 
+  // Tooltip that follows the cursor inside `container`, flipping left near the right edge.
+  const nearCursor = container => function(e) {
+    const cr = container.getBoundingClientRect();
+    let tx = e.clientX - cr.left + 8;
+    if (tx + 120 > cr.width) tx = e.clientX - cr.left - 120;
+    return { left: tx, top: e.clientY - cr.top - 28 };
+  };
+
   /**
-   * attachTooltip(rects, container, tooltip, contentFn, positionFn)
+   * attachTooltip(rect, hoverFill, restoreFn, tooltip, contentFn, positionFn)
    *
    * Shared tooltip wiring for bar charts, sparklines, and hourly charts.
-   * contentFn(el): returns [line1, line2] text strings for the tooltip.
+   * contentFn(): returns [line1, line2] text strings for the tooltip.
    * positionFn(e): returns {left, top} in px for tooltip placement.
    */
-  function attachTooltip(rect, hoverFill, restoreFn, container, tooltip, contentFn, positionFn) {
+  function attachTooltip(rect, hoverFill, restoreFn, tooltip, contentFn, positionFn) {
     rect.addEventListener('mouseenter', function() {
       if (hoverFill) this.setAttribute('fill', hoverFill);
-      const lines = contentFn(this);
+      const lines = contentFn();
       tooltip.textContent = '';
       tooltip.appendChild(document.createTextNode(lines[0]));
       tooltip.appendChild(document.createElement('br'));
@@ -63,31 +59,16 @@
   }
 
   /**
-   * renderBarChart(containerId, weeks, options)
+   * renderBarChart(containerId, weeks)
    *
    * weeks: [{end_date, messages_total, ...}]
-   * options: { streamer: "fl0m", field: "messages_total" }
    */
-  window.renderBarChart = function(containerId, weeks, options) {
+  window.renderBarChart = function(containerId, weeks) {
     const container = document.getElementById(containerId);
     if (!container || !weeks || weeks.length === 0) return;
 
-    const field = (options && options.field) || 'messages_total';
-
-    const values = [];
-    for (let i = 0; i < weeks.length; i++) {
-      values.push({
-        date: weeks[i].end_date,
-        startDate: weeks[i].start_date || '',
-        val: weeks[i][field] || 0
-      });
-    }
-
-    let maxVal = 0;
-    for (let i = 0; i < values.length; i++) {
-      if (values[i].val > maxVal) maxVal = values[i].val;
-    }
-    if (maxVal === 0) maxVal = 1;
+    const values = weeks.map(w => ({ date: w.end_date, startDate: w.start_date || '', val: w.messages_total || 0 }));
+    const maxVal = Math.max(...values.map(v => v.val)) || 1;
 
     // Layout: fixed Y-axis on left, scrollable plot area on right
     const axisWidth = 44;
@@ -120,19 +101,16 @@
     axisSvg.style.flexShrink = '0';
 
     const tickCount = 4;
-    for (let t = 0; t <= tickCount; t++) {
-      const tickVal = Math.round(maxVal * t / tickCount);
+    for (let t = 1; t <= tickCount; t++) {
       const y = marginTop + plotHeight - (plotHeight * t / tickCount);
-      if (t > 0) {
-        const label = svgEl('text', {
-          x: axisWidth - 6, y: y + 3,
-          'text-anchor': 'end',
-          fill: 'var(--text-muted)',
-          'font-size': '9'
-        });
-        label.textContent = formatNum(tickVal);
-        axisSvg.appendChild(label);
-      }
+      const label = svgEl('text', {
+        x: axisWidth - 6, y: y + 3,
+        'text-anchor': 'end',
+        fill: 'var(--text-muted)',
+        'font-size': '9'
+      });
+      label.textContent = formatNum(Math.round(maxVal * t / tickCount));
+      axisSvg.appendChild(label);
     }
     wrapper.appendChild(axisSvg);
 
@@ -168,15 +146,10 @@
     // X-axis month labels
     let lastMonth = '';
     for (let i = 0; i < values.length; i++) {
-      const parts = values[i].date.split('-');
-      const monthKey = parts[0] + '-' + parts[1];
+      const monthKey = values[i].date.slice(0, 7);
       if (monthKey !== lastMonth) {
         lastMonth = monthKey;
-        const monthIdx = parseInt(parts[1], 10) - 1;
-        let labelText = MONTHS[monthIdx];
-        if (monthIdx === 0 || i === 0) {
-          labelText = MONTHS[monthIdx] + ' ' + parts[0].slice(2);
-        }
+        const d = new Date(values[i].date);
         const x = i * (barWidth + barGap) + barWidth / 2;
         const monthLabel = svgEl('text', {
           x: x, y: chartHeight - 4,
@@ -184,7 +157,7 @@
           fill: 'var(--text-muted)',
           'font-size': '9'
         });
-        monthLabel.textContent = labelText;
+        monthLabel.textContent = (d.getUTCMonth() === 0 || i === 0 ? fmtMonthYY : fmtMonth).format(d);
         barsSvg.appendChild(monthLabel);
       }
     }
@@ -197,29 +170,15 @@
     for (let i = 0; i < values.length; i++) {
       let barH = (values[i].val / maxVal) * plotHeight;
       if (barH < 1 && values[i].val > 0) barH = 1;
-      const x = i * (barWidth + barGap);
-      const y = marginTop + plotHeight - barH;
-
-      const isMax = values[i].val === maxVal;
+      const fill = values[i].val === maxVal ? 'var(--chart-bar-hover)' : 'var(--chart-bar)';
       const rect = svgEl('rect', {
-        x: x, y: y,
+        x: i * (barWidth + barGap), y: marginTop + plotHeight - barH,
         width: barWidth, height: barH,
-        fill: isMax ? 'var(--chart-bar-hover)' : 'var(--chart-bar)',
-        rx: '1',
-        'data-date': values[i].date,
-        'data-start-date': values[i].startDate,
-        'data-val': values[i].val,
-        'data-max': isMax ? '1' : ''
+        fill: fill,
+        rx: '1'
       });
-      attachTooltip(rect, 'var(--chart-bar-hover)',
-        function(el) { el.setAttribute('fill', el.getAttribute('data-max') ? 'var(--chart-bar-hover)' : 'var(--chart-bar)'); },
-        scrollArea, tooltip,
-        function(el) {
-          return [
-            formatDateRange(el.getAttribute('data-start-date'), el.getAttribute('data-date')),
-            Number(el.getAttribute('data-val')).toLocaleString() + ' msgs'
-          ];
-        },
+      attachTooltip(rect, 'var(--chart-bar-hover)', el => el.setAttribute('fill', fill), tooltip,
+        () => [formatDateRange(values[i].startDate, values[i].date), values[i].val.toLocaleString() + ' msgs'],
         function(e) {
           const cr = scrollArea.getBoundingClientRect();
           let tx = e.clientX - cr.left + scrollArea.scrollLeft;
@@ -230,7 +189,6 @@
           return { left: tx, top: ty };
         }
       );
-
       barsSvg.appendChild(rect);
     }
 
@@ -243,9 +201,8 @@
     scrollArea.scrollLeft = scrollArea.scrollWidth;
 
     // Screen-reader summary
-    var total = 0;
-    for (var si = 0; si < values.length; si++) total += values[si].val;
-    var srDiv = document.createElement('div');
+    const total = values.reduce((sum, v) => sum + v.val, 0);
+    const srDiv = document.createElement('div');
     srDiv.className = 'sr-only';
     srDiv.textContent = 'Bar chart: ' + values.length + ' weeks, total ' + total.toLocaleString() + ' messages, peak ' + maxVal.toLocaleString();
     container.appendChild(srDiv);
@@ -269,28 +226,17 @@
     const height = 36;
     const padX = 3;
     const padY = 4;
-
-    let maxVal = 0;
-    let minVal = Infinity;
-    for (let i = 0; i < values.length; i++) {
-      if (values[i] > maxVal) maxVal = values[i];
-      if (values[i] < minVal) minVal = values[i];
-    }
-    let range = maxVal - minVal;
-    if (range === 0) range = 1;
     const padBottom = 1;
 
-    const coords = [];
-    for (let i = 0; i < values.length; i++) {
-      const x = padX + (i / (values.length - 1)) * (width - 2 * padX);
-      const y = padY + (1 - (values[i] - minVal) / range) * (height - padY - padBottom);
-      coords.push({x: x, y: y});
-    }
+    const maxVal = Math.max(...values);
+    const minVal = Math.min(...values);
+    const range = maxVal - minVal || 1;
 
-    const pointStr = [];
-    for (let i = 0; i < coords.length; i++) {
-      pointStr.push(coords[i].x.toFixed(1) + ',' + coords[i].y.toFixed(1));
-    }
+    const coords = values.map((v, i) => ({
+      x: padX + (i / (values.length - 1)) * (width - 2 * padX),
+      y: padY + (1 - (v - minVal) / range) * (height - padY - padBottom)
+    }));
+    const pointStr = coords.map(c => c.x.toFixed(1) + ',' + c.y.toFixed(1));
 
     const svg = svgEl('svg', {
       viewBox: '0 0 ' + width + ' ' + height,
@@ -345,31 +291,17 @@
           x: hitX, y: 0, width: hitW, height: height,
           fill: 'transparent', cursor: 'pointer'
         });
-        attachTooltip(hit, null,
-          null, container, tooltip,
+        attachTooltip(hit, null, () => dot.setAttribute('opacity', '0'), tooltip,
           function() {
             dot.setAttribute('cx', coords[i].x);
             dot.setAttribute('cy', coords[i].y);
             dot.setAttribute('opacity', '1');
-            return [
-              formatDateRange(startDates[i] || '', dates[i]),
-              values[i].toLocaleString() + ' msgs'
-            ];
+            return [formatDateRange(startDates[i] || '', dates[i]), values[i].toLocaleString() + ' msgs'];
           },
-          function(e) {
-            const cr = container.getBoundingClientRect();
-            let tx = e.clientX - cr.left + 8;
-            if (tx + 120 > cr.width) tx = e.clientX - cr.left - 120;
-            return { left: tx, top: e.clientY - cr.top - 28 };
-          }
+          nearCursor(container)
         );
-        hit.addEventListener('mouseleave', function() {
-          dot.setAttribute('opacity', '0');
-        });
         svg.appendChild(hit);
       }
-
-      container.style.position = 'relative';
     }
 
     container.style.position = 'relative';
@@ -389,23 +321,19 @@
 
     // Labels below sparkline
     if (dates.length >= 2) {
-      function shortDate(s) {
-        const p = s.split('-');
-        return MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10);
-      }
       const dl = document.createElement('div');
       dl.className = 'sparkline-dates';
       const s1 = document.createElement('span');
-      s1.textContent = shortDate(dates[0]);
+      s1.textContent = fmtShort.format(new Date(dates[0]));
       const s3 = document.createElement('span');
-      s3.textContent = shortDate(dates[dates.length - 1]);
+      s3.textContent = fmtShort.format(new Date(dates[dates.length - 1]));
       dl.appendChild(s1);
       dl.appendChild(s3);
       container.appendChild(dl);
     }
 
     // Screen-reader summary
-    var srDiv = document.createElement('div');
+    const srDiv = document.createElement('div');
     srDiv.className = 'sr-only';
     srDiv.textContent = 'Message trend over ' + values.length + ' weeks: minimum ' + minVal.toLocaleString() + ', maximum ' + maxVal.toLocaleString() + ', latest ' + values[values.length - 1].toLocaleString();
     container.appendChild(srDiv);
@@ -421,10 +349,7 @@
     const container = document.getElementById(containerId);
     if (!container || !hours || hours.length !== 24) return;
 
-    let maxVal = 0;
-    for (let i = 0; i < 24; i++) {
-      if (hours[i] > maxVal) maxVal = hours[i];
-    }
+    const maxVal = Math.max(...hours);
     if (maxVal === 0) return;
 
     const axisW = 44;
@@ -451,7 +376,6 @@
     // Y-axis ticks and grid lines
     const tickCount = 3;
     for (let t = 0; t <= tickCount; t++) {
-      const tickVal = Math.round(maxVal * t / tickCount);
       const ty = marginTop + barH - (barH * t / tickCount);
       svg.appendChild(svgEl('line', {
         x1: axisW, y1: ty, x2: W, y2: ty,
@@ -464,7 +388,7 @@
           fill: 'var(--text-muted)',
           'font-size': '9'
         });
-        label.textContent = formatNum(tickVal);
+        label.textContent = formatNum(Math.round(maxVal * t / tickCount));
         svg.appendChild(label);
       }
     }
@@ -478,31 +402,13 @@
       let h = (hours[i] / maxVal) * barH;
       if (h < 1 && hours[i] > 0) h = 1;
       const x = axisW + i * (barW + gap);
-      const y = marginTop + barH - h;
-      const isMax = hours[i] === maxVal;
+      const fill = hours[i] === maxVal ? 'var(--chart-bar-hover)' : 'var(--chart-bar)';
 
-      const rect = svgEl('rect', {
-        x: x, y: y, width: barW, height: h,
-        fill: isMax ? 'var(--chart-bar-hover)' : 'var(--chart-bar)',
-        rx: '2',
-        'data-hour': i, 'data-val': hours[i], 'data-max': isMax ? '1' : ''
-      });
-
-      attachTooltip(rect, 'var(--chart-bar-hover)',
-        function(el) { el.setAttribute('fill', el.getAttribute('data-max') ? 'var(--chart-bar-hover)' : 'var(--chart-bar)'); },
-        container, tooltip,
-        function(el) {
-          const ampm = i === 0 ? '12 AM' : i < 12 ? i + ' AM' : i === 12 ? '12 PM' : (i - 12) + ' PM';
-          return [ampm, Number(el.getAttribute('data-val')).toLocaleString() + ' msgs'];
-        },
-        function(e) {
-          const cr = container.getBoundingClientRect();
-          let tx = e.clientX - cr.left + 8;
-          if (tx + 120 > cr.width) tx = e.clientX - cr.left - 120;
-          return { left: tx, top: e.clientY - cr.top - 28 };
-        }
+      const rect = svgEl('rect', { x: x, y: marginTop + barH - h, width: barW, height: h, fill: fill, rx: '2' });
+      attachTooltip(rect, 'var(--chart-bar-hover)', el => el.setAttribute('fill', fill), tooltip,
+        () => [hourLabel(i), hours[i].toLocaleString() + ' msgs'],
+        nearCursor(container)
       );
-
       svg.appendChild(rect);
 
       // Hour labels
@@ -523,16 +429,10 @@
     container.appendChild(tooltip);
 
     // Screen-reader summary
-    var hrTotal = 0;
-    var peakHour = 0;
-    for (var hi = 0; hi < 24; hi++) {
-      hrTotal += hours[hi];
-      if (hours[hi] > hours[peakHour]) peakHour = hi;
-    }
-    var peakLabel = peakHour === 0 ? '12 AM' : peakHour < 12 ? peakHour + ' AM' : peakHour === 12 ? '12 PM' : (peakHour - 12) + ' PM';
-    var hrSr = document.createElement('div');
+    const peakHour = hours.indexOf(maxVal);
+    const hrSr = document.createElement('div');
     hrSr.className = 'sr-only';
-    hrSr.textContent = 'Hourly activity: ' + hrTotal.toLocaleString() + ' total messages, peak at ' + peakLabel + ' (' + hours[peakHour].toLocaleString() + ')';
+    hrSr.textContent = 'Hourly activity: ' + hours.reduce((a, b) => a + b, 0).toLocaleString() + ' total messages, peak at ' + hourLabel(peakHour) + ' (' + maxVal.toLocaleString() + ')';
     container.appendChild(hrSr);
   };
 })();

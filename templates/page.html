@@ -152,8 +152,8 @@
 {% set provider_labels = ep.provider_labels %}
 {% set img_cdns = ep.img_cdns %}
 
-<div class="tab-nav" role="tablist">
-  <div class="tab-buttons">
+<div class="tab-nav">
+  <div class="tab-buttons" role="tablist">
     {% for provider in providers %}
       <button class="tab-btn{% if loop.first %} active{% endif %}"
               role="tab"

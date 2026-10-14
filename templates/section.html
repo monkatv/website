@@ -117,7 +117,7 @@
     <div class="emote-preview">
       {% set_global week_emotes = [] %}
       {% for provider in providers %}{% set_global week_emotes = week_emotes | concat(with=latest.emotes[provider]) %}{% endfor %}
-      {% for emote in week_emotes | sort(attribute="count") | reverse | slice(end=5) %}
+      {% for emote in week_emotes | reverse | sort(attribute="count") | reverse | unique(attribute="name", case_sensitive=true) | slice(end=5) %}
         {% if emote.count > 0 %}
           {% set img = emote_macros::emote_url(name=emote.name, providers=providers, img_cdns=img_cdns, emotes=latest.emotes) %}
           <span class="emote-preview-item">

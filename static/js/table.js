@@ -234,6 +234,7 @@
   }
 
   function renderPagination(tableId, totalVisible) {
+    const table = document.getElementById(tableId);
     const provider = tableId.replace('table-', '');
     const container = document.getElementById('pag-' + provider);
     if (!container) return;

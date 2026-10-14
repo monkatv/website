@@ -16,6 +16,14 @@
     return (startIso ? fmtMD.format(new Date(startIso)) + ' – ' : '') + fmtMDY.format(new Date(endIso));
   }
 
+  // Screen-reader summary appended to a chart container.
+  function srNote(container, text) {
+    const div = document.createElement('div');
+    div.className = 'sr-only';
+    div.textContent = text;
+    container.appendChild(div);
+  }
+
   function svgEl(tag, attrs) {
     const el = document.createElementNS(SVG_NS, tag);
     for (const k in attrs) el.setAttribute(k, attrs[k]);
@@ -202,10 +210,7 @@
 
     // Screen-reader summary
     const total = values.reduce((sum, v) => sum + v.val, 0);
-    const srDiv = document.createElement('div');
-    srDiv.className = 'sr-only';
-    srDiv.textContent = 'Bar chart: ' + values.length + ' weeks, total ' + total.toLocaleString() + ' messages, peak ' + maxVal.toLocaleString();
-    container.appendChild(srDiv);
+    srNote(container, 'Bar chart: ' + values.length + ' weeks, total ' + total.toLocaleString() + ' messages, peak ' + maxVal.toLocaleString());
   };
 
   /**
@@ -333,10 +338,7 @@
     }
 
     // Screen-reader summary
-    const srDiv = document.createElement('div');
-    srDiv.className = 'sr-only';
-    srDiv.textContent = 'Message trend over ' + values.length + ' weeks: minimum ' + minVal.toLocaleString() + ', maximum ' + maxVal.toLocaleString() + ', latest ' + values[values.length - 1].toLocaleString();
-    container.appendChild(srDiv);
+    srNote(container, 'Message trend over ' + values.length + ' weeks: minimum ' + minVal.toLocaleString() + ', maximum ' + maxVal.toLocaleString() + ', latest ' + values[values.length - 1].toLocaleString());
   };
 
   /**
@@ -430,9 +432,6 @@
 
     // Screen-reader summary
     const peakHour = hours.indexOf(maxVal);
-    const hrSr = document.createElement('div');
-    hrSr.className = 'sr-only';
-    hrSr.textContent = 'Hourly activity: ' + hours.reduce((a, b) => a + b, 0).toLocaleString() + ' total messages, peak at ' + hourLabel(peakHour) + ' (' + maxVal.toLocaleString() + ')';
-    container.appendChild(hrSr);
+    srNote(container, 'Hourly activity: ' + hours.reduce((a, b) => a + b, 0).toLocaleString() + ' total messages, peak at ' + hourLabel(peakHour) + ' (' + maxVal.toLocaleString() + ')');
   };
 })();

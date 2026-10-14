@@ -199,19 +199,23 @@
       ? declaredTotal
       : visibleIdx;
 
-    renderPagination(tableId, totalForPagination);
+    renderPagination(table, totalForPagination);
   }
 
-  function renderPagination(tableId, totalVisible) {
-    const table = document.getElementById(tableId);
-    const provider = tableId.replace('table-', '');
+  // Fetch any rows not rendered yet, then redraw the page.
+  function refresh(table) {
+    ensureRowsLoaded(table).then(function() { applyVisibility(table.id); });
+  }
+
+  function renderPagination(table, totalVisible) {
+    const provider = table.dataset.provider;
     const container = document.getElementById('pag-' + provider);
     if (!container) return;
     container.innerHTML = '';
     container.setAttribute('aria-label', 'Pagination for ' + provider + ' table');
 
-    const s = state[tableId];
-    function goTo(p) { s.page = p; ensureRowsLoaded(table).then(function() { applyVisibility(tableId); }); }
+    const s = state[table.id];
+    function goTo(p) { s.page = p; refresh(table); }
     const totalPages = Math.ceil(totalVisible / s.pageSize);
     if (totalPages <= 1) return;
 
@@ -283,8 +287,7 @@
       Object.keys(state).forEach(function(tableId) {
         state[tableId].hideUnused = hideToggle.checked;
         state[tableId].page = 0;
-        const table = document.getElementById(tableId);
-        ensureRowsLoaded(table).then(function() { applyVisibility(tableId); });
+        refresh(document.getElementById(tableId));
       });
     });
   }

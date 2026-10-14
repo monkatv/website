@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% import "macros/trend.html" as macros %}
 {% import "macros/schema.html" as schema %}
+{% import "macros/emotes.html" as emote_macros %}
 
 {% block title %}{{ section.title }} — {{ config.title }}{% endblock %}
 {% block description %}{% set s = load_data(path="static/api/" ~ section.extra.streamer_login ~ "/summary.json") %}{% set n = s.display_name | default(value=section.extra.streamer_login) %}{{ n }} Twitch chat statistics{% if s.total_weeks and s.total_weeks > 0 %} — {{ s.total_weeks }} weeks of data tracked since {{ s.all_time.first_date | date(format="%B %Y") }}{% endif %}: top emotes, chatters, copypastas, and per-VOD breakdowns.{% endblock %}
@@ -206,8 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <h3>Top Emotes</h3>
     <div class="emote-preview">
       {% for emote in summary.all_time.top_emotes | slice(end=20) %}
-        {% set_global top_img = "" %}
-        {% for provider in providers %}{% set cdn = img_cdns[loop.index0] %}{% for e in latest.emotes[provider] %}{% if e.id and e.name == emote.name %}{% set_global top_img = cdn | replace(from='{id}', to=e.id) %}{% endif %}{% endfor %}{% endfor %}
+        {% set top_img = emote_macros::emote_url(name=emote.name, providers=providers, img_cdns=img_cdns, emotes=latest.emotes) %}
         <span class="emote-preview-item"{% if loop.index0 >= 5 %} data-tier="{% if loop.index0 < 10 %}10{% else %}20{% endif %}" hidden{% endif %}>
           {% if top_img %}<img src="{{ top_img | safe }}" alt="{{ emote.name }}" loading="lazy">{% endif %}
           {{ emote.name }}

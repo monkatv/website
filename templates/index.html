@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "macros/schema.html" as schema %}
+{% import "macros/emotes.html" as emote_macros %}
 
 {% block description %}{{ section.description | default(value="Weekly Twitch chat statistics and emote usage tracking") }}{% endblock %}
 {% block og_description %}{{ section.description | default(value="Weekly Twitch chat statistics and emote usage tracking") }}{% endblock %}
@@ -26,19 +27,8 @@
   {% set latest = load_data(path="static/api/" ~ s.login ~ "/latest.json") %}
   {{ schema::check_week(data=latest) }}
 
-  {# Build emote URL for top emote #}
   {% set last_week = summary.weeks | last %}
-  {% set_global top_emote_url = "" %}
-  {% if last_week.top_emote %}
-    {% for provider in providers %}
-      {% set cur_cdn = img_cdns[loop.index0] %}
-      {% for emote in latest.emotes[provider] %}
-        {% if emote.name == last_week.top_emote and top_emote_url == "" and emote.id %}
-          {% set_global top_emote_url = cur_cdn | replace(from='{id}', to=emote.id) %}
-        {% endif %}
-      {% endfor %}
-    {% endfor %}
-  {% endif %}
+  {% set top_emote_url = emote_macros::emote_url(name=last_week.top_emote | default(value=""), providers=providers, img_cdns=img_cdns, emotes=latest.emotes) %}
 
   <a class="streamer-card-link" href="/{{ s.login | safe }}/">
     <div class="streamer-card-body">

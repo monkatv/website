@@ -260,6 +260,7 @@ h3 { font-size: 1.15rem; }
   h2 { font-size: 1.2rem; }
   .toggle-text { display: none; }
   .streamer-card { gap: .75rem; }
+  .follower-count { white-space: normal; text-align: center; }
   .streamer-avatar { width: 40px; height: 40px; }
   .streamer-card-body { flex-direction: column; align-items: stretch; }
   .streamer-card-body .sparkline { width: auto; min-width: 0; height: auto; overflow: hidden; }
